@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname, '../../'),
   transpilePackages: ['@feira/ui', '@feira/api-client', '@feira/logger'],
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',

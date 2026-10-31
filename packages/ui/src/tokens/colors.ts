@@ -1,17 +1,26 @@
 /**
- * Figma Design Tokens: Color Palette
- * Source of truth for brand colors, neutrals, and contextual status tokens.
+ * Figma Design Tokens: Official Color Palette
+ * Source of truth from official Figma file (JlRZIGImV7rRROPZndv6NT) and Institutional Chart.
+ * Official Brand Red: #F42524
+ * Semantic UI Primary Red: #B91C1C
+ * Neutral Black: #000000
  */
 export const figmaTokens = {
   colors: {
     brand: {
+      red: '#F42524',
+      black: '#000000',
       primary: {
-        50: '#eff6ff',
-        100: '#dbeafe',
-        500: '#2563eb',
-        600: '#1d4ed8',
-        700: '#1e40af',
-        900: '#1e3a8a',
+        50: '#fef2f2',
+        100: '#fee2e2',
+        200: '#fecaca',
+        300: '#fca5a5',
+        400: '#f87171',
+        500: '#F42524', // Official source brand red
+        600: '#dc2626',
+        700: '#B91C1C', // Figma semantic UI primary
+        800: '#991b1b',
+        900: '#7f1d1d',
       },
       accent: {
         50: '#fffbeb',

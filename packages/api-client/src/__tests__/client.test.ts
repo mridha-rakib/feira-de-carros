@@ -21,11 +21,18 @@ describe('ApiClient', () => {
     );
   });
 
-  it('throws typed ApiError on HTTP failures', async () => {
+  it('throws typed ApiError on HTTP failures with OpenAPI code and request_id', async () => {
+    const errorPayload = {
+      code: 'ACCESS_DENIED',
+      message: 'Acesso negado: permissão necessária',
+      request_id: 'req-err-403',
+      details: [{ field: 'role', reason: 'Requer perfil main_admin' }],
+    };
+
     global.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 403,
-      json: async () => ({ message: 'Acesso negado: permissão necessária' }),
+      json: async () => errorPayload,
     } as Response);
 
     const onForbiddenSpy = vi.fn();
@@ -34,7 +41,20 @@ describe('ApiClient', () => {
       onForbidden: onForbiddenSpy,
     });
 
-    await expect(client.get('/admin/moderation')).rejects.toThrow(ApiError);
+    try {
+      await client.get('/v1/admin/dashboard');
+      expect.fail('Should have thrown ApiError');
+    } catch (err) {
+      expect(err).toBeInstanceOf(ApiError);
+      const apiErr = err as ApiError;
+      expect(apiErr.statusCode).toBe(403);
+      expect(apiErr.isForbidden).toBe(true);
+      expect(apiErr.code).toBe('ACCESS_DENIED');
+      expect(apiErr.requestId).toBe('req-err-403');
+      expect(apiErr.fieldErrors).toHaveLength(1);
+      expect(apiErr.fieldErrors?.[0]?.field).toBe('role');
+    }
+
     expect(onForbiddenSpy).toHaveBeenCalledTimes(1);
   });
 

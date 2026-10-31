@@ -3,7 +3,7 @@ import { redactSensitiveData } from '../formatters';
 import { Logger } from '../index';
 
 describe('Logger', () => {
-  it('redacts sensitive fields like passwords and tokens', () => {
+  it('redacts sensitive fields like passwords, tokens, and authorization', () => {
     const raw = {
       username: 'alice',
       password: 'SuperSecretPassword123!',
@@ -22,13 +22,28 @@ describe('Logger', () => {
     expect((redacted.nested as Record<string, unknown>).publicData).toBe(42);
   });
 
-  it('logs at permitted level', () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const log = new Logger('test-ns', 'error');
+  it('measures elapsed request duration cleanly', () => {
+    const log = new Logger('http-test', 'debug');
+    const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
 
-    log.error('Something broke', { errorId: 101 });
-    expect(consoleSpy).toHaveBeenCalledTimes(1);
+    log.time('req-1');
+    log.timeEnd('req-1', 'API response received');
 
-    consoleSpy.mockRestore();
+    expect(infoSpy).toHaveBeenCalledTimes(1);
+    expect(infoSpy.mock.calls[0]?.[0]).toContain('API response received');
+
+    infoSpy.mockRestore();
+  });
+
+  it('logs formatted HTTP requests with status code and duration', () => {
+    const log = new Logger('http-test', 'debug');
+    const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+
+    log.logRequest('GET', '/v1/admin/dashboard', 45, 200);
+
+    expect(infoSpy).toHaveBeenCalledTimes(1);
+    expect(infoSpy.mock.calls[0]?.[0]).toContain('HTTP GET /v1/admin/dashboard -> 200 [45ms]');
+
+    infoSpy.mockRestore();
   });
 });

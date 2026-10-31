@@ -1,0 +1,261 @@
+{
+  "artifact": "Feira de Carros UI/UX Step9 Document Handoff",
+  "version": "0.1",
+  "date": "2026-10-22",
+  "status": "REVIEW_READY_CONDITIONAL_HANDOFF",
+  "functional_baseline": "SRS v0.3 + §9 decisions",
+  "authoritative_decision_note": "SRS CL identifiers prevail over backend v0.2 misaligned postbaseline CSV",
+  "source_files": [
+    {
+      "step": 1,
+      "name": "Feira_de_Carros_UIUX_Step1_Screen_Inventory_Traceability_v0.1.docx",
+      "size": 60239,
+      "sha256": "eb43de14a301cf920f374bcc0025cdae9b811fd010eb944b610be15bf8d55eab"
+    },
+    {
+      "step": 1,
+      "name": "Feira_de_Carros_UIUX_Step1_Screen_Inventory_Traceability_v0.1.xlsx",
+      "size": 73224,
+      "sha256": "b8fd3301b8349a4783286205819cc38aae7a26a31e51263e5c3f44d862017e24"
+    },
+    {
+      "step": 2,
+      "name": "Feira_de_Carros_UIUX_Step2_Documentation_Package_v0.1.zip",
+      "size": 150569,
+      "sha256": "cd1126713e0d07e9fcacc14803b31ed37bf1d06e81eb9e2c6aab2c5114a6dd3c"
+    },
+    {
+      "step": 2,
+      "name": "Feira_de_Carros_UIUX_Step2_IA_Role_Navigation_Matrix_v0.1.xlsx",
+      "size": 80612,
+      "sha256": "fa055ff0640f39de903681ed73c2fcd6d5ae5a5719847b1cc435b5333feef774"
+    },
+    {
+      "step": 2,
+      "name": "Feira_de_Carros_UIUX_Step2_Information_Architecture_Navigation_v0.1.docx",
+      "size": 48009,
+      "sha256": "8aa44c32f8c4bdf6d0e83ea05aa99dadc321ecfc630768131338adb4d5b73a2d"
+    },
+    {
+      "step": 2,
+      "name": "Feira_de_Carros_UIUX_Step2_Visual_Sitemaps_Navigation_Diagrams_v0.1.pdf",
+      "size": 38575,
+      "sha256": "df9983fdff9a5e736c473a6c39e751fe24db54f06208c74ef551fcf1cdee91f9"
+    },
+    {
+      "step": 3,
+      "name": "Feira_de_Carros_UIUX_Step3_Complete_User_Flows_v0.1.docx",
+      "size": 66857,
+      "sha256": "1ccb990522a50d87d346bafc2653d7aa178ac6450c6bf68388654fccfa13d846"
+    },
+    {
+      "step": 3,
+      "name": "Feira_de_Carros_UIUX_Step3_Consistency_Audit_v0.1.txt",
+      "size": 2841,
+      "sha256": "d727dd698256f9a9dcd80fd600f39ee14e8fac76e28928e8f84c478acbd822af"
+    },
+    {
+      "step": 3,
+      "name": "Feira_de_Carros_UIUX_Step3_Documentation_Package_v0.1.zip",
+      "size": 876320,
+      "sha256": "0a99d28184016e6772e2557969d5025f6b7180e9c6197fd9b570b3ef0607b019"
+    },
+    {
+      "step": 3,
+      "name": "Feira_de_Carros_UIUX_Step3_Interaction_Flow_Diagrams_v0.1.pdf",
+      "size": 1033912,
+      "sha256": "ecbac27a23f6e7114ca244ac2ceeddef3de4e0938197b1272edd0681c0829d27"
+    },
+    {
+      "step": 3,
+      "name": "Feira_de_Carros_UIUX_Step3_User_Flows_Traceability_v0.1.xlsx",
+      "size": 104295,
+      "sha256": "ea2950313b8b4b7b30a81a98e282bffb62afcbf6c1cefaa2c1378221d219e898"
+    },
+    {
+      "step": 4,
+      "name": "Feira_de_Carros_UIUX_Step4_Complete_Screen_Functional_Specifications_v0.1.docx",
+      "size": 104632,
+      "sha256": "a4928aa3f34beeecbff9ea339d182ef89ac94efd36521334e12b0f18fc5bf279"
+    },
+    {
+      "step": 4,
+      "name": "Feira_de_Carros_UIUX_Step4_Documentary_QA_and_Design_Holds_v0.1.txt",
+      "size": 6039,
+      "sha256": "8851bef32f813784bba264fdec9f51f35a0750cdc5273997e7967e3fad165781"
+    },
+    {
+      "step": 4,
+      "name": "Feira_de_Carros_UIUX_Step4_Documentation_Package_v0.1.zip",
+      "size": 353723,
+      "sha256": "c58d75eafbfa1e053ef3d1d8ccf7f8fee75ef26acf130a79fe03ca389cc2a283"
+    },
+    {
+      "step": 4,
+      "name": "Feira_de_Carros_UIUX_Step4_Screen_Functional_Matrix_v0.1.xlsx",
+      "size": 253955,
+      "sha256": "89c69d20577e4712296c916f78b816ceea2222d1844164f59c5965083391c202"
+    },
+    {
+      "step": 5,
+      "name": "Feira_de_Carros_UIUX_Step5_Complete_Forms_Validation_States_Error_Handling_v0.1.docx",
+      "size": 63720,
+      "sha256": "890db8714c869ef85f0ff8299d70a44c3bc1bd8fa554e38267d7ba401ca3d729"
+    },
+    {
+      "step": 5,
+      "name": "Feira_de_Carros_UIUX_Step5_Documentary_QA_and_Design_Holds_v0.1.txt",
+      "size": 4851,
+      "sha256": "e8bfc3dc828db471d822a3d963abee274acb7a4233f7f18ae271b2ea1b111101"
+    },
+    {
+      "step": 5,
+      "name": "Feira_de_Carros_UIUX_Step5_Documentation_Package_v0.1.zip",
+      "size": 172322,
+      "sha256": "7062e6be94c67401960be9c4101300ab9d1e51ad698442a0f75ab60809b00fa2"
+    },
+    {
+      "step": 5,
+      "name": "Feira_de_Carros_UIUX_Step5_Forms_Validation_States_Matrix_v0.1.xlsx",
+      "size": 108728,
+      "sha256": "490979a08ddba45f3a191f7f2979a53051ba16009e11d828dc92feff25faa4f3"
+    },
+    {
+      "step": 5,
+      "name": "Feira_de_Carros_UIUX_Step5_shadcn_RHF_Implementation_Guidance_v0.1.md",
+      "size": 8297,
+      "sha256": "72eb5426725e97a9a05087a6864262569b02d8e43d85a1c76f50d8aa313a5690"
+    },
+    {
+      "step": 6,
+      "name": "Feira_de_Carros_UIUX_Step6_Complete_Documentation_Package_v0.1.zip",
+      "size": 335660,
+      "sha256": "178fdf0b89f8e3690ec27c87c0d69fb3b3cd73c100556b2f24dbd642fab94502"
+    },
+    {
+      "step": 6,
+      "name": "Feira_de_Carros_UIUX_Step6_Design_System_Branding_Guidelines_v0.1.docx",
+      "size": 102518,
+      "sha256": "f25515f2f43a8f91ecddfc1bedc6a811ade89993031b4239f782a6ccd31566fd"
+    },
+    {
+      "step": 6,
+      "name": "Feira_de_Carros_UIUX_Step6_Design_System_Branding_Guidelines_v0.1.pdf",
+      "size": 437082,
+      "sha256": "2bef14eff99af951cd5f81337e23892134a513d039d9fd333a6382a6be68a49e"
+    },
+    {
+      "step": 6,
+      "name": "Feira_de_Carros_UIUX_Step6_Design_Tokens_Components_Traceability_v0.1.xlsx",
+      "size": 68153,
+      "sha256": "0edf48e64ca74749af67cfd05c0eed852d27318018f95bdca9c44213280d6ba1"
+    },
+    {
+      "step": 6,
+      "name": "Feira_de_Carros_UIUX_Step6_Design_Tokens_PROPOSED_v0.1.json",
+      "size": 4689,
+      "sha256": "74fd25ef5595a6d534affdf89ebca4cad502fe9520cadae32aaf77d6661168ec"
+    },
+    {
+      "step": 6,
+      "name": "Feira_de_Carros_UIUX_Step6_Documentary_Audit_Design_Holds_v0.1.txt",
+      "size": 5656,
+      "sha256": "852256afaa9bda673fbd6afc63686e86db065f0ecf0373bf619160465db1cb1a"
+    },
+    {
+      "step": 6,
+      "name": "Feira_de_Carros_UIUX_Step6_Implementation_and_Handoff_Guidance_v0.1.md",
+      "size": 5981,
+      "sha256": "b705c5b093cf3c1b7a268e97a07f4f51e38d534ff3ebc9d9a7fb7a51e4c60f69"
+    },
+    {
+      "step": 6,
+      "name": "Feira_de_Carros_UIUX_Step6_shadcn_Theme_PROPOSED_v0.1.css",
+      "size": 2741,
+      "sha256": "029d1baba7d2cb6ae2e6e2e7d2658f95a6d24e9cbf7733c9cbd62ec7ace39b51"
+    },
+    {
+      "step": 7,
+      "name": "Feira_de_Carros_UIUX_Step7_Complete_Documentation_Package_v0.1.zip",
+      "size": 385110,
+      "sha256": "e55de438c278292cdeffc1ce452831dcf81246c7d5a59eb9217b6d86e311e033"
+    },
+    {
+      "step": 7,
+      "name": "Feira_de_Carros_UIUX_Step7_Documentary_QA_and_Design_Holds_v0.1.txt",
+      "size": 4315,
+      "sha256": "feaa4b78a11f4b7eaa32787f1620830b2e7e0b00a215d85a9810cf300f04053b"
+    },
+    {
+      "step": 7,
+      "name": "Feira_de_Carros_UIUX_Step7_Responsive_Design_Specifications_v0.1.docx",
+      "size": 61750,
+      "sha256": "63ea3e14dd6f57ff346a9b09021388264ba2487c94f786e33facaa77778f1644"
+    },
+    {
+      "step": 7,
+      "name": "Feira_de_Carros_UIUX_Step7_Responsive_Design_Specifications_v0.1.pdf",
+      "size": 613427,
+      "sha256": "2d64618e2b0d383095770233eb69f74d7258a6c255fc898e4a1a93ad246104cb"
+    },
+    {
+      "step": 7,
+      "name": "Feira_de_Carros_UIUX_Step7_Responsive_Design_Traceability_Matrix_v0.1.xlsx",
+      "size": 151537,
+      "sha256": "06125484cc27bc0949b799aa0a52e0987f9988f51e0e000dea2580da92c6137d"
+    },
+    {
+      "step": 7,
+      "name": "Feira_de_Carros_UIUX_Step7_Responsive_Implementation_Handoff_PROPOSED_v0.1.md",
+      "size": 5242,
+      "sha256": "b74fadae0ebf92e4f4a7e273caca366cfb691bf9582daf7e594ad69f9c5b6866"
+    },
+    {
+      "step": 8,
+      "name": "Feira_de_Carros_UIUX_Step8_Complete_Documentation_Package_v0.1.zip",
+      "size": 512461,
+      "sha256": "65a76f7548c38b3511d158a0f1127523d2650ba73cef178251775b1dfba793b9"
+    },
+    {
+      "step": 8,
+      "name": "Feira_de_Carros_UIUX_Step8_Documentary_QA_Design_Holds_v0.1.txt",
+      "size": 2813,
+      "sha256": "732c89a63ffa845230f756322f82ea0b1df2e13d212cbd1e1b4273f53ed96fd8"
+    },
+    {
+      "step": 8,
+      "name": "Feira_de_Carros_UIUX_Step8_Figma_Component_Prototype_Requirements_v0.1.docx",
+      "size": 101828,
+      "sha256": "1750073ee30849c2105ddfd7e3e907c5160c31ead129a9e45c3de1c02e659588"
+    },
+    {
+      "step": 8,
+      "name": "Feira_de_Carros_UIUX_Step8_Figma_Component_Prototype_Requirements_v0.1.pdf",
+      "size": 470788,
+      "sha256": "201850a6f644efd7d231debe26f27fb92757702626f404bf05952b3365139e52"
+    },
+    {
+      "step": 8,
+      "name": "Feira_de_Carros_UIUX_Step8_Figma_Components_Prototype_Traceability_v0.1.xlsx",
+      "size": 220853,
+      "sha256": "4be292f2aa19971ee9042f6446ebf4ba65e07b679fd17e56fc4ae6b2941b718b"
+    },
+    {
+      "step": 8,
+      "name": "Feira_de_Carros_UIUX_Step8_Figma_Implementation_Handoff_PROPOSED_v0.1.md",
+      "size": 4902,
+      "sha256": "b8045b3bd620eb3c713078d14556f6777470bc84f1943b32b0eefec500a8ad6c"
+    }
+  ],
+  "qa": {
+    "check_count": 64,
+    "passed": 64,
+    "scope": "static_documentary"
+  },
+  "gates": {
+    "business": 24,
+    "brand": 10,
+    "findings": 16
+  },
+  "figma_document_created": false
+}

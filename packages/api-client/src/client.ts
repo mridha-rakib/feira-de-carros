@@ -1,4 +1,13 @@
+import { createLogger } from '@feira/logger';
+import type { ApiErrorDetail, ApiErrorResponse } from './types/auth';
+
+const logger = createLogger('api-client');
+
 export class ApiError extends Error {
+  public readonly code?: string;
+  public readonly requestId?: string;
+  public readonly fieldErrors?: ApiErrorDetail[];
+
   constructor(
     public readonly statusCode: number,
     message: string,
@@ -6,6 +15,13 @@ export class ApiError extends Error {
   ) {
     super(message);
     this.name = 'ApiError';
+
+    if (typeof details === 'object' && details !== null) {
+      const err = details as Partial<ApiErrorResponse>;
+      this.code = err.code;
+      this.requestId = err.request_id;
+      this.fieldErrors = err.details;
+    }
   }
 
   get isUnauthorized(): boolean {
@@ -36,6 +52,7 @@ export class ApiClient {
       ? path
       : `${this.config.baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
 
+    const method = options.method || 'GET';
     const headers = new Headers(options.headers);
     if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
       headers.set('Content-Type', 'application/json');
@@ -48,38 +65,51 @@ export class ApiClient {
       }
     }
 
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    });
+    const startTime = Date.now();
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers,
+      });
 
-    if (!response.ok) {
-      let errorBody: unknown;
-      try {
-        errorBody = await response.json();
-      } catch {
-        errorBody = await response.text();
+      const durationMs = Date.now() - startTime;
+      logger.logRequest(method, url, durationMs, response.status);
+
+      if (!response.ok) {
+        let errorBody: unknown;
+        try {
+          errorBody = await response.json();
+        } catch {
+          errorBody = await response.text();
+        }
+
+        if (response.status === 401 && this.config.onUnauthorized) {
+          this.config.onUnauthorized();
+        } else if (response.status === 403 && this.config.onForbidden) {
+          this.config.onForbidden();
+        }
+
+        const errorMessage =
+          (typeof errorBody === 'object' && errorBody !== null && 'message' in errorBody
+            ? String((errorBody as { message: unknown }).message)
+            : null) || `Request failed with status ${response.status}`;
+
+        throw new ApiError(response.status, errorMessage, errorBody);
       }
 
-      if (response.status === 401 && this.config.onUnauthorized) {
-        this.config.onUnauthorized();
-      } else if (response.status === 403 && this.config.onForbidden) {
-        this.config.onForbidden();
+      if (response.status === 204) {
+        return undefined as T;
       }
 
-      const errorMessage =
-        (typeof errorBody === 'object' && errorBody !== null && 'message' in errorBody
-          ? String((errorBody as { message: unknown }).message)
-          : null) || `Request failed with status ${response.status}`;
-
-      throw new ApiError(response.status, errorMessage, errorBody);
+      return response.json();
+    } catch (err) {
+      const durationMs = Date.now() - startTime;
+      if (err instanceof ApiError) {
+        throw err;
+      }
+      logger.error(`Network error on ${method} ${url} [${durationMs}ms]`, {}, err);
+      throw new ApiError(0, err instanceof Error ? err.message : 'Network request failed');
     }
-
-    if (response.status === 204) {
-      return undefined as T;
-    }
-
-    return response.json();
   }
 
   get<T>(path: string, options?: RequestInit): Promise<T> {

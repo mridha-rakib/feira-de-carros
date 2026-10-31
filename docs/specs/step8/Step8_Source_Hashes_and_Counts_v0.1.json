@@ -1,0 +1,34 @@
+{
+  "title": "Feira de Carros UI/UX Step8 Figma Component Inventory & Prototype Requirements v0.1",
+  "state": "REVIEW READY, NOT APPROVED OR IMPLEMENTED",
+  "date": "2026-10-22",
+  "source_hashes": {
+    "Feira_de_Carros_UIUX_Step1_Screen_Inventory_Traceability_v0.1.xlsx": "b8fd3301b8349a4783286205819cc38aae7a26a31e51263e5c3f44d862017e24",
+    "Feira_de_Carros_UIUX_Step2_IA_Role_Navigation_Matrix_v0.1.xlsx": "fa055ff0640f39de903681ed73c2fcd6d5ae5a5719847b1cc435b5333feef774",
+    "Feira_de_Carros_UIUX_Step3_User_Flows_Traceability_v0.1.xlsx": "ea2950313b8b4b7b30a81a98e282bffb62afcbf6c1cefaa2c1378221d219e898",
+    "Feira_de_Carros_UIUX_Step4_Screen_Functional_Matrix_v0.1.xlsx": "89c69d20577e4712296c916f78b816ceea2222d1844164f59c5965083391c202",
+    "Feira_de_Carros_UIUX_Step5_Forms_Validation_States_Matrix_v0.1.xlsx": "490979a08ddba45f3a191f7f2979a53051ba16009e11d828dc92feff25faa4f3",
+    "Feira_de_Carros_UIUX_Step6_Design_Tokens_Components_Traceability_v0.1.xlsx": "0edf48e64ca74749af67cfd05c0eed852d27318018f95bdca9c44213280d6ba1",
+    "Feira_de_Carros_UIUX_Step7_Responsive_Design_Traceability_Matrix_v0.1.xlsx": "06125484cc27bc0949b799aa0a52e0987f9988f51e0e000dea2580da92c6137d"
+  },
+  "counts": {
+    "source_screens": 189,
+    "component_patterns": 50,
+    "variant_candidates": 190,
+    "screen_component_links": 1022,
+    "responsive_context_refs": 430,
+    "flow_families": 43,
+    "interaction_steps": 242,
+    "role_access_dispositions": 1323,
+    "srs_requirements": 207,
+    "ui_states": 28,
+    "errors": 25,
+    "inherited_holds": 24,
+    "brand_holds": 10,
+    "exclusions": 15,
+    "doc_qa_checks": 35
+  },
+  "canonical_SRS": "Feira_de_Carros_SRS_Client_Review_Draft_v0.3.docx",
+  "backend": "Proposed backend v0.2; 12 staff DENY_PENDING; no forced approval of provider/store/legal gates",
+  "figma_file": "NOT CREATED"
+}

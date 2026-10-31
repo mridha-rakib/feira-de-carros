@@ -1,0 +1,46 @@
+FEIRA DE CARROS — STEP 8 / DOCUMENTARY AUDIT v0.1
+22 October 2026
+State: REVIEW READY — not client sign-off, Figma source, functionality, or legal/store approval
+
+QA-01 | PASS | Step4 screen base exactly 189 | 189
+QA-02 | PASS | Screen IDs unique | 189
+QA-03 | PASS | Step6 component base exactly 50 | 50
+QA-04 | PASS | Component IDs unique | 50
+QA-05 | PASS | Step7 context base exactly 430 | 430
+QA-06 | PASS | All contexts map to a known screen | 430 validated
+QA-07 | PASS | All 189 screens have contexts | 189 validated
+QA-08 | PASS | All 189 screens have Step6 component crosswalk | 189 validated
+QA-09 | PASS | All crosswalk component IDs exist | 1022 references
+QA-10 | PASS | All 189 frames have SRS IDs | 189 refs
+QA-11 | PASS | Referenced screen SRS IDs exist | SRS anchors validated
+QA-12 | PASS | Component SRS IDs exist | 50 component refs
+QA-13 | PASS | 43 source flow families retained | 43
+QA-14 | PASS | 242 source steps retained | 242
+QA-15 | PASS | All interaction step flow refs valid | 242
+QA-16 | PASS | All step screen refs valid | 242
+QA-17 | PASS | Role permissions inherited | 1323
+QA-18 | PASS | 207 SRS dispositions retained | 207
+QA-19 | PASS | 28 UI states retained | 28
+QA-20 | PASS | 25 error categories retained | 25
+QA-21 | PASS | 24 source business holds retained | 24
+QA-22 | PASS | 10 branding holds retained | 10
+QA-23 | PASS | 15 exclusions and conditionals retained | 15
+QA-24 | PASS | Native checkout screens annotated policy holds | IOS-023 AND-023
+QA-25 | PASS | Cash frame desktop only | ADM-D-026
+QA-26 | PASS | Blocked flows not coded clickable checkout | 2 blocked flows
+QA-27 | PASS | All component variants scoped to source | 190
+QA-28 | PASS | Official colors not reassigned | Red #F42524; black #000000
+QA-29 | PASS | Proposal-only Figma naming | labels explicit
+QA-30 | PASS | No new feature screens | one-to-one frame candidate mapping
+QA-31 | PASS | All 5 surfaces represented | Counter({'Admin desktop': 53, 'Website': 52, 'iOS': 38, 'Android': 38, 'Admin mobile web': 8})
+QA-32 | PASS | 24 source responsive patterns preserved | 24 retained; not every pattern is required in source screen assignments
+QA-33 | PASS | All 43 flows have storyboard entry | 43
+QA-34 | PASS | No official font file shipped | Only description/reviewed references; no typeface binary
+QA-35 | PASS | Terms only proposed if unsanctioned | no actual .fig
+
+OUTSTANDING
+24 business holds + 10 brand holds, 15 exclusions/conditionals retained. No arbitrary screen/feature additions.
+SRS CL hierarchy authoritative; backend postbaseline CSV has prior CL meaning mismatch.
+12 staff operations DENY_PENDING. UF-39/40 native checkout BLOCKED. Cash desktop-only Main Admin.
+
+SEE full matrices in workbook; static checks do NOT prove external provider/store/legal/final Figma acceptance.

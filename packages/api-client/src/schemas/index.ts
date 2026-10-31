@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+export const LoginSchema = z.object({
+  email: z.string().email('E-mail institucional inválido'),
+  password: z.string().min(1, 'A senha é obrigatória'),
+});
+
 export const VehicleFiltersSchema = z.object({
   make: z.string().optional(),
   model: z.string().optional(),
@@ -38,12 +43,4 @@ export const CreateVehicleSchema = z.object({
   state: z.string().length(2),
   description: z.string().min(10, 'Descrição mínima de 10 caracteres'),
   images: z.array(z.string().url()).min(1, 'Ao menos uma foto é necessária'),
-});
-
-export const CreateLeadSchema = z.object({
-  vehicleId: z.string().uuid(),
-  buyerName: z.string().min(3, 'Nome completo é necessário'),
-  buyerEmail: z.string().email('E-mail inválido'),
-  buyerPhone: z.string().min(10, 'Telefone inválido'),
-  message: z.string().max(500).optional(),
 });

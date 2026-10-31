@@ -7,11 +7,13 @@ export interface LogEntry {
   level: LogLevel;
   namespace: string;
   message: string;
+  durationMs?: number;
   context?: Record<string, unknown>;
   error?: {
     name: string;
     message: string;
     stack?: string;
+    code?: string | number;
   };
 }
 
@@ -33,6 +35,8 @@ function getActiveLogLevel(): LogLevel {
 }
 
 export class Logger {
+  private timers: Map<string, number> = new Map();
+
   constructor(
     private readonly namespace: string,
     private minLevel: LogLevel = getActiveLogLevel(),
@@ -47,6 +51,7 @@ export class Logger {
     message: string,
     context?: Record<string, unknown>,
     err?: unknown,
+    durationMs?: number,
   ) {
     if (!this.shouldLog(level)) return;
 
@@ -57,6 +62,10 @@ export class Logger {
       message,
     };
 
+    if (durationMs !== undefined) {
+      entry.durationMs = durationMs;
+    }
+
     if (context) {
       entry.context = redactSensitiveData(context) as Record<string, unknown>;
     }
@@ -66,6 +75,7 @@ export class Logger {
         name: err.name,
         message: err.message,
         stack: err.stack,
+        code: (err as { code?: string | number }).code,
       };
     } else if (err) {
       entry.error = {
@@ -74,7 +84,8 @@ export class Logger {
       };
     }
 
-    const formatted = `[${entry.timestamp}] [${entry.level.toUpperCase()}] [${entry.namespace}] ${entry.message}`;
+    const durationTag = entry.durationMs !== undefined ? ` [${entry.durationMs}ms]` : '';
+    const formatted = `[${entry.timestamp}] [${entry.level.toUpperCase()}] [${entry.namespace}] ${entry.message}${durationTag}`;
 
     switch (level) {
       case 'debug':
@@ -92,12 +103,44 @@ export class Logger {
     }
   }
 
+  time(label: string) {
+    this.timers.set(label, Date.now());
+  }
+
+  timeEnd(label: string, message?: string, context?: Record<string, unknown>) {
+    const start = this.timers.get(label);
+    if (start === undefined) {
+      this.warn(`Timer "${label}" does not exist`);
+      return;
+    }
+    this.timers.delete(label);
+    const durationMs = Date.now() - start;
+    this.info(message || `${label} completed in ${durationMs}ms`, context, durationMs);
+  }
+
+  logRequest(
+    method: string,
+    url: string,
+    durationMs: number,
+    statusCode: number,
+    context?: Record<string, unknown>,
+  ) {
+    const level: LogLevel = statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'info';
+    this.write(
+      level,
+      `HTTP ${method.toUpperCase()} ${url} -> ${statusCode}`,
+      context,
+      undefined,
+      durationMs,
+    );
+  }
+
   debug(message: string, context?: Record<string, unknown>) {
     this.write('debug', message, context);
   }
 
-  info(message: string, context?: Record<string, unknown>) {
-    this.write('info', message, context);
+  info(message: string, context?: Record<string, unknown>, durationMs?: number) {
+    this.write('info', message, context, undefined, durationMs);
   }
 
   warn(message: string, context?: Record<string, unknown>, err?: unknown) {
