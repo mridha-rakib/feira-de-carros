@@ -1,0 +1,41 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Next.js
+.next/
+out/
+
+# Production build artifacts
+dist/
+build/
+
+# Turborepo
+.turbo
+
+# Testing and coverage
+coverage/
+playwright-report/
+test-results/
+.nyc_output
+
+# Environment files
+.env*.local
+.env
+!.env.example
+
+# IDE & OS files
+.DS_Store
+*.pem
+Thumbs.db
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
