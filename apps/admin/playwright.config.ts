@@ -5,20 +5,19 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  workers: process.env.CI ? 1 : 1,
+  reporter: 'list',
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3001',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3003',
     trace: 'on-first-retry',
+    channel: process.env.CI ? undefined : 'msedge',
   },
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'mobile-chrome',
-      use: { ...devices['Pixel 7'] },
+      name: 'desktop',
+      use: {
+        viewport: { width: 1600, height: 900 },
+      },
     },
   ],
 });

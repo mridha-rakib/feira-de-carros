@@ -248,41 +248,43 @@ function AdminLoginForm() {
               </Button>
             </form>
 
-            {/* Quick Testing Simulation Shortcuts */}
-            <div className="mt-6 pt-5 border-t border-slate-800 text-center">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-2">
-                Simulações de Teste de QA
-              </span>
-              <div className="flex flex-wrap gap-1.5 justify-center">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fillCredentials('valid')}
-                  className="text-xs h-7 bg-slate-900 border-slate-700 text-slate-300 hover:text-white"
-                >
-                  Admin Válido
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fillCredentials('wrong')}
-                  className="text-xs h-7 bg-slate-900 border-slate-700 text-slate-300 hover:text-white"
-                >
-                  Senha Incorreta (401)
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fillCredentials('denied')}
-                  className="text-xs h-7 bg-slate-900 border-slate-700 text-slate-300 hover:text-white"
-                >
-                  Sem Permissão (403)
-                </Button>
+            {/* Quick Testing Simulation Shortcuts (Development only) */}
+            {process.env.NODE_ENV !== 'production' && (
+              <div className="mt-6 pt-5 border-t border-slate-800 text-center">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-2">
+                  Simulações de Teste de QA
+                </span>
+                <div className="flex flex-wrap gap-1.5 justify-center">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fillCredentials('valid')}
+                    className="text-xs h-7 bg-slate-900 border-slate-700 text-slate-300 hover:text-white"
+                  >
+                    Admin Válido
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fillCredentials('wrong')}
+                    className="text-xs h-7 bg-slate-900 border-slate-700 text-slate-300 hover:text-white"
+                  >
+                    Senha Incorreta (401)
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fillCredentials('denied')}
+                    className="text-xs h-7 bg-slate-900 border-slate-700 text-slate-300 hover:text-white"
+                  >
+                    Sem Permissão (403)
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
       </main>
