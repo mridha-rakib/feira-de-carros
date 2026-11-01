@@ -1,12 +1,15 @@
 import { expect, test } from '@playwright/test';
 
-test.describe('Admin Dashboard', () => {
-  test('renders KPI metrics and moderation queue', async ({ page, context }) => {
+test.describe('Admin Dashboard ADM-D-002 Parity', () => {
+  test('renders 4 summary cards, revenue chart, attention panel, and recent listings', async ({
+    page,
+    context,
+  }) => {
     // Inject mock admin session cookie
     await context.addCookies([
       {
         name: 'fdc_admin_session',
-        value: 'mock-valid-admin-session',
+        value: 'mock_admin_token_active',
         domain: 'localhost',
         path: '/',
       },
@@ -14,7 +17,16 @@ test.describe('Admin Dashboard', () => {
 
     await page.goto('/');
     await expect(page).toHaveTitle(/Painel de Controle/);
-    await expect(page.getByText('Fila de Moderação')).toBeVisible();
-    await expect(page.getByText('Fila Prioritária de Moderação')).toBeVisible();
+
+    // Summary cards
+    await expect(page.getByText('Total de Usuários')).toBeVisible();
+    await expect(page.locator('p').filter({ hasText: /^Anúncios Ativos$/ })).toBeVisible();
+    await expect(page.getByText('Receita Estimada (Mês)')).toBeVisible();
+    await expect(page.getByText('Pendentes de Moderação')).toBeVisible();
+
+    // Key sections
+    await expect(page.getByText('Evolução de Receita & Anúncios')).toBeVisible();
+    await expect(page.getByText('Requer Atenção')).toBeVisible();
+    await expect(page.getByText('Últimos Anúncios Cadastrados')).toBeVisible();
   });
 });
