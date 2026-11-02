@@ -1,4 +1,6 @@
-import { redactSensitiveData } from './formatters';
+import { redactSensitiveData, redactString, sanitizeUrl } from './formatters';
+
+export { redactSensitiveData, redactString, sanitizeUrl };
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -73,14 +75,14 @@ export class Logger {
     if (err instanceof Error) {
       entry.error = {
         name: err.name,
-        message: err.message,
-        stack: err.stack,
+        message: redactString(err.message),
+        stack: err.stack ? redactString(err.stack) : undefined,
         code: (err as { code?: string | number }).code,
       };
     } else if (err) {
       entry.error = {
         name: 'UnknownError',
-        message: String(err),
+        message: redactString(String(err)),
       };
     }
 
@@ -126,9 +128,10 @@ export class Logger {
     context?: Record<string, unknown>,
   ) {
     const level: LogLevel = statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'info';
+    const cleanUrl = sanitizeUrl(url);
     this.write(
       level,
-      `HTTP ${method.toUpperCase()} ${url} -> ${statusCode}`,
+      `HTTP ${method.toUpperCase()} ${cleanUrl} -> ${statusCode}`,
       context,
       undefined,
       durationMs,

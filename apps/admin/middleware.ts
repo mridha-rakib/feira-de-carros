@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { getSafeRedirectUrl } from './lib/security/redirect-validator';
 
 const PUBLIC_ADMIN_PATHS = ['/login', '/mfa', '/api/auth', '/brand'];
 
@@ -9,15 +10,24 @@ export function middleware(request: NextRequest) {
 
   if (!isPublic) {
     const adminSessionCookie = request.cookies.get('fdc_admin_session');
+    const isProduction = process.env.NEXT_PUBLIC_APP_ENV === 'production';
+
+    // In production, reject mock tokens unconditionally (Finding F-01)
+    if (isProduction && adminSessionCookie?.value?.startsWith('mock_')) {
+      const loginUrl = new URL('/login', request.url);
+      const safeRedirect = getSafeRedirectUrl(pathname);
+      loginUrl.searchParams.set('redirect', safeRedirect);
+      const response = NextResponse.redirect(loginUrl);
+      response.cookies.delete('fdc_admin_session');
+      return response;
+    }
 
     if (!adminSessionCookie?.value) {
       const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
+      const safeRedirect = getSafeRedirectUrl(pathname);
+      loginUrl.searchParams.set('redirect', safeRedirect);
       return NextResponse.redirect(loginUrl);
     }
-
-    // Role claims (SUPER_ADMIN, SALES_AGENT, SUPPORT_REP) can be inspected here for routing UX
-    // Backend API verifies cryptographic signatures and DB permissions authoritatively
   }
 
   return NextResponse.next();

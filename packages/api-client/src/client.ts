@@ -1,4 +1,4 @@
-import { createLogger } from '@feira/logger';
+import { createLogger, sanitizeUrl } from '@feira/logger';
 import type { ApiErrorDetail, ApiErrorResponse } from './types/auth';
 
 const logger = createLogger('api-client');
@@ -73,7 +73,7 @@ export class ApiClient {
       });
 
       const durationMs = Date.now() - startTime;
-      logger.logRequest(method, url, durationMs, response.status);
+      logger.logRequest(method, sanitizeUrl(url), durationMs, response.status);
 
       if (!response.ok) {
         let errorBody: unknown;

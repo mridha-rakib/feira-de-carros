@@ -3,51 +3,67 @@
  *
  * In compliance with AGENTS.md rule 4 and OpenAPI v0.2 contract:
  * Visual fields without approved backend endpoints must be explicitly tagged
- * as simulated presentation mocks (DEMO DATA) and never claimed as real financial statistics.
+ * as demonstration fixtures (DEMO DATA) and never claimed as real factual financial data.
  */
 
-export interface SimulatedRevenueMetrics {
-  monthlyEstimatedRevenue: number;
-  monthlyGrowthRate: number;
-  currency: 'BRL';
-  averageTicket: number;
-  conversionRate: number;
-  provenance: 'SIMULATED_MOCK_DATA';
+export interface DashboardSummaryMetrics {
+  activeListings: {
+    count: number;
+    formatted: string;
+    trend: string;
+  };
+  approvedSellers: {
+    count: number;
+    formatted: string;
+    trend: string;
+  };
+  pendingApprovals: {
+    count: number;
+    formatted: string;
+    trend: string;
+    sellersCount: number;
+    listingsCount: number;
+  };
+  confirmedRevenue: {
+    amount: number;
+    formatted: string;
+    trend: string;
+  };
+  provenance: 'DEMO DATA';
 }
 
-export type AttentionPriority = 'alta' | 'media' | 'baixa';
-export type AttentionCategory = 'concessionaria' | 'denuncia' | 'reembolso' | 'seguranca';
-
-export interface AttentionItem {
-  id: string;
-  title: string;
-  description: string;
-  category: AttentionCategory;
-  priority: AttentionPriority;
-  timestamp: string;
-  targetUrl: string;
-  actionLabel: string;
-  badgeLabel: string;
+export interface AttentionSummary {
+  sellerApplications: {
+    count: number;
+    label: string;
+    detail: string;
+  };
+  adsToReview: {
+    count: number;
+    label: string;
+    detail: string;
+  };
+  pendingPayments: {
+    count: number;
+    label: string;
+    detail: string;
+  };
 }
 
-export type ListingStatus = 'Ativo' | 'Pendente' | 'Em Análise';
-
-export interface RecentListingItem {
-  id: string;
-  title: string;
-  details: string; // e.g. "2024/2024 • Final 8 • Flex"
-  sellerName: string;
-  sellerType: 'Particular' | 'Concessionária';
-  price: number;
-  priceFormatted: string;
-  submittedAt: string;
-  status: ListingStatus;
-  category: string;
-}
-
-export interface ChartDataPoint {
+export interface RevenueChartPoint {
   month: string;
-  revenue: number;
-  revenueFormatted: string;
-  listings: number;
+  value: number;
+  label: string;
+}
+
+export type FigmaListingStatus = 'Ativo' | 'Em análise' | 'Pagamento pendente';
+
+export interface FigmaRecentListing {
+  id: string;
+  adCode: string;
+  vehicleTitle: string;
+  sellerName: string;
+  priceFormatted: string;
+  status: FigmaListingStatus;
+  location: string;
 }
