@@ -33,7 +33,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install Playwright Browsers & Linux OS Dependencies
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm --filter @feira/admin exec playwright install --with-deps chromium webkit
 
       - name: Build applications
         run: pnpm build
