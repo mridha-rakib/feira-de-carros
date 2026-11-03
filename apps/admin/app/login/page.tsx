@@ -307,11 +307,18 @@ function AdminLoginContent() {
             {/* Notice Card Under Button (Figma ADM-D-001 & ADM-M-013) */}
             <div className="mt-5 p-3.5 rounded-xl bg-amber-50/70 border border-amber-200/70 text-left">
               <p className="text-[10px] font-bold text-amber-800 uppercase tracking-wider mb-1">
-                Método de autenticação interna a confirmar
+                <span className="hidden lg:inline">Método de autenticação interna a confirmar</span>
+                <span className="lg:inline hidden"> • </span>
+                <span className="lg:hidden">Autenticação a confirmar</span>
               </p>
               <p className="text-[11px] text-amber-700 leading-relaxed">
-                E-mail/senha são um exemplo visual. Provedor, recuperação, MFA e regras de sessão
-                ainda dependem de definição técnica. O botão navega somente no protótipo.
+                <span className="hidden lg:inline">
+                  E-mail/senha são um exemplo visual. Provedor, recuperação, MFA e regras de sessão
+                  ainda dependem de definição técnica. O botão navega somente no protótipo.
+                </span>
+                <span className="lg:hidden">
+                  O método e as regras de sessão dependem da configuração aprovada.
+                </span>
               </p>
             </div>
           </div>
@@ -367,8 +374,11 @@ function AdminLoginContent() {
           {/* Footer Note */}
           <div className="text-center text-[11px] text-slate-400 pt-2 space-y-1">
             <p>
-              AMBIENTE DEMONSTRATIVO • Sem login real; autorização, erros e sucesso dependem do
-              backend.
+              <span className="hidden lg:inline">
+                AMBIENTE DEMONSTRATIVO • Sem login real; autorização, erros e sucesso dependem do
+                backend.
+              </span>
+              <span className="lg:hidden">AMBIENTE DEMONSTRATIVO • Nenhuma autenticação real.</span>
             </p>
             <p className="lg:hidden">FEIRA DE CARROS • ADMIN MOBILE WEB</p>
           </div>
