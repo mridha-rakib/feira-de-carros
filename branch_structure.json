@@ -1,0 +1,21 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "fix/admin-b1-audit-corrections",
+    "main",
+    "origin",
+    "security/recover-main"
+  ],
+  "parent": {
+    "fix/admin-b1-audit-corrections": "main",
+    "main": null,
+    "origin": "main",
+    "security/recover-main": "main"
+  },
+  "order": [
+    "main",
+    "fix/admin-b1-audit-corrections",
+    "origin",
+    "security/recover-main"
+  ]
+}

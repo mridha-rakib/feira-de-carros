@@ -228,27 +228,30 @@ test.describe('Admin B1 — Error States & Security Safeguards', () => {
   });
 
   test('empty scenario displays zero metrics', async ({ page }) => {
-    await page.goto('/?qa=1');
-    await page.getByRole('button', { name: 'Vazio (0 dados)' }).click();
+    await page.goto('/?scenario=empty');
 
     const desktop = page.getByTestId('desktop-dashboard');
     await expect(desktop.getByText('R$ 0')).toBeVisible();
   });
 
   test('500 server error displays retry button', async ({ page }) => {
-    await page.goto('/?qa=1');
-    await page.getByRole('button', { name: 'Erro (500)' }).click();
+    await page.goto('/?scenario=error_500');
 
     await expect(page.getByText('Falha ao Carregar Métricas (500)')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Tentar Novamente' })).toBeVisible();
   });
 
   test('403 forbidden state renders access denied screen', async ({ page }) => {
-    await page.goto('/?qa=1');
-    await page.getByRole('button', { name: 'Negado (403)' }).click();
+    await page.goto('/?scenario=forbidden_403');
 
     const alert = page.getByRole('alert');
     await expect(alert.getByText('Acesso Restrito ao Painel (403)')).toBeVisible();
     await expect(alert.getByRole('button', { name: 'Encerrar Sessão' })).toBeVisible();
+  });
+
+  test('qa testing harness is never rendered in dashboard ui', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByText(/QA Testing Harness/i)).not.toBeVisible();
+    await expect(page.getByRole('button', { name: 'Sucesso (Figma)' })).not.toBeVisible();
   });
 });
