@@ -1,7 +1,6 @@
 'use client';
 
 import { ApiError } from '@feira/api-client';
-import { RefreshCw } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import * as React from 'react';
 import {
@@ -12,11 +11,7 @@ import {
 } from '../lib/adapters/mock-presentation-data';
 import { useDashboardOverview } from '../lib/hooks/use-dashboard-overview';
 import { isProductionEnvironment } from '../lib/security/environment';
-import {
-  type MockScenario,
-  getSafeScenario,
-  isQAHarnessAllowed,
-} from '../lib/security/scenario-validator';
+import { type MockScenario, getSafeScenario } from '../lib/security/scenario-validator';
 import { AdminMobileOverview } from './components/AdminMobileOverview';
 import { AdminShell } from './components/AdminShell';
 import { DashboardErrorState } from './components/DashboardErrorState';
@@ -38,16 +33,12 @@ function AdminOverviewContent() {
     [requestedScenario, isProduction],
   );
 
-  const [activeScenario, setActiveScenario] = React.useState<MockScenario>(
-    safeScenario || 'success',
-  );
+  const activeScenario: MockScenario = safeScenario || 'success';
 
   // TanStack Query hook for server state retrieval & error handling (Finding F-02)
-  const { data, isLoading, error, refetch, isFetching } = useDashboardOverview(
+  const { data, isLoading, error, refetch } = useDashboardOverview(
     isProduction ? undefined : activeScenario,
   );
-
-  const showQAHarness = isQAHarnessAllowed(isProduction, searchParams.get('qa'));
 
   // Derive summary metrics from server data when available, while preserving approved Figma presentation
   const summaryMetrics = React.useMemo(() => {
@@ -149,76 +140,6 @@ function AdminOverviewContent() {
             <DashboardLoadingState />
           ) : (
             <div className="space-y-6">
-              {/* Development-Only QA Simulation Control Strip */}
-              {showQAHarness && (
-                <div className="p-3 bg-slate-900 border border-slate-800 rounded-xl text-white flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-amber-400 uppercase tracking-wider text-[10px]">
-                      QA Testing Harness (Dev only):
-                    </span>
-                    <span className="text-slate-400">Cenário ativo:</span>
-                    <span className="font-mono bg-slate-800 px-2 py-0.5 rounded text-amber-300">
-                      {activeScenario}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => setActiveScenario('success')}
-                      className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors ${
-                        activeScenario === 'success'
-                          ? 'bg-red-600 text-white'
-                          : 'bg-slate-800 text-slate-300 hover:text-white'
-                      }`}
-                    >
-                      Sucesso (Figma)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setActiveScenario('empty')}
-                      className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors ${
-                        activeScenario === 'empty'
-                          ? 'bg-red-600 text-white'
-                          : 'bg-slate-800 text-slate-300 hover:text-white'
-                      }`}
-                    >
-                      Vazio (0 dados)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setActiveScenario('error_500')}
-                      className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors ${
-                        activeScenario === 'error_500'
-                          ? 'bg-red-600 text-white'
-                          : 'bg-slate-800 text-slate-300 hover:text-white'
-                      }`}
-                    >
-                      Erro (500)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setActiveScenario('forbidden_403')}
-                      className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors ${
-                        activeScenario === 'forbidden_403'
-                          ? 'bg-red-600 text-white'
-                          : 'bg-slate-800 text-slate-300 hover:text-white'
-                      }`}
-                    >
-                      Negado (403)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => refetch()}
-                      disabled={isFetching}
-                      className="p-1 text-slate-400 hover:text-white ml-1"
-                      title="Recarregar"
-                    >
-                      <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin' : ''}`} />
-                    </button>
-                  </div>
-                </div>
-              )}
-
               {/* Page Title & Subtitle (Figma ADM-D-002) */}
               <div>
                 <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
