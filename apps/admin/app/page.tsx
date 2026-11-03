@@ -11,6 +11,7 @@ import {
   figmaSummaryMetrics,
 } from '../lib/adapters/mock-presentation-data';
 import { useDashboardOverview } from '../lib/hooks/use-dashboard-overview';
+import { isProductionEnvironment } from '../lib/security/environment';
 import {
   type MockScenario,
   getSafeScenario,
@@ -28,8 +29,7 @@ import { RequiresAttentionPanel } from './components/RequiresAttentionPanel';
 function AdminOverviewContent() {
   const searchParams = useSearchParams();
 
-  const isProduction =
-    typeof process !== 'undefined' && process.env.NEXT_PUBLIC_APP_ENV === 'production';
+  const isProduction = isProductionEnvironment();
 
   // Audit Finding F-04: Strict scenario validation & production gating
   const requestedScenario = searchParams.get('scenario');

@@ -1,16 +1,20 @@
+import { isProductionEnvironment } from './environment';
+
 export const ALLOWED_MOCK_SCENARIOS = ['success', 'empty', 'error_500', 'forbidden_403'] as const;
 
 export type MockScenario = (typeof ALLOWED_MOCK_SCENARIOS)[number];
 
 /**
  * Validates that a requested mock scenario is in the strict allowed enum.
- * In production mode, mock scenarios are strictly disallowed.
+ * In production mode or when not explicitly in dev/test (Fail Closed),
+ * mock scenarios are strictly disallowed and return null.
  */
 export function getSafeScenario(
   param: string | null | undefined,
-  isProduction: boolean,
+  isProduction?: boolean,
 ): MockScenario | null {
-  if (isProduction) {
+  const isProd = isProduction !== undefined ? isProduction : isProductionEnvironment();
+  if (isProd) {
     return null;
   }
 
@@ -28,9 +32,11 @@ export function getSafeScenario(
 
 /**
  * Ensures QA controls and testing panels are completely disabled in production environments.
+ * Fails closed if in production or unverified environment.
  */
-export function isQAHarnessAllowed(isProduction: boolean, qaQueryParam?: string | null): boolean {
-  if (isProduction) {
+export function isQAHarnessAllowed(isProduction?: boolean, qaQueryParam?: string | null): boolean {
+  const isProd = isProduction !== undefined ? isProduction : isProductionEnvironment();
+  if (isProd) {
     return false;
   }
 

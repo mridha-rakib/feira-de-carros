@@ -39,5 +39,9 @@ export default defineConfig({
     url: `${BASE_URL}/login`,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
+    env: {
+      NEXT_PUBLIC_APP_ENV: 'test',
+      APP_ENV: 'test',
+    },
   },
 });

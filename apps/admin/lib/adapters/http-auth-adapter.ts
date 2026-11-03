@@ -13,6 +13,9 @@ import type { AuthPort } from './auth-port';
  * - API-002: POST /v1/auth/login
  * - API-004: POST /v1/auth/logout
  * - API-005: GET /v1/me
+ *
+ * Security Invariant: Fails closed. If user cannot be verified or lacks
+ * administrative role, the session is revoked and access is denied.
  */
 export class HttpAuthAdapter implements AuthPort {
   private client: ApiClient;
@@ -38,12 +41,32 @@ export class HttpAuthAdapter implements AuthPort {
     }
 
     try {
-      const session = await this.client.post<AuthSessionSummary>('/v1/auth/login', request);
+      const rawSession = await this.client.post<{ data?: AuthSessionSummary } | AuthSessionSummary>(
+        '/v1/auth/login',
+        request,
+      );
+      const session =
+        rawSession && typeof rawSession === 'object' && 'data' in rawSession && rawSession.data
+          ? rawSession.data
+          : (rawSession as AuthSessionSummary);
 
-      // Verify the authenticated profile has back-office administrative access
+      if (!session || !session.authenticated) {
+        throw new ApiError(401, 'Credenciais inválidas ou sessão não autenticada pelo servidor.', {
+          code: 'UNAUTHENTICATED',
+        });
+      }
+
+      if (session.account_status && session.account_status !== 'ACTIVE') {
+        await this.logout().catch(() => {});
+        throw new ApiError(403, 'Conta suspensa ou pendente de ativação.', {
+          code: 'ACCOUNT_SUSPENDED',
+        });
+      }
+
+      // Verify the authenticated profile has back-office administrative access (Fail Closed)
       const user = await this.getCurrentUser();
-      if (user && !['main_admin', 'sales', 'support'].includes(user.role)) {
-        // Revoke session if user has no admin privileges
+      if (!user || !['main_admin', 'sales', 'support'].includes(user.role)) {
+        // Revoke session if user profile cannot be verified or lacks admin privileges
         await this.logout().catch(() => {});
         throw new ApiError(
           403,
@@ -73,7 +96,11 @@ export class HttpAuthAdapter implements AuthPort {
 
   async getCurrentUser(): Promise<UserProfile | null> {
     try {
-      return await this.client.get<UserProfile>('/v1/me');
+      const rawUser = await this.client.get<{ data?: UserProfile } | UserProfile>('/v1/me');
+      if (rawUser && typeof rawUser === 'object' && 'data' in rawUser && rawUser.data) {
+        return rawUser.data;
+      }
+      return (rawUser as UserProfile) || null;
     } catch (err) {
       if (err instanceof ApiError && err.statusCode === 401) {
         return null;

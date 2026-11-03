@@ -1,18 +1,14 @@
 import { type AdminDashboardOverview, ApiError } from '@feira/api-client';
+import { isProductionEnvironment } from '../security/environment';
 import type { MockScenario } from '../security/scenario-validator';
 import type { AdminDashboardPort } from './dashboard-port';
 
 /**
  * Mock Dashboard Adapter strictly isolated to development and test environments.
- * Strictly blocked in production mode to uphold production safety.
+ * Strictly blocked in production mode to uphold production safety (Fail Closed).
  */
 export class MockDashboardAdapter implements AdminDashboardPort {
   constructor(private scenario: MockScenario = 'success') {}
-
-  private isProduction(): boolean {
-    if (typeof process === 'undefined') return false;
-    return process.env.NEXT_PUBLIC_APP_ENV === 'production';
-  }
 
   setScenario(scenario: MockScenario) {
     this.scenario = scenario;
@@ -23,7 +19,7 @@ export class MockDashboardAdapter implements AdminDashboardPort {
   }
 
   async getOverview(): Promise<AdminDashboardOverview> {
-    if (this.isProduction()) {
+    if (isProductionEnvironment()) {
       throw new ApiError(
         403,
         'O adaptador de dados simulados (mock) está estritamente desabilitado em produção.',

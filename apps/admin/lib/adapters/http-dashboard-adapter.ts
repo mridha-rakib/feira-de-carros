@@ -22,8 +22,13 @@ export class HttpDashboardAdapter implements AdminDashboardPort {
 
   async getOverview(): Promise<AdminDashboardOverview> {
     try {
-      const res = await this.client.get<{ data: AdminDashboardOverview }>('/admin/dashboard');
-      return res.data;
+      const res = await this.client.get<{ data?: AdminDashboardOverview } | AdminDashboardOverview>(
+        '/v1/admin/dashboard',
+      );
+      if (res && typeof res === 'object' && 'data' in res && res.data) {
+        return res.data;
+      }
+      return res as AdminDashboardOverview;
     } catch (err) {
       if (err instanceof ApiError) {
         throw err;

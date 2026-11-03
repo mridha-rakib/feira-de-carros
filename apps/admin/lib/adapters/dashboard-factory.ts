@@ -1,3 +1,4 @@
+import { isProductionEnvironment } from '../security/environment';
 import type { MockScenario } from '../security/scenario-validator';
 import type { AdminDashboardPort } from './dashboard-port';
 import { HttpDashboardAdapter, httpDashboardAdapter } from './http-dashboard-adapter';
@@ -5,14 +6,11 @@ import { MockDashboardAdapter, mockDashboardAdapter } from './mock-dashboard-ada
 
 /**
  * Returns the appropriate dashboard adapter based on environment.
- * Production: HttpDashboardAdapter.
- * Development/Test: MockDashboardAdapter with optional scenario.
+ * Production / Non-Dev (Fail Closed): HttpDashboardAdapter.
+ * Explicit Development/Test: MockDashboardAdapter with optional scenario.
  */
 export function getDashboardAdapter(scenario?: MockScenario): AdminDashboardPort {
-  const isProduction =
-    typeof process !== 'undefined' && process.env.NEXT_PUBLIC_APP_ENV === 'production';
-
-  if (isProduction) {
+  if (isProductionEnvironment()) {
     return httpDashboardAdapter;
   }
 

@@ -1,24 +1,28 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { isProductionEnvironment } from './lib/security/environment';
 import { getSafeRedirectUrl } from './lib/security/redirect-validator';
 
 const PUBLIC_ADMIN_PATHS = ['/login', '/mfa', '/api/auth', '/brand'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
   const isPublic = PUBLIC_ADMIN_PATHS.some((path) => pathname.startsWith(path));
+  const isProduction = isProductionEnvironment();
 
   if (!isPublic) {
     const adminSessionCookie = request.cookies.get('fdc_admin_session');
-    const isProduction = process.env.NEXT_PUBLIC_APP_ENV === 'production';
 
-    // In production, reject mock tokens unconditionally (Finding F-01)
+    // In production or unverified environments (Fail Closed), reject mock tokens unconditionally
     if (isProduction && adminSessionCookie?.value?.startsWith('mock_')) {
       const loginUrl = new URL('/login', request.url);
       const safeRedirect = getSafeRedirectUrl(pathname);
       loginUrl.searchParams.set('redirect', safeRedirect);
       const response = NextResponse.redirect(loginUrl);
       response.cookies.delete('fdc_admin_session');
+      response.cookies.set('fdc_runtime_env', isProduction ? 'production' : 'test', {
+        path: '/',
+        sameSite: 'lax',
+      });
       return response;
     }
 
@@ -26,11 +30,21 @@ export function middleware(request: NextRequest) {
       const loginUrl = new URL('/login', request.url);
       const safeRedirect = getSafeRedirectUrl(pathname);
       loginUrl.searchParams.set('redirect', safeRedirect);
-      return NextResponse.redirect(loginUrl);
+      const response = NextResponse.redirect(loginUrl);
+      response.cookies.set('fdc_runtime_env', isProduction ? 'production' : 'test', {
+        path: '/',
+        sameSite: 'lax',
+      });
+      return response;
     }
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  response.cookies.set('fdc_runtime_env', isProduction ? 'production' : 'test', {
+    path: '/',
+    sameSite: 'lax',
+  });
+  return response;
 }
 
 export const config = {

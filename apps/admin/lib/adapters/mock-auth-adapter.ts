@@ -4,6 +4,7 @@ import {
   type LoginRequest,
   type UserProfile,
 } from '@feira/api-client';
+import { isProductionEnvironment } from '../security/environment';
 import type { AuthPort } from './auth-port';
 
 /**
@@ -13,14 +14,9 @@ import type { AuthPort } from './auth-port';
 export class MockAuthAdapter implements AuthPort {
   private currentUser: UserProfile | null = null;
 
-  private isProduction(): boolean {
-    if (typeof process === 'undefined') return false;
-    return process.env.NEXT_PUBLIC_APP_ENV === 'production';
-  }
-
   async login(request: LoginRequest): Promise<AuthSessionSummary> {
-    // Audit Finding F-01: Mock authentication must never be usable in a real production deployment
-    if (this.isProduction()) {
+    // Audit Finding F-01 & Security Mandate: Fail-closed production gating
+    if (isProductionEnvironment()) {
       throw new ApiError(
         403,
         'A autenticação simulada (mock) está estritamente desabilitada em produção. O acesso requer backend real autenticado.',
