@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const PORT = 3001;
+const PORT = process.env.PLAYWRIGHT_PORT || 3001;
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || `http://localhost:${PORT}`;
 
 export default defineConfig({
@@ -35,7 +35,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm start',
+    command: `pnpm exec next start -p ${PORT}`,
     url: `${BASE_URL}/login`,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,

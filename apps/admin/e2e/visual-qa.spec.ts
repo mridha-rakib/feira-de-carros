@@ -70,6 +70,7 @@ test.describe('Visual QA & Figma Parity Proofs (ADM-D-001, ADM-D-002, ADM-M-013,
     await expect(desktop.getByText('Receita dos anúncios')).toBeVisible();
     await expect(desktop.getByText('Requer atenção')).toBeVisible();
     await expect(desktop.getByText('Anúncios recentes')).toBeVisible();
+    await expect(page.getByText(/QA Testing Harness/i)).not.toBeVisible();
 
     try {
       await page.screenshot({
@@ -197,8 +198,7 @@ test.describe('Visual QA & Figma Parity Proofs (ADM-D-001, ADM-D-002, ADM-M-013,
     await page.setViewportSize({ width: 1600, height: 900 });
 
     // Empty state
-    await page.goto('/?qa=1', { waitUntil: 'domcontentloaded' });
-    await page.getByRole('button', { name: 'Vazio (0 dados)' }).click();
+    await page.goto('/?scenario=empty', { waitUntil: 'domcontentloaded' });
     const desktop = page.getByTestId('desktop-dashboard');
     await expect(desktop.getByText('R$ 0')).toBeVisible();
     try {
@@ -211,8 +211,7 @@ test.describe('Visual QA & Figma Parity Proofs (ADM-D-001, ADM-D-002, ADM-M-013,
     }
 
     // 500 Error state
-    await page.goto('/?qa=1', { waitUntil: 'domcontentloaded' });
-    await page.getByRole('button', { name: 'Erro (500)' }).click();
+    await page.goto('/?scenario=error_500', { waitUntil: 'domcontentloaded' });
     await expect(page.getByText('Falha ao Carregar Métricas (500)')).toBeVisible();
     try {
       await page.screenshot({
@@ -224,8 +223,7 @@ test.describe('Visual QA & Figma Parity Proofs (ADM-D-001, ADM-D-002, ADM-M-013,
     }
 
     // 403 Forbidden state
-    await page.goto('/?qa=1', { waitUntil: 'domcontentloaded' });
-    await page.getByRole('button', { name: 'Negado (403)' }).click();
+    await page.goto('/?scenario=forbidden_403', { waitUntil: 'domcontentloaded' });
     await expect(page.getByText('Acesso Restrito ao Painel (403)')).toBeVisible();
     try {
       await page.screenshot({
