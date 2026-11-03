@@ -59,7 +59,7 @@ export class MockDashboardAdapter implements AdminDashboardPort {
 
     // Default: Figma ADM-D-002 metrics
     return {
-      total_users: 1248,
+      total_users: 682,
       active_listings: 1248,
       pending_approvals: 36,
     };

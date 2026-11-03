@@ -68,6 +68,7 @@ function AdminOverviewContent() {
     }
 
     if (data) {
+      const revenue = (data as unknown as { confirmed_revenue?: number }).confirmed_revenue;
       return {
         ...figmaSummaryMetrics,
         activeListings: {
@@ -75,16 +76,48 @@ function AdminOverviewContent() {
           count: data.active_listings,
           formatted: data.active_listings.toLocaleString('pt-BR'),
         },
+        approvedSellers: {
+          ...figmaSummaryMetrics.approvedSellers,
+          count: data.total_users,
+          formatted: data.total_users.toLocaleString('pt-BR'),
+        },
         pendingApprovals: {
           ...figmaSummaryMetrics.pendingApprovals,
           count: data.pending_approvals,
           formatted: data.pending_approvals.toLocaleString('pt-BR'),
         },
+        confirmedRevenue: {
+          ...figmaSummaryMetrics.confirmedRevenue,
+          amount: revenue ?? 0,
+          formatted:
+            revenue != null
+              ? `R$ ${revenue.toLocaleString('pt-BR')}`
+              : isProduction
+                ? 'Em apuração'
+                : figmaSummaryMetrics.confirmedRevenue.formatted,
+        },
+        provenance: 'LIVE BACKEND' as const,
+      };
+    }
+
+    if (isProduction) {
+      return {
+        activeListings: { count: 0, formatted: '—', trend: 'Aguardando backend' },
+        approvedSellers: { count: 0, formatted: '—', trend: 'Aguardando backend' },
+        pendingApprovals: {
+          count: 0,
+          formatted: '—',
+          trend: 'Aguardando backend',
+          sellersCount: 0,
+          listingsCount: 0,
+        },
+        confirmedRevenue: { amount: 0, formatted: '—', trend: 'Aguardando backend' },
+        provenance: 'PENDING BACKEND' as const,
       };
     }
 
     return figmaSummaryMetrics;
-  }, [data, activeScenario]);
+  }, [data, activeScenario, isProduction]);
 
   // Handle Error States (401, 403, 500, 503)
   if (error) {

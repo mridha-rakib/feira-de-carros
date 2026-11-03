@@ -29,7 +29,7 @@ export interface DashboardSummaryMetrics {
     formatted: string;
     trend: string;
   };
-  provenance: 'DEMO DATA';
+  provenance: 'DEMO DATA' | 'LIVE BACKEND' | 'PENDING BACKEND';
 }
 
 export interface AttentionSummary {

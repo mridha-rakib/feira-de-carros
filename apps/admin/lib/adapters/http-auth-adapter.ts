@@ -29,6 +29,14 @@ export class HttpAuthAdapter implements AuthPort {
 
     this.client = new ApiClient({
       baseUrl: apiUrl,
+      credentials: 'include',
+      getToken: () => {
+        if (typeof document !== 'undefined') {
+          const match = document.cookie.match(/(?:^|;\s*)fdc_admin_session=([^;]+)/);
+          return match ? decodeURIComponent(match[1]) : null;
+        }
+        return null;
+      },
     });
   }
 
@@ -75,6 +83,13 @@ export class HttpAuthAdapter implements AuthPort {
         );
       }
 
+      // Propagate verified session cookie for authenticated browser requests
+      if (typeof document !== 'undefined' && session.user_id) {
+        const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:';
+        const sessionToken = (rawSession as { token?: string }).token || session.user_id;
+        document.cookie = `fdc_admin_session=${encodeURIComponent(sessionToken)}; path=/; max-age=43200; SameSite=Strict${isSecure ? '; Secure' : ''}`;
+      }
+
       return session;
     } catch (err) {
       if (err instanceof ApiError) {
@@ -91,6 +106,11 @@ export class HttpAuthAdapter implements AuthPort {
       await this.client.post<void>('/v1/auth/logout');
     } catch {
       // Best-effort logout
+    } finally {
+      if (typeof document !== 'undefined') {
+        document.cookie =
+          'fdc_admin_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict';
+      }
     }
   }
 

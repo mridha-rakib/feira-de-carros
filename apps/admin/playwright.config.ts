@@ -40,6 +40,7 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
     env: {
+      ADMIN_E2E_MOCK: 'true',
       NEXT_PUBLIC_APP_ENV: 'test',
       APP_ENV: 'test',
     },

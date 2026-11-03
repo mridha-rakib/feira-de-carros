@@ -40,6 +40,7 @@ export class ApiError extends Error {
 export interface ApiClientConfig {
   baseUrl: string;
   getToken?: () => string | null | Promise<string | null>;
+  credentials?: RequestCredentials;
   onUnauthorized?: () => void;
   onForbidden?: () => void;
 }
@@ -65,11 +66,13 @@ export class ApiClient {
       }
     }
 
+    const credentials = options.credentials || this.config.credentials || 'include';
     const startTime = Date.now();
     try {
       const response = await fetch(url, {
         ...options,
         headers,
+        credentials,
       });
 
       const durationMs = Date.now() - startTime;

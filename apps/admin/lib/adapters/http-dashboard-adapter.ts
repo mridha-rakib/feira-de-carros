@@ -17,6 +17,14 @@ export class HttpDashboardAdapter implements AdminDashboardPort {
 
     this.client = new ApiClient({
       baseUrl: apiUrl,
+      credentials: 'include',
+      getToken: () => {
+        if (typeof document !== 'undefined') {
+          const match = document.cookie.match(/(?:^|;\s*)fdc_admin_session=([^;]+)/);
+          return match ? decodeURIComponent(match[1]) : null;
+        }
+        return null;
+      },
     });
   }
 

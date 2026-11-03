@@ -25,7 +25,7 @@ describe('mockDashboardAdapter & Dashboard Factory', () => {
     mockDashboardAdapter.setScenario('success');
     const data = await mockDashboardAdapter.getOverview();
 
-    expect(data.total_users).toBe(1248);
+    expect(data.total_users).toBe(682);
     expect(data.active_listings).toBe(1248);
     expect(data.pending_approvals).toBe(36);
   });
