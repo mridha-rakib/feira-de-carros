@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B111E"/>
+      <stop offset="50%" stop-color="#151D2F"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="sedanGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F42524" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#E11D48" stop-opacity="0.95"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <line x1="80" y1="460" x2="720" y2="460" stroke="#334155" stroke-width="1.5" stroke-dasharray="6 6"/>
+  <ellipse cx="400" cy="470" rx="280" ry="24" fill="#F42524" opacity="0.12"/>
+
+  <!-- Sedan Silhouette (Three-box design with trunk) -->
+  <g transform="translate(150, 205)">
+    <!-- Sedan Body with Trunk -->
+    <path d="M 20,215 
+             L 20,165 
+             L 90,160 
+             L 155,95 
+             L 295,90 
+             L 375,150 
+             L 460,160 
+             C 485,165 495,185 495,205 
+             L 495,220 
+             C 495,228 485,232 475,232 
+             L 435,232 
+             C 435,198 405,175 370,175 
+             C 335,175 305,198 305,232 
+             L 175,232 
+             C 175,198 145,175 110,175 
+             C 75,175 45,198 45,232 
+             L 15,232 
+             C 8,232 0,225 0,215 Z" 
+          fill="url(#sedanGrad)"/>
+
+    <!-- Windows (Sedan Three-box profile) -->
+    <path d="M 160,105 L 225,100 L 225,150 L 115,150 Z" fill="#0B111E" opacity="0.75"/>
+    <path d="M 235,100 L 290,98 L 350,145 L 350,150 L 235,150 Z" fill="#0B111E" opacity="0.75"/>
+
+    <!-- Wheels -->
+    <circle cx="110" cy="232" r="40" fill="#0F172A" stroke="#475569" stroke-width="6"/>
+    <circle cx="110" cy="232" r="20" fill="#334155" stroke="#F42524" stroke-width="3"/>
+    <circle cx="370" cy="232" r="40" fill="#0F172A" stroke="#475569" stroke-width="6"/>
+    <circle cx="370" cy="232" r="20" fill="#334155" stroke="#F42524" stroke-width="3"/>
+  </g>
+
+  <!-- Typography & Badges -->
+  <rect x="250" y="70" width="300" height="34" rx="17" fill="#F42524" opacity="0.15"/>
+  <rect x="250" y="70" width="300" height="34" rx="17" fill="none" stroke="#F42524" stroke-width="1.5"/>
+  <text x="400" y="92" text-anchor="middle" fill="#FCA5A5" font-family="system-ui, sans-serif" font-size="12" font-weight="800" letter-spacing="1.5">CATEGORIA: SEDÃ</text>
+
+  <text x="400" y="525" text-anchor="middle" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="18" font-weight="900" letter-spacing="2">FEIRA DE CARROS • VEÍCULO DEMO</text>
+  <text x="400" y="550" text-anchor="middle" fill="#94A3B8" font-family="system-ui, sans-serif" font-size="12" font-weight="500">Ativo ilustrativo de demonstração • Aguardando sessão fotográfica</text>
+</svg>
