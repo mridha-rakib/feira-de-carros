@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B111E"/>
+      <stop offset="50%" stop-color="#151D2F"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="pickupGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F42524" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#E11D48" stop-opacity="0.95"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <line x1="80" y1="460" x2="720" y2="460" stroke="#334155" stroke-width="1.5" stroke-dasharray="6 6"/>
+  <ellipse cx="400" cy="470" rx="280" ry="24" fill="#F42524" opacity="0.12"/>
+
+  <!-- Pickup Truck Silhouette -->
+  <g transform="translate(160, 200)">
+    <!-- Cabin and Flatbed -->
+    <path d="M 30,220 
+             L 30,170 
+             L 140,170 
+             L 180,90 
+             L 290,85 
+             L 340,140 
+             L 450,150 
+             C 470,155 480,175 480,195 
+             L 480,220 
+             C 480,230 470,235 460,235 
+             L 420,235 
+             C 420,200 390,175 355,175 
+             C 320,175 290,200 290,235 
+             L 170,235 
+             C 170,200 140,175 105,175 
+             C 70,175 40,200 40,235 
+             L 20,235 
+             C 10,235 0,228 0,218 
+             L 0,200 Z" 
+          fill="url(#pickupGrad)"/>
+    <!-- Windows -->
+    <path d="M 195,100 L 280,95 L 280,145 L 175,145 Z" fill="#0B111E" opacity="0.75"/>
+    <path d="M 295,95 L 330,140 L 330,145 L 295,145 Z" fill="#0B111E" opacity="0.75"/>
+    <!-- Wheels -->
+    <circle cx="105" cy="235" r="42" fill="#0F172A" stroke="#475569" stroke-width="6"/>
+    <circle cx="105" cy="235" r="22" fill="#334155" stroke="#F42524" stroke-width="3"/>
+    <circle cx="355" cy="235" r="42" fill="#0F172A" stroke="#475569" stroke-width="6"/>
+    <circle cx="355" cy="235" r="22" fill="#334155" stroke="#F42524" stroke-width="3"/>
+    <!-- Cargo bed line -->
+    <line x1="30" y1="170" x2="140" y2="170" stroke="#FFE4E6" stroke-width="2" opacity="0.6"/>
+  </g>
+
+  <!-- Typography & Badges -->
+  <rect x="250" y="70" width="300" height="34" rx="17" fill="#F42524" opacity="0.15"/>
+  <rect x="250" y="70" width="300" height="34" rx="17" fill="none" stroke="#F42524" stroke-width="1.5"/>
+  <text x="400" y="92" text-anchor="middle" fill="#FCA5A5" font-family="system-ui, sans-serif" font-size="12" font-weight="800" letter-spacing="1.5">CATEGORIA: PICAPE / UTILITÁRIO</text>
+
+  <text x="400" y="525" text-anchor="middle" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="18" font-weight="900" letter-spacing="2">FEIRA DE CARROS • VEÍCULO DEMO</text>
+  <text x="400" y="550" text-anchor="middle" fill="#94A3B8" font-family="system-ui, sans-serif" font-size="12" font-weight="500">Ativo ilustrativo de demonstração • Aguardando sessão fotográfica</text>
+</svg>

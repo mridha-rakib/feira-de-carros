@@ -194,16 +194,17 @@ export function ListingInspectionModal({
               <div className="flex items-center gap-2">
                 <ImageIcon className="w-4 h-4 text-slate-500" />
                 <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                  Galeria de Fotos Enviadas (Quota: 5/10 fotos)
+                  Galeria de Fotos Enviadas (1 de 4 ângulos disponíveis)
                 </span>
               </div>
-              <span className="text-xs text-slate-500 font-medium">
-                Conformidade de resolução: OK
+              <span className="text-xs text-amber-700 font-semibold bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
+                3 ângulos pendentes de envio
               </span>
             </div>
 
             {/* Gallery Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {/* Slot 1: Frontal (Capa) */}
               <div className="aspect-[4/3] rounded-xl bg-slate-100 border border-slate-200 overflow-hidden relative group">
                 <VehicleImage
                   src={ad.photos[0]}
@@ -213,51 +214,104 @@ export function ListingInspectionModal({
                   sizes="(max-width: 640px) 50vw, 200px"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 text-white">
-                  <span className="text-[10px] font-bold block leading-tight">Foto Frontal</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold block leading-tight">Foto Frontal</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  </div>
                   <span className="text-[9px] text-slate-300">Principal (Capa)</span>
                 </div>
               </div>
 
-              <div className="aspect-[4/3] rounded-xl bg-slate-100 border border-slate-200 overflow-hidden relative group">
-                <VehicleImage
-                  src={ad.photos[1] || ad.photos[0]}
-                  alt={`${ad.title} - Traseira`}
-                  fill
-                  sizes="(max-width: 640px) 50vw, 200px"
-                />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 text-white">
-                  <span className="text-[10px] font-bold block leading-tight">Traseira</span>
-                  <span className="text-[9px] text-slate-300">Enquadramento OK</span>
+              {/* Slot 2: Traseira */}
+              {ad.photos[1] &&
+              ad.photos[1] !== ad.photos[0] &&
+              !ad.photos[1].includes('fallback') ? (
+                <div className="aspect-[4/3] rounded-xl bg-slate-100 border border-slate-200 overflow-hidden relative group">
+                  <VehicleImage
+                    src={ad.photos[1]}
+                    alt={`${ad.title} - Traseira`}
+                    fill
+                    sizes="(max-width: 640px) 50vw, 200px"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 text-white">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold block leading-tight">
+                        Foto Traseira
+                      </span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    </div>
+                    <span className="text-[9px] text-slate-300">Placa e lanternas</span>
+                  </div>
                 </div>
-              </div>
-
-              <div className="aspect-[4/3] rounded-xl bg-slate-100 border border-slate-200 overflow-hidden relative group">
-                <VehicleImage
-                  src={ad.photos[2] || ad.photos[0]}
-                  alt={`${ad.title} - Lateral`}
-                  fill
-                  sizes="(max-width: 640px) 50vw, 200px"
-                />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 text-white">
-                  <span className="text-[10px] font-bold block leading-tight">Lateral</span>
-                  <span className="text-[9px] text-slate-300">Carroceria</span>
-                </div>
-              </div>
-
-              <div className="aspect-[4/3] rounded-xl bg-slate-100 border border-slate-200 overflow-hidden relative group">
-                <VehicleImage
-                  src={ad.photos[3] || ad.photos[0]}
-                  alt={`${ad.title} - Interior`}
-                  fill
-                  sizes="(max-width: 640px) 50vw, 200px"
-                />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 text-white">
-                  <span className="text-[10px] font-bold block leading-tight">
-                    Painel / Interior
+              ) : (
+                <div className="aspect-[4/3] rounded-xl bg-slate-50 border border-dashed border-slate-300 flex flex-col items-center justify-center p-3 text-center">
+                  <Car className="w-6 h-6 text-slate-400 mb-1" />
+                  <span className="text-[11px] font-bold text-slate-700">Foto Traseira</span>
+                  <span className="text-[9px] font-medium text-amber-600 mt-0.5 px-1.5 py-0.2 rounded bg-amber-50 border border-amber-200">
+                    Pendente de envio
                   </span>
-                  <span className="text-[9px] text-slate-300">Quadro de instrumentos</span>
                 </div>
-              </div>
+              )}
+
+              {/* Slot 3: Lateral */}
+              {ad.photos[2] &&
+              ad.photos[2] !== ad.photos[0] &&
+              !ad.photos[2].includes('fallback') ? (
+                <div className="aspect-[4/3] rounded-xl bg-slate-100 border border-slate-200 overflow-hidden relative group">
+                  <VehicleImage
+                    src={ad.photos[2]}
+                    alt={`${ad.title} - Lateral`}
+                    fill
+                    sizes="(max-width: 640px) 50vw, 200px"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 text-white">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold block leading-tight">Lateral</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    </div>
+                    <span className="text-[9px] text-slate-300">Carroceria</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="aspect-[4/3] rounded-xl bg-slate-50 border border-dashed border-slate-300 flex flex-col items-center justify-center p-3 text-center">
+                  <Car className="w-6 h-6 text-slate-400 mb-1" />
+                  <span className="text-[11px] font-bold text-slate-700">Lateral Esquerda</span>
+                  <span className="text-[9px] font-medium text-amber-600 mt-0.5 px-1.5 py-0.2 rounded bg-amber-50 border border-amber-200">
+                    Pendente de envio
+                  </span>
+                </div>
+              )}
+
+              {/* Slot 4: Painel / Interior */}
+              {ad.photos[3] &&
+              ad.photos[3] !== ad.photos[0] &&
+              !ad.photos[3].includes('fallback') ? (
+                <div className="aspect-[4/3] rounded-xl bg-slate-100 border border-slate-200 overflow-hidden relative group">
+                  <VehicleImage
+                    src={ad.photos[3]}
+                    alt={`${ad.title} - Interior`}
+                    fill
+                    sizes="(max-width: 640px) 50vw, 200px"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 text-white">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold block leading-tight">
+                        Painel / Interior
+                      </span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    </div>
+                    <span className="text-[9px] text-slate-300">Quadro de instrumentos</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="aspect-[4/3] rounded-xl bg-slate-50 border border-dashed border-slate-300 flex flex-col items-center justify-center p-3 text-center">
+                  <Gauge className="w-6 h-6 text-slate-400 mb-1" />
+                  <span className="text-[11px] font-bold text-slate-700">Painel / Interior</span>
+                  <span className="text-[9px] font-medium text-amber-600 mt-0.5 px-1.5 py-0.2 rounded bg-amber-50 border border-amber-200">
+                    Pendente de envio
+                  </span>
+                </div>
+              )}
             </div>
             <p className="text-[11px] text-slate-500 mt-2.5 flex items-center justify-between">
               <span>

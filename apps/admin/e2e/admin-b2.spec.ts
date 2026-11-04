@@ -83,6 +83,17 @@ test.describe('Admin B2 — Seller Approval (ADM-D-005 & ADM-M-002)', () => {
     await nextBtn.click();
     await expect(pagination.getByText(/11–20/i)).toBeVisible();
     await expect(pagination.getByRole('button', { name: 'Anterior' })).toBeEnabled();
+
+    // Capture Pagination Page 2 Screenshot
+    try {
+      await page.screenshot({
+        path: path.join(outputDir, 'ADM-D-005-Desktop-Seller-Approval-Page2-1600px.png'),
+        fullPage: true,
+      });
+    } catch {
+      // Ignored if write fails
+    }
+
     await nextBtn.click();
     await expect(pagination.getByText(/21–21/i)).toBeVisible();
     await expect(nextBtn).toBeDisabled();
@@ -306,6 +317,16 @@ test.describe('Admin B2 — Advertisements Moderation (ADM-D-014 & ADM-M-003)', 
     await expect(pagination.getByText(/11–18/i)).toBeVisible();
     await expect(nextBtn).toBeDisabled();
     await expect(pagination.getByRole('button', { name: 'Anterior' })).toBeEnabled();
+
+    // Capture Pagination Page 2 Screenshot
+    try {
+      await page.screenshot({
+        path: path.join(outputDir, 'ADM-D-014-Desktop-Ad-Moderation-Page2-1600px.png'),
+        fullPage: true,
+      });
+    } catch {
+      // Ignored if write fails
+    }
 
     // Navigate back to page 1
     await pagination.getByRole('button', { name: '1', exact: true }).click();
