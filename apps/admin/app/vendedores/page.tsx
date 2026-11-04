@@ -7,9 +7,14 @@ import {
   CheckCircle2,
   Clock,
   ExternalLink,
+  FileCheck2,
   FileText,
   Filter,
+  Lock,
+  Mail,
   MapPin,
+  Maximize2,
+  Phone,
   Search,
   ShieldAlert,
   ShieldCheck,
@@ -36,8 +41,19 @@ export default function SellerApprovalPage() {
   const [selectedStatus, setSelectedStatus] = React.useState<'all' | SellerApplicationStatus>(
     'all',
   );
+  const [selectedAppId, setSelectedAppId] = React.useState<string>(
+    mockSellerApplications[0]?.id || '',
+  );
   const [inspectingApplication, setInspectingApplication] =
     React.useState<SellerApplication | null>(null);
+  const [isMobileModalOpen, setIsMobileModalOpen] = React.useState(false);
+
+  // Panel decision state
+  const [panelActionType, setPanelActionType] = React.useState<'corrections' | 'reject' | null>(
+    null,
+  );
+  const [panelReasonText, setPanelReasonText] = React.useState('');
+  const [panelFeedback, setPanelFeedback] = React.useState<string | null>(null);
 
   // Filter application list
   const filteredApplications = React.useMemo(() => {
@@ -54,6 +70,15 @@ export default function SellerApprovalPage() {
       return matchesSearch && matchesType && matchesStatus;
     });
   }, [applications, searchTerm, selectedType, selectedStatus]);
+
+  // Currently selected application in desktop side panel
+  const selectedApplication = React.useMemo(() => {
+    return (
+      applications.find((app) => app.id === selectedAppId) ||
+      filteredApplications[0] ||
+      applications[0]
+    );
+  }, [applications, selectedAppId, filteredApplications]);
 
   // Metric counters
   const counts = React.useMemo(() => {
@@ -77,6 +102,27 @@ export default function SellerApprovalPage() {
           : app,
       ),
     );
+  };
+
+  const handlePanelApprove = () => {
+    if (!selectedApplication) return;
+    handleDecision(selectedApplication.id, 'approved');
+    setPanelFeedback('Vendedor credenciado com sucesso no sistema!');
+    setTimeout(() => setPanelFeedback(null), 3000);
+  };
+
+  const handlePanelConfirmAction = () => {
+    if (!selectedApplication || !panelReasonText.trim()) return;
+    if (panelActionType === 'corrections') {
+      handleDecision(selectedApplication.id, 'corrections', panelReasonText.trim());
+      setPanelFeedback('Solicitação de correção registrada e enviada.');
+    } else if (panelActionType === 'reject') {
+      handleDecision(selectedApplication.id, 'rejected', panelReasonText.trim());
+      setPanelFeedback('Solicitação recusada com justificativa de auditoria.');
+    }
+    setPanelActionType(null);
+    setPanelReasonText('');
+    setTimeout(() => setPanelFeedback(null), 3000);
   };
 
   const getStatusBadge = (status: SellerApplicationStatus) => {
@@ -136,23 +182,25 @@ export default function SellerApprovalPage() {
               <span className="text-[10px] font-bold text-red-500 uppercase tracking-wider block">
                 ADMIN • MOBILE WEB
               </span>
-              <span className="text-[10px] text-slate-400">Vendedores • ADM-M-002</span>
+              <span className="text-[10px] text-slate-400">
+                Solicitações de vendedores • ADM-M-002
+              </span>
             </div>
           </div>
           <div className="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
             <span>Ipatinga - MG</span>
-            <span>Fila de Aprovação</span>
+            <span>Fila Operacional</span>
           </div>
         </header>
 
         <div className="p-4 space-y-4">
-          {/* Mobile Title & Metric Strip */}
+          {/* Mobile Title & Overview */}
           <div>
             <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
-              Aprovação de Vendedores
+              Solicitações de Vendedores
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">
-              Avaliação documental e conformidade LGPD.
+              Visualização móvel de solicitações (ADM-021 • Somente Leitura).
             </p>
           </div>
 
@@ -218,7 +266,7 @@ export default function SellerApprovalPage() {
                     : 'bg-white text-slate-600 border border-slate-200'
                 }`}
               >
-                Lojas / CNPJ
+                Concessionárias
               </button>
             </div>
           </div>
@@ -227,7 +275,7 @@ export default function SellerApprovalPage() {
           <div className="space-y-3">
             {filteredApplications.length === 0 ? (
               <div className="bg-white p-6 rounded-2xl text-center border border-slate-200 text-slate-500 text-xs">
-                Nenhum vendedor encontrado com os filtros selecionados.
+                Nenhuma solicitação encontrada com os filtros selecionados.
               </div>
             ) : (
               filteredApplications.map((app) => (
@@ -271,12 +319,17 @@ export default function SellerApprovalPage() {
                     </div>
                   </div>
 
+                  {/* Read-Only Mobile Detail Trigger */}
                   <button
                     type="button"
-                    onClick={() => setInspectingApplication(app)}
-                    className="w-full py-2.5 px-3 bg-red-700 hover:bg-red-800 text-white rounded-xl text-xs font-bold transition-colors shadow-xs"
+                    onClick={() => {
+                      setInspectingApplication(app);
+                      setIsMobileModalOpen(true);
+                    }}
+                    className="w-full py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors shadow-xs flex items-center justify-center gap-1.5"
                   >
-                    Analisar documentos
+                    <FileText className="w-4 h-4 text-slate-400" />
+                    <span>Ver detalhes e documentos</span>
                   </button>
                 </div>
               ))
@@ -289,7 +342,7 @@ export default function SellerApprovalPage() {
       </div>
 
       {/* ============================================================== */}
-      {/* DESKTOP SELLER APPROVAL (Figma ADM-D-003)                      */}
+      {/* DESKTOP SELLER APPROVAL (Figma ADM-D-005)                      */}
       {/* ============================================================== */}
       <div className="hidden lg:block" data-testid="desktop-seller-approval">
         <AdminShell breadcrumbs={['Admin', 'Aprovação de vendedores']}>
@@ -301,8 +354,8 @@ export default function SellerApprovalPage() {
                   Aprovação de Vendedores
                 </h1>
                 <p className="text-sm text-slate-500 mt-1">
-                  Avaliação cadastral, conformidade com a LGPD e habilitação de anunciantes (Figma
-                  ADM-D-003).
+                  Fila de solicitações de novos anunciantes, verificação cadastral e credenciamento
+                  (Figma ADM-D-005).
                 </p>
               </div>
 
@@ -442,109 +495,352 @@ export default function SellerApprovalPage() {
               </div>
             </div>
 
-            {/* Desktop Table (Figma ADM-D-003) */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="border-b border-slate-200 bg-slate-50/80 text-[11px] uppercase tracking-wider text-slate-500 font-bold">
-                      <th className="py-3.5 px-4">Código / Vendedor</th>
-                      <th className="py-3.5 px-4">Tipo</th>
-                      <th className="py-3.5 px-4">Documento (LGPD)</th>
-                      <th className="py-3.5 px-4">Localidade</th>
-                      <th className="py-3.5 px-4">Data Envio</th>
-                      <th className="py-3.5 px-4">Situação</th>
-                      <th className="py-3.5 px-4 text-right">Ação</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-700">
-                    {filteredApplications.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} className="py-12 text-center text-slate-400">
-                          <p className="text-sm font-semibold">Nenhuma solicitação encontrada</p>
-                          <p className="text-xs mt-1">
-                            Tente ajustar os termos de busca ou filtros selecionados.
-                          </p>
-                        </td>
+            {/* Split Information Architecture: Queue + Selected Seller Detail Panel (Figma ADM-D-005) */}
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+              {/* Left Column: Seller Applications Queue Table */}
+              <div className="xl:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+                <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                  <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                    Fila de Solicitações ({filteredApplications.length})
+                  </h2>
+                  <span className="text-[11px] text-slate-500">
+                    Selecione um item para ver detalhes
+                  </span>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-200 bg-slate-50/80 text-[11px] uppercase tracking-wider text-slate-500 font-bold">
+                        <th className="py-3 px-3.5">Código / Vendedor</th>
+                        <th className="py-3 px-3">Tipo</th>
+                        <th className="py-3 px-3">Localidade</th>
+                        <th className="py-3 px-3">Situação</th>
+                        <th className="py-3 px-3 text-right">Ação</th>
                       </tr>
-                    ) : (
-                      filteredApplications.map((app) => (
-                        <tr key={app.id} className="hover:bg-slate-50/80 transition-colors group">
-                          <td className="py-3.5 px-4">
-                            <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0 font-bold text-[11px]">
-                                {app.name.charAt(0)}
-                              </div>
-                              <div>
-                                <span className="font-bold text-slate-900 block group-hover:text-red-700 transition-colors">
-                                  {app.name}
-                                </span>
-                                <span className="font-mono text-[10px] text-amber-700">
-                                  {app.code}
-                                </span>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-3.5 px-4">
-                            {app.type === 'concessionaria' ? (
-                              <span className="inline-flex items-center gap-1 font-semibold text-purple-700">
-                                <Building2 className="w-3.5 h-3.5" />
-                                Concessionária
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 font-medium text-slate-600">
-                                <User className="w-3.5 h-3.5" />
-                                Particular
-                              </span>
-                            )}
-                          </td>
-                          <td className="py-3.5 px-4 font-mono text-slate-800">{app.document}</td>
-                          <td className="py-3.5 px-4">
-                            <span className="flex items-center gap-1 text-slate-600">
-                              <MapPin className="w-3 h-3 text-red-500 shrink-0" />
-                              {app.city}, {app.state}
-                            </span>
-                          </td>
-                          <td className="py-3.5 px-4 text-slate-500">{app.submittedAt}</td>
-                          <td className="py-3.5 px-4">{getStatusBadge(app.status)}</td>
-                          <td className="py-3.5 px-4 text-right">
-                            <button
-                              type="button"
-                              onClick={() => setInspectingApplication(app)}
-                              className="px-3 py-1.5 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold transition-colors shadow-2xs text-xs inline-flex items-center gap-1"
-                            >
-                              <span>Analisar</span>
-                              <ExternalLink className="w-3 h-3" />
-                            </button>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-700">
+                      {filteredApplications.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="py-12 text-center text-slate-400">
+                            <p className="text-sm font-semibold">Nenhuma solicitação encontrada</p>
+                            <p className="text-xs mt-1">
+                              Tente ajustar os termos de busca ou filtros selecionados.
+                            </p>
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                      ) : (
+                        filteredApplications.map((app) => {
+                          const isSelected = selectedApplication?.id === app.id;
+                          return (
+                            <tr
+                              key={app.id}
+                              tabIndex={0}
+                              onClick={() => setSelectedAppId(app.id)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  setSelectedAppId(app.id);
+                                }
+                              }}
+                              className={`cursor-pointer transition-colors group ${
+                                isSelected
+                                  ? 'bg-red-50/70 border-l-4 border-l-red-600 font-medium'
+                                  : 'hover:bg-slate-50/80'
+                              }`}
+                            >
+                              <td className="py-3 px-3.5">
+                                <div className="flex items-center gap-2">
+                                  <div
+                                    className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 font-bold text-[11px] ${
+                                      isSelected
+                                        ? 'bg-red-600 text-white'
+                                        : 'bg-slate-100 text-slate-700'
+                                    }`}
+                                  >
+                                    {app.name.charAt(0)}
+                                  </div>
+                                  <div>
+                                    <span className="font-bold text-slate-900 block group-hover:text-red-700 transition-colors">
+                                      {app.name}
+                                    </span>
+                                    <span className="font-mono text-[10px] text-amber-700">
+                                      {app.code}
+                                    </span>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-3 px-3">
+                                {app.type === 'concessionaria' ? (
+                                  <span className="inline-flex items-center gap-1 font-semibold text-purple-700 text-[11px]">
+                                    <Building2 className="w-3 h-3" />
+                                    Loja
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 font-medium text-slate-600 text-[11px]">
+                                    <User className="w-3 h-3" />
+                                    Particular
+                                  </span>
+                                )}
+                              </td>
+                              <td className="py-3 px-3">
+                                <span className="flex items-center gap-1 text-slate-600 text-[11px]">
+                                  <MapPin className="w-3 h-3 text-red-500 shrink-0" />
+                                  {app.city}
+                                </span>
+                              </td>
+                              <td className="py-3 px-3">{getStatusBadge(app.status)}</td>
+                              <td className="py-3 px-3 text-right">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedAppId(app.id);
+                                    setInspectingApplication(app);
+                                    setIsMobileModalOpen(false);
+                                  }}
+                                  className="px-2.5 py-1 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold transition-colors shadow-2xs text-[11px] inline-flex items-center gap-1"
+                                >
+                                  <span>Analisar</span>
+                                  <ExternalLink className="w-2.5 h-2.5" />
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Table Footer */}
+                <div className="p-3.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
+                  <span>
+                    Exibindo <strong>{filteredApplications.length}</strong> de{' '}
+                    <strong>{applications.length}</strong> solicitações
+                  </span>
+                  <span className="font-mono text-[11px] text-slate-400">
+                    ADM-D-005 • DEMO DATA
+                  </span>
+                </div>
               </div>
 
-              {/* Table Footer */}
-              <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
-                <span>
-                  Exibindo <strong>{filteredApplications.length}</strong> de{' '}
-                  <strong>{applications.length}</strong> solicitações
-                </span>
-                <span className="font-mono text-[11px] text-slate-400">
-                  AMBIENTE DEMONSTRATIVO • Fila operacional
-                </span>
+              {/* Right Column: Selected Seller Detail & Decision Panel (Figma ADM-D-005) */}
+              <div
+                data-testid="selected-seller-detail-panel"
+                className="xl:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-5"
+              >
+                {selectedApplication ? (
+                  <>
+                    {/* Panel Top Heading & Badge */}
+                    <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="font-mono text-xs text-amber-600 font-bold">
+                            {selectedApplication.code}
+                          </span>
+                          <span className="text-slate-400">•</span>
+                          <span className="text-xs font-semibold text-slate-600 capitalize">
+                            {selectedApplication.type === 'concessionaria'
+                              ? 'Concessionária (CNPJ)'
+                              : 'Vendedor Particular (CPF)'}
+                          </span>
+                        </div>
+                        <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+                          {selectedApplication.name}
+                        </h2>
+                        {selectedApplication.tradeName && (
+                          <span className="text-xs text-slate-500 block">
+                            Fantasia: {selectedApplication.tradeName}
+                          </span>
+                        )}
+                      </div>
+                      <div>{getStatusBadge(selectedApplication.status)}</div>
+                    </div>
+
+                    {/* Feedback Alert if Action Triggered */}
+                    {panelFeedback && (
+                      <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 animate-in fade-in">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>{panelFeedback}</span>
+                      </div>
+                    )}
+
+                    {/* Contact & Location Info */}
+                    <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-100 space-y-2 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-500">Documento LGPD:</span>
+                        <span className="font-mono font-semibold text-slate-900">
+                          {selectedApplication.document}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-500">E-mail:</span>
+                        <span className="font-medium text-slate-800">
+                          {selectedApplication.email}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-500">Telefone:</span>
+                        <span className="font-medium text-slate-800">
+                          {selectedApplication.phone}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-500">Localidade:</span>
+                        <span className="font-medium text-slate-800">
+                          {selectedApplication.city}, {selectedApplication.state}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-500">Data de Envio:</span>
+                        <span className="text-slate-600">{selectedApplication.submittedAt}</span>
+                      </div>
+                    </div>
+
+                    {/* Document Checklist Items */}
+                    <div className="space-y-2">
+                      <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                        Documentos para Auditoria
+                      </h3>
+
+                      <div className="p-2.5 rounded-xl border border-slate-200 flex items-center justify-between bg-white text-xs">
+                        <div className="flex items-center gap-2 truncate">
+                          <FileCheck2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <span className="font-medium text-slate-800 truncate">
+                            {selectedApplication.documentProofName}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            alert(`Visualizando ${selectedApplication.documentProofName}`)
+                          }
+                          className="text-[11px] text-red-700 font-bold hover:underline shrink-0 ml-2"
+                        >
+                          Ver arquivo
+                        </button>
+                      </div>
+
+                      <div className="p-2.5 rounded-xl border border-slate-200 flex items-center justify-between bg-white text-xs">
+                        <div className="flex items-center gap-2 truncate">
+                          <FileCheck2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <span className="font-medium text-slate-800 truncate">
+                            {selectedApplication.addressProofName}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            alert(`Visualizando ${selectedApplication.addressProofName}`)
+                          }
+                          className="text-[11px] text-red-700 font-bold hover:underline shrink-0 ml-2"
+                        >
+                          Ver arquivo
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Decision Form inputs if action selected */}
+                    {panelActionType && (
+                      <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+                        <label htmlFor="panel-reason" className="font-bold text-slate-800 block">
+                          {panelActionType === 'corrections'
+                            ? 'Instruções de correção ao vendedor:'
+                            : 'Justificativa da recusa cadastral:'}
+                        </label>
+                        <textarea
+                          id="panel-reason"
+                          rows={2}
+                          value={panelReasonText}
+                          onChange={(e) => setPanelReasonText(e.target.value)}
+                          placeholder="Informe a justificativa..."
+                          className="w-full p-2 rounded-lg border border-slate-300 bg-white text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-600"
+                        />
+                        <div className="flex items-center justify-end gap-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPanelActionType(null);
+                              setPanelReasonText('');
+                            }}
+                            className="px-2.5 py-1 text-slate-600 hover:text-slate-900"
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handlePanelConfirmAction}
+                            disabled={!panelReasonText.trim()}
+                            className="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-bold disabled:opacity-50"
+                          >
+                            Confirmar
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Operational Action Controls (Desktop Exclusive) */}
+                    <div className="pt-2 border-t border-slate-100 space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={handlePanelApprove}
+                          className="py-2.5 px-3 bg-red-700 hover:bg-red-800 text-white font-bold rounded-xl text-xs transition-colors shadow-xs flex items-center justify-center gap-1.5"
+                        >
+                          <ShieldCheck className="w-4 h-4" />
+                          <span>Aprovar Vendedor</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setPanelActionType('corrections')}
+                          className="py-2.5 px-3 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold rounded-xl text-xs transition-colors"
+                        >
+                          Solicitar Correção
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setPanelActionType('reject')}
+                          className="text-xs text-red-600 hover:text-red-800 font-semibold hover:underline"
+                        >
+                          Recusar Cadastro
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setInspectingApplication(selectedApplication);
+                            setIsMobileModalOpen(false);
+                          }}
+                          className="text-xs text-slate-600 hover:text-slate-900 font-medium inline-flex items-center gap-1 hover:underline"
+                        >
+                          <Maximize2 className="w-3 h-3" />
+                          <span>Auditoria Completa</span>
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="p-8 text-center text-slate-400 text-xs">
+                    Selecione um vendedor na fila para carregar suas informações.
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </AdminShell>
       </div>
 
-      {/* Inspection Modal */}
+      {/* Inspection Modal (Desktop: Interactive; Mobile: Read-Only via prop) */}
       <SellerInspectionModal
         application={inspectingApplication}
         isOpen={inspectingApplication !== null}
         onClose={() => setInspectingApplication(null)}
         onDecision={handleDecision}
+        readOnly={isMobileModalOpen}
       />
     </>
   );

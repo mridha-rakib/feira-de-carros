@@ -1,7 +1,7 @@
 /**
  * Types for Admin B2 operations:
- * - ADM-D-003 & ADM-M-002: Seller Approval Queue & Verification Detail
- * - ADM-D-004 & ADM-M-003: Advertisements Moderation Queue & Review Detail
+ * - ADM-D-005 & ADM-M-002: Seller Approval Queue & Verification Detail
+ * - ADM-D-014 & ADM-M-003: Advertisements Moderation Queue & Review Detail
  */
 
 export type SellerApplicationStatus = 'pending' | 'approved' | 'rejected' | 'corrections';

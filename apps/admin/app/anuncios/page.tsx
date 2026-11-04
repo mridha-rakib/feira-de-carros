@@ -12,7 +12,10 @@ import {
   Filter,
   Fuel,
   Gauge,
+  Image as ImageIcon,
+  Lock,
   MapPin,
+  Maximize2,
   Search,
   ShieldAlert,
   ShieldCheck,
@@ -39,7 +42,16 @@ export default function AdModerationPage() {
   const [searchTerm, setSearchTerm] = React.useState('');
   const [selectedStatus, setSelectedStatus] = React.useState<'all' | ModerationAdStatus>('all');
   const [selectedPlan, setSelectedPlan] = React.useState<'all' | AdPlan>('all');
+  const [selectedAdId, setSelectedAdId] = React.useState<string>(mockModerationAds[0]?.id || '');
   const [inspectingAd, setInspectingAd] = React.useState<ModerationAd | null>(null);
+  const [isMobileModalOpen, setIsMobileModalOpen] = React.useState(false);
+
+  // Panel decision state
+  const [panelActionType, setPanelActionType] = React.useState<'corrections' | 'reject' | null>(
+    null,
+  );
+  const [panelReasonText, setPanelReasonText] = React.useState('');
+  const [panelFeedback, setPanelFeedback] = React.useState<string | null>(null);
 
   // Filter ads list
   const filteredAds = React.useMemo(() => {
@@ -58,6 +70,11 @@ export default function AdModerationPage() {
       return matchesSearch && matchesStatus && matchesPlan;
     });
   }, [ads, searchTerm, selectedStatus, selectedPlan]);
+
+  // Currently selected ad in desktop side panel
+  const selectedAd = React.useMemo(() => {
+    return ads.find((a) => a.id === selectedAdId) || filteredAds[0] || ads[0];
+  }, [ads, selectedAdId, filteredAds]);
 
   // Metric counters
   const counts = React.useMemo(() => {
@@ -80,6 +97,27 @@ export default function AdModerationPage() {
           : ad,
       ),
     );
+  };
+
+  const handlePanelApprove = () => {
+    if (!selectedAd) return;
+    handleDecision(selectedAd.id, 'approved');
+    setPanelFeedback('Anúncio aprovado e publicado com sucesso no marketplace!');
+    setTimeout(() => setPanelFeedback(null), 3000);
+  };
+
+  const handlePanelConfirmAction = () => {
+    if (!selectedAd || !panelReasonText.trim()) return;
+    if (panelActionType === 'corrections') {
+      handleDecision(selectedAd.id, 'corrections', panelReasonText.trim());
+      setPanelFeedback('Solicitação de ajuste enviada ao anunciante.');
+    } else if (panelActionType === 'reject') {
+      handleDecision(selectedAd.id, 'rejected', panelReasonText.trim());
+      setPanelFeedback('Publicação reprovada com registro de auditoria.');
+    }
+    setPanelActionType(null);
+    setPanelReasonText('');
+    setTimeout(() => setPanelFeedback(null), 3000);
   };
 
   const getStatusBadge = (status: ModerationAdStatus) => {
@@ -163,12 +201,12 @@ export default function AdModerationPage() {
               <span className="text-[10px] font-bold text-red-500 uppercase tracking-wider block">
                 ADMIN • MOBILE WEB
               </span>
-              <span className="text-[10px] text-slate-400">Anúncios • ADM-M-003</span>
+              <span className="text-[10px] text-slate-400">Fila de anúncios • ADM-M-003</span>
             </div>
           </div>
           <div className="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
             <span>Ipatinga - MG</span>
-            <span>Fila de Moderação</span>
+            <span>Fila de Revisão</span>
           </div>
         </header>
 
@@ -176,10 +214,10 @@ export default function AdModerationPage() {
           {/* Mobile Title & Overview */}
           <div>
             <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
-              Moderação de Veículos
+              Fila de Anúncios
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">
-              Validação de anúncios, checagem FIPE e conformidade.
+              Visualização móvel de anúncios (ADM-021 • Somente Leitura).
             </p>
           </div>
 
@@ -245,7 +283,7 @@ export default function AdModerationPage() {
                     : 'bg-white text-slate-600 border border-slate-200'
                 }`}
               >
-                Aprovados ({counts.approved})
+                Aprovados
               </button>
               <button
                 type="button"
@@ -256,7 +294,7 @@ export default function AdModerationPage() {
                     : 'bg-white text-slate-600 border border-slate-200'
                 }`}
               >
-                Correções ({counts.corrections})
+                Correções
               </button>
             </div>
           </div>
@@ -337,12 +375,17 @@ export default function AdModerationPage() {
                     </div>
                   </div>
 
+                  {/* Read-Only Mobile Detail Trigger */}
                   <button
                     type="button"
-                    onClick={() => setInspectingAd(ad)}
-                    className="w-full py-2.5 px-3 bg-red-700 hover:bg-red-800 text-white rounded-xl text-xs font-bold transition-colors shadow-xs"
+                    onClick={() => {
+                      setInspectingAd(ad);
+                      setIsMobileModalOpen(true);
+                    }}
+                    className="w-full py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors shadow-xs flex items-center justify-center gap-1.5"
                   >
-                    Revisar anúncio
+                    <Car className="w-4 h-4 text-slate-400" />
+                    <span>Ver detalhes do anúncio</span>
                   </button>
                 </div>
               ))
@@ -355,20 +398,20 @@ export default function AdModerationPage() {
       </div>
 
       {/* ============================================================== */}
-      {/* DESKTOP AD MODERATION (Figma ADM-D-004)                        */}
+      {/* DESKTOP AD MODERATION (Figma ADM-D-014)                        */}
       {/* ============================================================== */}
       <div className="hidden lg:block" data-testid="desktop-ad-moderation">
-        <AdminShell breadcrumbs={['Admin', 'Anúncios']}>
+        <AdminShell breadcrumbs={['Admin', 'Fila de revisão de anúncios']}>
           <div className="space-y-6">
             {/* Page Header */}
             <div className="flex items-start justify-between">
               <div>
                 <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-                  Moderação de Anúncios
+                  Fila de Revisão de Anúncios
                 </h1>
                 <p className="text-sm text-slate-500 mt-1">
-                  Fila de revisão técnica, conformidade de preço FIPE e moderação de veículos (Figma
-                  ADM-D-004).
+                  Moderação técnica de veículos, verificação de preço FIPE e controle de
+                  conformidade (Figma ADM-D-014).
                 </p>
               </div>
 
@@ -518,139 +561,350 @@ export default function AdModerationPage() {
               </div>
             </div>
 
-            {/* Desktop Table (Figma ADM-D-004) */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="border-b border-slate-200 bg-slate-50/80 text-[11px] uppercase tracking-wider text-slate-500 font-bold">
-                      <th className="py-3.5 px-4">Código / Veículo</th>
-                      <th className="py-3.5 px-4">Preço Anunciado / FIPE</th>
-                      <th className="py-3.5 px-4">Anunciante</th>
-                      <th className="py-3.5 px-4">Plano</th>
-                      <th className="py-3.5 px-4">Localidade</th>
-                      <th className="py-3.5 px-4">Situação</th>
-                      <th className="py-3.5 px-4 text-right">Ação</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-700">
-                    {filteredAds.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} className="py-12 text-center text-slate-400">
-                          <p className="text-sm font-semibold">Nenhum anúncio encontrado</p>
-                          <p className="text-xs mt-1">
-                            Tente ajustar os filtros ou termos de pesquisa.
-                          </p>
-                        </td>
+            {/* Split Information Architecture: Queue + Selected Vehicle Preview Panel (Figma ADM-D-014) */}
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+              {/* Left Column: Moderation Queue Table */}
+              <div className="xl:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+                <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                  <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                    Fila de Revisão de Veículos ({filteredAds.length})
+                  </h2>
+                  <span className="text-[11px] text-slate-500">
+                    Clique em um anúncio para carregar na prévia
+                  </span>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-200 bg-slate-50/80 text-[11px] uppercase tracking-wider text-slate-500 font-bold">
+                        <th className="py-3 px-3.5">Código / Veículo</th>
+                        <th className="py-3 px-3">Preço / FIPE</th>
+                        <th className="py-3 px-3">Plano</th>
+                        <th className="py-3 px-3">Situação</th>
+                        <th className="py-3 px-3 text-right">Ação</th>
                       </tr>
-                    ) : (
-                      filteredAds.map((ad) => (
-                        <tr key={ad.id} className="hover:bg-slate-50/80 transition-colors group">
-                          <td className="py-3.5 px-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 text-slate-500">
-                                <Car className="w-5 h-5 text-slate-600" />
-                              </div>
-                              <div>
-                                <span className="font-bold text-slate-900 block group-hover:text-red-700 transition-colors">
-                                  {ad.title}
-                                </span>
-                                <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
-                                  <span className="font-mono text-amber-700 font-semibold">
-                                    {ad.code}
-                                  </span>
-                                  <span>•</span>
-                                  <span>{ad.year}</span>
-                                  <span>•</span>
-                                  <span>{ad.mileage}</span>
-                                  <span>•</span>
-                                  <span>{ad.transmission}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-3.5 px-4">
-                            <div>
-                              <span className="font-extrabold text-slate-900 block text-xs">
-                                {ad.priceFormatted}
-                              </span>
-                              <div className="flex items-center gap-1 text-[10px] mt-0.5">
-                                <span className="text-slate-400">
-                                  FIPE: {ad.fipePriceFormatted}
-                                </span>
-                                <span
-                                  className={`font-semibold px-1 py-0.2 rounded ${
-                                    ad.fipeVariation.startsWith('-')
-                                      ? 'bg-emerald-50 text-emerald-700'
-                                      : 'bg-amber-50 text-amber-800'
-                                  }`}
-                                >
-                                  {ad.fipeVariation}
-                                </span>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-3.5 px-4">
-                            <div>
-                              <div className="flex items-center gap-1 font-semibold text-slate-800">
-                                <span>{ad.sellerName}</span>
-                                {ad.sellerVerified && (
-                                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                                )}
-                              </div>
-                              <span className="text-[10px] text-slate-500 capitalize">
-                                {ad.sellerType === 'concessionaria'
-                                  ? 'Concessionária'
-                                  : 'Particular'}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="py-3.5 px-4">{getPlanBadge(ad.plan)}</td>
-                          <td className="py-3.5 px-4">
-                            <span className="flex items-center gap-1 text-slate-600 text-[11px]">
-                              <MapPin className="w-3 h-3 text-red-500 shrink-0" />
-                              {ad.location}
-                            </span>
-                          </td>
-                          <td className="py-3.5 px-4">{getStatusBadge(ad.status)}</td>
-                          <td className="py-3.5 px-4 text-right">
-                            <button
-                              type="button"
-                              onClick={() => setInspectingAd(ad)}
-                              className="px-3 py-1.5 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold transition-colors shadow-2xs text-xs inline-flex items-center gap-1"
-                            >
-                              <span>Revisar</span>
-                              <ExternalLink className="w-3 h-3" />
-                            </button>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-700">
+                      {filteredAds.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="py-12 text-center text-slate-400">
+                            <p className="text-sm font-semibold">Nenhum anúncio encontrado</p>
+                            <p className="text-xs mt-1">
+                              Tente ajustar os filtros ou termos de pesquisa.
+                            </p>
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                      ) : (
+                        filteredAds.map((ad) => {
+                          const isSelected = selectedAd?.id === ad.id;
+                          return (
+                            <tr
+                              key={ad.id}
+                              tabIndex={0}
+                              onClick={() => setSelectedAdId(ad.id)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  setSelectedAdId(ad.id);
+                                }
+                              }}
+                              className={`cursor-pointer transition-colors group ${
+                                isSelected
+                                  ? 'bg-red-50/70 border-l-4 border-l-red-600 font-medium'
+                                  : 'hover:bg-slate-50/80'
+                              }`}
+                            >
+                              <td className="py-3 px-3.5">
+                                <div className="flex items-center gap-2.5">
+                                  <div
+                                    className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${
+                                      isSelected
+                                        ? 'bg-red-600 text-white border-red-700'
+                                        : 'bg-slate-100 text-slate-600 border-slate-200'
+                                    }`}
+                                  >
+                                    <Car className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <span className="font-bold text-slate-900 block group-hover:text-red-700 transition-colors">
+                                      {ad.title}
+                                    </span>
+                                    <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
+                                      <span className="font-mono text-amber-700 font-semibold">
+                                        {ad.code}
+                                      </span>
+                                      <span>•</span>
+                                      <span>{ad.year}</span>
+                                      <span>•</span>
+                                      <span>{ad.location}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-3 px-3">
+                                <div>
+                                  <span className="font-extrabold text-slate-900 block text-xs">
+                                    {ad.priceFormatted}
+                                  </span>
+                                  <div className="flex items-center gap-1 text-[10px] mt-0.5">
+                                    <span
+                                      className={`font-semibold px-1 py-0.2 rounded ${
+                                        ad.fipeVariation.startsWith('-')
+                                          ? 'bg-emerald-50 text-emerald-700'
+                                          : 'bg-amber-50 text-amber-800'
+                                      }`}
+                                    >
+                                      {ad.fipeVariation}
+                                    </span>
+                                    <span className="text-slate-400">FIPE</span>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-3 px-3">{getPlanBadge(ad.plan)}</td>
+                              <td className="py-3 px-3">{getStatusBadge(ad.status)}</td>
+                              <td className="py-3 px-3 text-right">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedAdId(ad.id);
+                                    setInspectingAd(ad);
+                                    setIsMobileModalOpen(false);
+                                  }}
+                                  className="px-2.5 py-1 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold transition-colors shadow-2xs text-[11px] inline-flex items-center gap-1"
+                                >
+                                  <span>Revisar</span>
+                                  <ExternalLink className="w-2.5 h-2.5" />
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Table Footer */}
+                <div className="p-3.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
+                  <span>
+                    Exibindo <strong>{filteredAds.length}</strong> de <strong>{ads.length}</strong>{' '}
+                    anúncios em moderação
+                  </span>
+                  <span className="font-mono text-[11px] text-slate-400">
+                    ADM-D-014 • DEMO DATA
+                  </span>
+                </div>
               </div>
 
-              {/* Table Footer */}
-              <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
-                <span>
-                  Exibindo <strong>{filteredAds.length}</strong> de <strong>{ads.length}</strong>{' '}
-                  anúncios em moderação
-                </span>
-                <span className="font-mono text-[11px] text-slate-400">
-                  AMBIENTE DEMONSTRATIVO • Fila operacional
-                </span>
+              {/* Right Column: Selected Vehicle Preview & Moderation Panel (Figma ADM-D-014) */}
+              <div
+                data-testid="selected-vehicle-preview-panel"
+                className="xl:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-5"
+              >
+                {selectedAd ? (
+                  <>
+                    {/* Header */}
+                    <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-mono text-xs text-amber-600 font-bold">
+                            {selectedAd.code}
+                          </span>
+                          <span className="text-slate-400">•</span>
+                          {getPlanBadge(selectedAd.plan)}
+                        </div>
+                        <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+                          {selectedAd.title}
+                        </h2>
+                      </div>
+                      <div>{getStatusBadge(selectedAd.status)}</div>
+                    </div>
+
+                    {/* Feedback Alert if Action Triggered */}
+                    {panelFeedback && (
+                      <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 animate-in fade-in">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>{panelFeedback}</span>
+                      </div>
+                    )}
+
+                    {/* FIPE Comparison Banner */}
+                    <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-100 flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] text-slate-400 uppercase font-bold block">
+                          Valor Solicitado
+                        </span>
+                        <span className="text-base font-black text-slate-900">
+                          {selectedAd.priceFormatted}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[10px] text-slate-400 uppercase font-bold block">
+                          Referência FIPE
+                        </span>
+                        <div className="flex items-center gap-1.5 justify-end">
+                          <span className="text-xs font-semibold text-slate-700">
+                            {selectedAd.fipePriceFormatted}
+                          </span>
+                          <span
+                            className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                              selectedAd.fipeVariation.startsWith('-')
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : 'bg-amber-100 text-amber-800'
+                            }`}
+                          >
+                            {selectedAd.fipeVariation}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Vehicle Preview Card Mock */}
+                    <div className="border border-slate-200 rounded-xl p-3 bg-slate-50/50 flex items-center gap-3">
+                      <div className="w-16 h-12 rounded-lg bg-slate-200 border border-slate-300 flex items-center justify-center shrink-0 text-slate-600">
+                        <Car className="w-6 h-6" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="text-[11px] font-bold text-slate-800 block truncate">
+                          {selectedAd.brand} {selectedAd.model} ({selectedAd.year})
+                        </span>
+                        <span className="text-[10px] text-slate-500 block">
+                          {selectedAd.mileage} • {selectedAd.fuel} • {selectedAd.transmission}
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-600 block">
+                          Placa: {selectedAd.plateMasked} (LGPD Censurada)
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Seller Information */}
+                    <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100">
+                      <div>
+                        <span className="text-slate-400 block text-[10px] uppercase font-bold">
+                          Anunciante
+                        </span>
+                        <div className="flex items-center gap-1 font-semibold text-slate-800">
+                          <span>{selectedAd.sellerName}</span>
+                          {selectedAd.sellerVerified && (
+                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          )}
+                        </div>
+                        <span className="text-[10px] text-slate-500 capitalize">
+                          {selectedAd.sellerType === 'concessionaria'
+                            ? 'Concessionária Parceira'
+                            : 'Particular'}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-slate-400 block text-[10px] uppercase font-bold">
+                          Localidade
+                        </span>
+                        <span className="text-slate-700 font-medium">{selectedAd.location}</span>
+                      </div>
+                    </div>
+
+                    {/* Decision Form inputs if action selected */}
+                    {panelActionType && (
+                      <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+                        <label htmlFor="panel-ad-reason" className="font-bold text-slate-800 block">
+                          {panelActionType === 'corrections'
+                            ? 'Instruções de ajuste ao anunciante:'
+                            : 'Motivo da não aprovação do veículo:'}
+                        </label>
+                        <textarea
+                          id="panel-ad-reason"
+                          rows={2}
+                          value={panelReasonText}
+                          onChange={(e) => setPanelReasonText(e.target.value)}
+                          placeholder="Informe as pendências..."
+                          className="w-full p-2 rounded-lg border border-slate-300 bg-white text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-600"
+                        />
+                        <div className="flex items-center justify-end gap-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPanelActionType(null);
+                              setPanelReasonText('');
+                            }}
+                            className="px-2.5 py-1 text-slate-600 hover:text-slate-900"
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handlePanelConfirmAction}
+                            disabled={!panelReasonText.trim()}
+                            className="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-bold disabled:opacity-50"
+                          >
+                            Confirmar
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Operational Action Controls (Desktop Exclusive) */}
+                    <div className="pt-2 border-t border-slate-100 space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={handlePanelApprove}
+                          className="py-2.5 px-3 bg-red-700 hover:bg-red-800 text-white font-bold rounded-xl text-xs transition-colors shadow-xs flex items-center justify-center gap-1.5"
+                        >
+                          <ShieldCheck className="w-4 h-4" />
+                          <span>Aprovar e Publicar</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setPanelActionType('corrections')}
+                          className="py-2.5 px-3 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold rounded-xl text-xs transition-colors"
+                        >
+                          Solicitar Ajuste
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setPanelActionType('reject')}
+                          className="text-xs text-red-600 hover:text-red-800 font-semibold hover:underline"
+                        >
+                          Reprovar Anúncio
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setInspectingAd(selectedAd);
+                            setIsMobileModalOpen(false);
+                          }}
+                          className="text-xs text-slate-600 hover:text-slate-900 font-medium inline-flex items-center gap-1 hover:underline"
+                        >
+                          <Maximize2 className="w-3 h-3" />
+                          <span>Revisão Completa</span>
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="p-8 text-center text-slate-400 text-xs">
+                    Selecione um veículo na fila para ver a prévia técnica.
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </AdminShell>
       </div>
 
-      {/* Inspection Modal */}
+      {/* Inspection Modal (Desktop: Interactive; Mobile: Read-Only via prop) */}
       <ListingInspectionModal
         ad={inspectingAd}
         isOpen={inspectingAd !== null}
         onClose={() => setInspectingAd(null)}
         onDecision={handleDecision}
+        readOnly={isMobileModalOpen}
       />
     </>
   );
