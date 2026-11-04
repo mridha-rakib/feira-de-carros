@@ -30,7 +30,9 @@ import type {
   SellerType,
 } from '../../lib/types/b2-presentation';
 import { AdminMobileNavigation } from '../components/AdminMobileNavigation';
+import { AdminPagination } from '../components/AdminPagination';
 import { AdminShell } from '../components/AdminShell';
+import { LoadMore } from '../components/LoadMore';
 import { SellerInspectionModal } from '../components/SellerInspectionModal';
 
 export default function SellerApprovalPage() {
@@ -55,6 +57,22 @@ export default function SellerApprovalPage() {
   const [panelReasonText, setPanelReasonText] = React.useState('');
   const [panelFeedback, setPanelFeedback] = React.useState<string | null>(null);
 
+  // Pagination states
+  const PAGE_SIZE = 10;
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [mobileVisibleCount, setMobileVisibleCount] = React.useState(6);
+
+  // Reset pagination on search or filter change
+  React.useEffect(() => {
+    if (searchTerm || selectedType || selectedStatus) {
+      setCurrentPage(1);
+      setMobileVisibleCount(6);
+    } else {
+      setCurrentPage(1);
+      setMobileVisibleCount(6);
+    }
+  }, [searchTerm, selectedType, selectedStatus]);
+
   // Filter application list
   const filteredApplications = React.useMemo(() => {
     return applications.filter((app) => {
@@ -71,14 +89,27 @@ export default function SellerApprovalPage() {
     });
   }, [applications, searchTerm, selectedType, selectedStatus]);
 
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredApplications.length / PAGE_SIZE) || 1;
+
+  const paginatedApplications = React.useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredApplications.slice(start, start + PAGE_SIZE);
+  }, [filteredApplications, currentPage]);
+
+  const mobileApplications = React.useMemo(() => {
+    return filteredApplications.slice(0, mobileVisibleCount);
+  }, [filteredApplications, mobileVisibleCount]);
+
   // Currently selected application in desktop side panel
   const selectedApplication = React.useMemo(() => {
     return (
       applications.find((app) => app.id === selectedAppId) ||
+      paginatedApplications[0] ||
       filteredApplications[0] ||
       applications[0]
     );
-  }, [applications, selectedAppId, filteredApplications]);
+  }, [applications, selectedAppId, paginatedApplications, filteredApplications]);
 
   // Metric counters
   const counts = React.useMemo(() => {
@@ -273,66 +304,76 @@ export default function SellerApprovalPage() {
 
           {/* Mobile Cards List */}
           <div className="space-y-3">
-            {filteredApplications.length === 0 ? (
+            {mobileApplications.length === 0 ? (
               <div className="bg-white p-6 rounded-2xl text-center border border-slate-200 text-slate-500 text-xs">
                 Nenhuma solicitação encontrada com os filtros selecionados.
               </div>
             ) : (
-              filteredApplications.map((app) => (
-                <div
-                  key={app.id}
-                  className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3"
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-mono text-[10px] text-amber-600 font-bold">
-                          {app.code}
-                        </span>
-                        <span className="text-slate-400">•</span>
-                        <span className="text-[10px] font-semibold text-slate-500 uppercase">
-                          {app.type === 'concessionaria' ? 'Concessionária' : 'Particular'}
+              <>
+                {mobileApplications.map((app) => (
+                  <div
+                    key={app.id}
+                    className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono text-[10px] text-amber-600 font-bold">
+                            {app.code}
+                          </span>
+                          <span className="text-slate-400">•</span>
+                          <span className="text-[10px] font-semibold text-slate-500 uppercase">
+                            {app.type === 'concessionaria' ? 'Concessionária' : 'Particular'}
+                          </span>
+                        </div>
+                        <h3 className="font-bold text-slate-900 text-sm">{app.name}</h3>
+                        {app.tradeName && (
+                          <span className="text-xs text-slate-500 block">{app.tradeName}</span>
+                        )}
+                      </div>
+                      {getStatusBadge(app.status)}
+                    </div>
+
+                    <div className="text-xs text-slate-600 space-y-1 pt-1 border-t border-slate-100">
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Documento:</span>
+                        <span className="font-mono font-medium text-slate-800">{app.document}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Local:</span>
+                        <span className="text-slate-800">
+                          {app.city}, {app.state}
                         </span>
                       </div>
-                      <h3 className="font-bold text-slate-900 text-sm">{app.name}</h3>
-                      {app.tradeName && (
-                        <span className="text-xs text-slate-500 block">{app.tradeName}</span>
-                      )}
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Envio:</span>
+                        <span className="text-slate-600">{app.submittedAt}</span>
+                      </div>
                     </div>
-                    {getStatusBadge(app.status)}
-                  </div>
 
-                  <div className="text-xs text-slate-600 space-y-1 pt-1 border-t border-slate-100">
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Documento:</span>
-                      <span className="font-mono font-medium text-slate-800">{app.document}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Local:</span>
-                      <span className="text-slate-800">
-                        {app.city}, {app.state}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Envio:</span>
-                      <span className="text-slate-600">{app.submittedAt}</span>
-                    </div>
+                    {/* Read-Only Mobile Detail Trigger */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setInspectingApplication(app);
+                        setIsMobileModalOpen(true);
+                      }}
+                      className="w-full py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors shadow-xs flex items-center justify-center gap-1.5"
+                    >
+                      <FileText className="w-4 h-4 text-slate-400" />
+                      <span>Ver detalhes e documentos</span>
+                    </button>
                   </div>
+                ))}
 
-                  {/* Read-Only Mobile Detail Trigger */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setInspectingApplication(app);
-                      setIsMobileModalOpen(true);
-                    }}
-                    className="w-full py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors shadow-xs flex items-center justify-center gap-1.5"
-                  >
-                    <FileText className="w-4 h-4 text-slate-400" />
-                    <span>Ver detalhes e documentos</span>
-                  </button>
-                </div>
-              ))
+                <LoadMore
+                  currentCount={mobileApplications.length}
+                  totalCount={filteredApplications.length}
+                  onLoadMore={() => setMobileVisibleCount((prev) => prev + 6)}
+                  step={6}
+                  itemName="solicitações"
+                />
+              </>
             )}
           </div>
         </div>
@@ -519,7 +560,7 @@ export default function SellerApprovalPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-slate-700">
-                      {filteredApplications.length === 0 ? (
+                      {paginatedApplications.length === 0 ? (
                         <tr>
                           <td colSpan={5} className="py-12 text-center text-slate-400">
                             <p className="text-sm font-semibold">Nenhuma solicitação encontrada</p>
@@ -529,7 +570,7 @@ export default function SellerApprovalPage() {
                           </td>
                         </tr>
                       ) : (
-                        filteredApplications.map((app) => {
+                        paginatedApplications.map((app) => {
                           const isSelected = selectedApplication?.id === app.id;
                           return (
                             <tr
@@ -612,16 +653,15 @@ export default function SellerApprovalPage() {
                   </table>
                 </div>
 
-                {/* Table Footer */}
-                <div className="p-3.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
-                  <span>
-                    Exibindo <strong>{filteredApplications.length}</strong> de{' '}
-                    <strong>{applications.length}</strong> solicitações
-                  </span>
-                  <span className="font-mono text-[11px] text-slate-400">
-                    ADM-D-005 • DEMO DATA
-                  </span>
-                </div>
+                {/* Table Pagination */}
+                <AdminPagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  pageSize={PAGE_SIZE}
+                  totalItems={filteredApplications.length}
+                  onPageChange={setCurrentPage}
+                  itemName="solicitações"
+                />
               </div>
 
               {/* Right Column: Selected Seller Detail & Decision Panel (Figma ADM-D-005) */}

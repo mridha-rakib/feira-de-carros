@@ -71,6 +71,26 @@ test.describe('Admin B2 — Seller Approval (ADM-D-005 & ADM-M-002)', () => {
     await expect(desktopView.locator('table').getByText('Mariana Silva Costa')).not.toBeVisible();
     await searchInput.fill('');
 
+    // Verify Pagination (ADM-D-005: 21 sellers -> 3 pages)
+    const pagination = desktopView.getByTestId('admin-pagination');
+    await expect(pagination).toBeVisible();
+    await expect(pagination.getByText(/1–10/i)).toBeVisible();
+    await expect(pagination.getByRole('button', { name: 'Anterior' })).toBeDisabled();
+    const nextBtn = pagination.getByRole('button', { name: 'Próximo' });
+    await expect(nextBtn).toBeEnabled();
+
+    // Navigate to page 2 (11–20) and page 3 (21–21)
+    await nextBtn.click();
+    await expect(pagination.getByText(/11–20/i)).toBeVisible();
+    await expect(pagination.getByRole('button', { name: 'Anterior' })).toBeEnabled();
+    await nextBtn.click();
+    await expect(pagination.getByText(/21–21/i)).toBeVisible();
+    await expect(nextBtn).toBeDisabled();
+
+    // Navigate back to page 1
+    await pagination.getByRole('button', { name: '1', exact: true }).click();
+    await expect(pagination.getByText(/1–10/i)).toBeVisible();
+
     // Test Inspection Modal (Desktop Full View)
     const inspectBtn = desktopView.locator('button', { hasText: 'Analisar' }).first();
     await inspectBtn.click();
@@ -141,6 +161,12 @@ test.describe('Admin B2 — Seller Approval (ADM-D-005 & ADM-M-002)', () => {
     // Crucial Task 2 Check: On mobile cards list, operational decision buttons are NOT exposed
     await expect(mobileView.getByRole('button', { name: 'Aprovar Vendedor' })).not.toBeVisible();
     await expect(mobileView.getByRole('button', { name: 'Recusar Cadastro' })).not.toBeVisible();
+
+    // Mobile Load More Verification (ADM-M-002)
+    const loadMoreBtn = mobileView.getByTestId('load-more-button');
+    await expect(loadMoreBtn).toBeVisible();
+    await loadMoreBtn.click();
+    await expect(mobileView.getByText(/Exibindo 12 de/i)).toBeVisible();
 
     // Open Mobile Read-Only Modal
     await openDetailBtn.click();
@@ -242,6 +268,13 @@ test.describe('Admin B2 — Advertisements Moderation (ADM-D-014 & ADM-M-003)', 
     await expect(previewPanel.getByRole('button', { name: 'Solicitar Ajuste' })).toBeVisible();
     await expect(previewPanel.getByRole('button', { name: 'Reprovar Anúncio' })).toBeVisible();
 
+    // Verify Vehicle Images in Queue Table & Selected Preview Panel
+    const tableImages = desktopView.locator('table tbody tr img');
+    await expect(tableImages.first()).toBeVisible();
+    const previewImage = previewPanel.locator('img');
+    await expect(previewImage.first()).toBeVisible();
+    await expect(previewPanel.getByText('DEMO')).toBeVisible();
+
     // Test Selecting Another Row in Queue
     const secondRow = desktopView.locator('table tbody tr').nth(1);
     await secondRow.click();
@@ -259,6 +292,24 @@ test.describe('Admin B2 — Advertisements Moderation (ADM-D-014 & ADM-M-003)', 
       desktopView.locator('table').getByText('Fiat Strada 1.3 Freedom Cabine Dupla 2023'),
     ).not.toBeVisible();
     await searchInput.fill('');
+
+    // Verify Pagination (ADM-D-014: 18 ads -> 2 pages)
+    const pagination = desktopView.getByTestId('admin-pagination');
+    await expect(pagination).toBeVisible();
+    await expect(pagination.getByText(/1–10/i)).toBeVisible();
+    await expect(pagination.getByRole('button', { name: 'Anterior' })).toBeDisabled();
+    const nextBtn = pagination.getByRole('button', { name: 'Próximo' });
+    await expect(nextBtn).toBeEnabled();
+
+    // Navigate to page 2 (11–18)
+    await nextBtn.click();
+    await expect(pagination.getByText(/11–18/i)).toBeVisible();
+    await expect(nextBtn).toBeDisabled();
+    await expect(pagination.getByRole('button', { name: 'Anterior' })).toBeEnabled();
+
+    // Navigate back to page 1
+    await pagination.getByRole('button', { name: '1', exact: true }).click();
+    await expect(pagination.getByText(/1–10/i)).toBeVisible();
 
     // Test Inspection Modal (Desktop Full View)
     const reviewBtn = desktopView.locator('button', { hasText: 'Revisar' }).first();
@@ -328,6 +379,14 @@ test.describe('Admin B2 — Advertisements Moderation (ADM-D-014 & ADM-M-003)', 
     // Crucial Task 2 Check: On mobile cards list, operational decision buttons are NOT exposed
     await expect(mobileView.getByRole('button', { name: 'Aprovar e Publicar' })).not.toBeVisible();
     await expect(mobileView.getByRole('button', { name: 'Reprovar Anúncio' })).not.toBeVisible();
+
+    // Mobile Load More & Vehicle Hero Image Verification (ADM-M-003)
+    const firstCardImage = mobileView.locator('img').first();
+    await expect(firstCardImage).toBeVisible();
+    const loadMoreBtn = mobileView.getByTestId('load-more-button');
+    await expect(loadMoreBtn).toBeVisible();
+    await loadMoreBtn.click();
+    await expect(mobileView.getByText(/Exibindo 12 de/i)).toBeVisible();
 
     // Open Mobile Read-Only Modal
     await openDetailBtn.click();

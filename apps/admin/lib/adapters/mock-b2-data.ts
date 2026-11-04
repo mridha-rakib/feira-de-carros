@@ -369,7 +369,8 @@ export const mockModerationAds: ModerationAd[] = [
     status: 'pending',
     submittedAt: '02/11/2026 15:45',
     photos: [
-      '/brand/logo-white.png', // Fallback illustration photo
+      '/images/vehicles/demo/fc-2026-0142-strada-front.png',
+      '/images/vehicles/demo/vehicle-fallback.svg',
     ],
     description:
       'Veículo em excelente estado de conservação, único dono, todas as revisões feitas na concessionária autorizada. Pneus em ótimo estado, manual e chave reserva inclusos.',
@@ -398,7 +399,10 @@ export const mockModerationAds: ModerationAd[] = [
     plan: 'Básico',
     status: 'pending',
     submittedAt: '02/11/2026 12:10',
-    photos: ['/brand/logo-white.png'],
+    photos: [
+      '/images/vehicles/demo/fc-2026-0148-onix-front.png',
+      '/images/vehicles/demo/vehicle-fallback.svg',
+    ],
     description:
       'Onix Premier topo de linha, com alerta de ponto cego, assistente de estacionamento automático (Park Assist) e carregador de celular por indução. Impecável!',
   },
@@ -426,7 +430,10 @@ export const mockModerationAds: ModerationAd[] = [
     plan: 'Destaque Ouro',
     status: 'pending',
     submittedAt: '02/11/2026 10:20',
-    photos: ['/brand/logo-white.png'],
+    photos: [
+      '/images/vehicles/demo/fc-2026-0151-polo-front.png',
+      '/images/vehicles/demo/vehicle-fallback.svg',
+    ],
     description:
       'Polo Track completo, econômico e resistente. Ar condicionado, direção elétrica, vidros e travas elétricas, 4 airbags. Revisado com garantia da loja.',
   },
@@ -454,7 +461,10 @@ export const mockModerationAds: ModerationAd[] = [
     plan: 'Básico',
     status: 'pending',
     submittedAt: '01/11/2026 17:30',
-    photos: ['/brand/logo-white.png'],
+    photos: [
+      '/images/vehicles/demo/fc-2026-0153-cg160-front.png',
+      '/images/vehicles/demo/vehicle-fallback.svg',
+    ],
     description:
       'Moto em perfeito estado, partida elétrica, freio a disco com CBS, painel digital blackout. Muito bem cuidada, sem detalhes.',
   },
@@ -482,7 +492,10 @@ export const mockModerationAds: ModerationAd[] = [
     plan: 'Destaque Ouro',
     status: 'pending',
     submittedAt: '01/11/2026 15:15',
-    photos: ['/brand/logo-white.png'],
+    photos: [
+      '/images/vehicles/demo/fc-2026-0155-hb20-front.png',
+      '/images/vehicles/demo/vehicle-fallback.svg',
+    ],
     description:
       'Sedan de referência mundial. Motor 2.0 com injeção direta de 177cv, câmbio CVT com primeira marcha física de engrenagem. Sistema Toyota Safety Sense com piloto automático adaptativo.',
   },
@@ -510,7 +523,10 @@ export const mockModerationAds: ModerationAd[] = [
     plan: 'Básico',
     status: 'pending',
     submittedAt: '01/11/2026 11:50',
-    photos: ['/brand/logo-white.png'],
+    photos: [
+      '/images/vehicles/demo/fc-2026-0156-hilux-front.png',
+      '/images/vehicles/demo/vehicle-fallback.svg',
+    ],
     description:
       'Excelente opção para dia a dia e trabalho por aplicativo. Baixíssimo consumo de combustível, revisões em dia na concessionária.',
   },
@@ -538,7 +554,10 @@ export const mockModerationAds: ModerationAd[] = [
     plan: 'Destaque Prata',
     status: 'pending',
     submittedAt: '01/11/2026 09:30',
-    photos: ['/brand/logo-white.png'],
+    photos: [
+      '/images/vehicles/demo/fc-2026-0157-compass-front.png',
+      '/images/vehicles/demo/vehicle-fallback.svg',
+    ],
     description:
       'SUV premium nacional com motor Turbo 185cv. Central multimídia 10 polegadas com Apple CarPlay sem fio, bancos em couro preto, faróis Full LED.',
   },
@@ -566,7 +585,10 @@ export const mockModerationAds: ModerationAd[] = [
     plan: 'Básico',
     status: 'pending',
     submittedAt: '31/10/2026 16:40',
-    photos: ['/brand/logo-white.png'],
+    photos: [
+      '/images/vehicles/demo/fc-2026-0158-kwid-front.png',
+      '/images/vehicles/demo/vehicle-fallback.svg',
+    ],
     description:
       'Compacto de fácil estacionamento, 4 airbags de série, direção elétrica e ar condicionado. Pneus novos.',
   },
@@ -594,7 +616,10 @@ export const mockModerationAds: ModerationAd[] = [
     plan: 'Destaque Ouro',
     status: 'pending',
     submittedAt: '31/10/2026 14:15',
-    photos: ['/brand/logo-white.png'],
+    photos: [
+      '/images/vehicles/demo/fc-2026-0159-tcross-front.png',
+      '/images/vehicles/demo/vehicle-fallback.svg',
+    ],
     description:
       'Picape mais robusta do mercado. Versão topo de linha SRX com som JBL, bancos ventilados, tração 4x4 com reduzida e bloqueio de diferencial.',
   },
@@ -622,7 +647,10 @@ export const mockModerationAds: ModerationAd[] = [
     plan: 'Destaque Prata',
     status: 'pending',
     submittedAt: '31/10/2026 10:40',
-    photos: ['/brand/logo-white.png'],
+    photos: [
+      '/images/vehicles/demo/fc-2026-0160-corolla-front.png',
+      '/images/vehicles/demo/vehicle-fallback.svg',
+    ],
     description:
       'Excelente SUV urbano, muito econômico e confortável com bancos Zero Gravity. Painel multifuncional em TFT de 7 polegadas.',
   },
@@ -650,7 +678,10 @@ export const mockModerationAds: ModerationAd[] = [
     plan: 'Destaque Prata',
     status: 'pending',
     submittedAt: '30/10/2026 16:50',
-    photos: ['/brand/logo-white.png'],
+    photos: [
+      '/images/vehicles/demo/fc-2026-0161-renegade-front.png',
+      '/images/vehicles/demo/vehicle-fallback.svg',
+    ],
     description:
       'Câmbio de 9 marchas com tração 4x4 permanente, rodas aro 18 diamantadas, capota marítima original e protetor de caçamba.',
   },
@@ -678,7 +709,10 @@ export const mockModerationAds: ModerationAd[] = [
     plan: 'Básico',
     status: 'pending',
     submittedAt: '30/10/2026 13:20',
-    photos: ['/brand/logo-white.png'],
+    photos: [
+      '/images/vehicles/demo/fc-2026-0162-creta-front.png',
+      '/images/vehicles/demo/vehicle-fallback.svg',
+    ],
     description:
       'Geração 10 clássica, design esportivo e alta confiabilidade. Ar condicionado digital Dual Zone, freio de mão elétrico com Brake Hold.',
   },
@@ -706,7 +740,10 @@ export const mockModerationAds: ModerationAd[] = [
     plan: 'Destaque Prata',
     status: 'pending',
     submittedAt: '30/10/2026 09:15',
-    photos: ['/brand/logo-white.png'],
+    photos: [
+      '/images/vehicles/demo/fc-2026-0163-tracker-front.png',
+      '/images/vehicles/demo/vehicle-fallback.svg',
+    ],
     description:
       'Tracker completa com teto solar panorâmico, alerta de colisão frontal com frenagem automática de emergência e Wi-Fi nativo.',
   },
@@ -734,7 +771,10 @@ export const mockModerationAds: ModerationAd[] = [
     plan: 'Básico',
     status: 'pending',
     submittedAt: '29/10/2026 15:40',
-    photos: ['/brand/logo-white.png'],
+    photos: [
+      '/images/vehicles/demo/fc-2026-0164-kicks-front.png',
+      '/images/vehicles/demo/vehicle-fallback.svg',
+    ],
     description:
       'Painel digital Active Info Display, saída de ar condicionado para o banco traseiro com tomadas USB. Excelente dinâmica de condução.',
   },
@@ -762,7 +802,10 @@ export const mockModerationAds: ModerationAd[] = [
     plan: 'Básico',
     status: 'pending',
     submittedAt: '29/10/2026 11:20',
-    photos: ['/brand/logo-white.png'],
+    photos: [
+      '/images/vehicles/demo/fc-2026-0165-mobi-front.png',
+      '/images/vehicles/demo/vehicle-fallback.svg',
+    ],
     description:
       'Moto praticamente zero km, farol e lanterna em LED com projetor, freios ABS nas duas rodas. Documentação 2026 100% paga.',
   },
@@ -790,7 +833,10 @@ export const mockModerationAds: ModerationAd[] = [
     plan: 'Básico',
     status: 'pending',
     submittedAt: '28/10/2026 17:15',
-    photos: ['/brand/logo-white.png'],
+    photos: [
+      '/images/vehicles/demo/fc-2026-0166-duster-front.png',
+      '/images/vehicles/demo/vehicle-fallback.svg',
+    ],
     description:
       'Central multimídia SYNC 3 com espelhamento Android Auto e Apple CarPlay, sensor de estacionamento original e vidros elétricos nas 4 portas.',
   },
@@ -818,7 +864,10 @@ export const mockModerationAds: ModerationAd[] = [
     plan: 'Destaque Prata',
     status: 'pending',
     submittedAt: '28/10/2026 14:00',
-    photos: ['/brand/logo-white.png'],
+    photos: [
+      '/images/vehicles/demo/fc-2026-0167-argo-front.png',
+      '/images/vehicles/demo/vehicle-fallback.svg',
+    ],
     description:
       'Renegade Longitude com bancos em couro legítimo, rodas aro 18 originais, câmera de ré e ar condicionado Dualzone.',
   },
@@ -846,7 +895,10 @@ export const mockModerationAds: ModerationAd[] = [
     plan: 'Destaque Ouro',
     status: 'pending',
     submittedAt: '28/10/2026 10:30',
-    photos: ['/brand/logo-white.png'],
+    photos: [
+      '/images/vehicles/demo/fc-2026-0167-pulse-front.png',
+      '/images/vehicles/demo/vehicle-fallback.svg',
+    ],
     description:
       'Crossover compacto com motor turbo de 130cv. Carregador sem fio, chave presencial Keyless Entry & Go com partida remota, pacote ADAS de condução assistida.',
   },

@@ -34,8 +34,11 @@ import type {
   SellerType,
 } from '../../lib/types/b2-presentation';
 import { AdminMobileNavigation } from '../components/AdminMobileNavigation';
+import { AdminPagination } from '../components/AdminPagination';
 import { AdminShell } from '../components/AdminShell';
 import { ListingInspectionModal } from '../components/ListingInspectionModal';
+import { LoadMore } from '../components/LoadMore';
+import { VehicleImage } from '../components/VehicleImage';
 
 export default function AdModerationPage() {
   const [ads, setAds] = React.useState<ModerationAd[]>(mockModerationAds);
@@ -52,6 +55,22 @@ export default function AdModerationPage() {
   );
   const [panelReasonText, setPanelReasonText] = React.useState('');
   const [panelFeedback, setPanelFeedback] = React.useState<string | null>(null);
+
+  // Pagination states
+  const PAGE_SIZE = 10;
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [mobileVisibleCount, setMobileVisibleCount] = React.useState(6);
+
+  // Reset pagination on search or filter change
+  React.useEffect(() => {
+    if (searchTerm || selectedStatus || selectedPlan) {
+      setCurrentPage(1);
+      setMobileVisibleCount(6);
+    } else {
+      setCurrentPage(1);
+      setMobileVisibleCount(6);
+    }
+  }, [searchTerm, selectedStatus, selectedPlan]);
 
   // Filter ads list
   const filteredAds = React.useMemo(() => {
@@ -71,10 +90,22 @@ export default function AdModerationPage() {
     });
   }, [ads, searchTerm, selectedStatus, selectedPlan]);
 
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredAds.length / PAGE_SIZE) || 1;
+
+  const paginatedAds = React.useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredAds.slice(start, start + PAGE_SIZE);
+  }, [filteredAds, currentPage]);
+
+  const mobileAds = React.useMemo(() => {
+    return filteredAds.slice(0, mobileVisibleCount);
+  }, [filteredAds, mobileVisibleCount]);
+
   // Currently selected ad in desktop side panel
   const selectedAd = React.useMemo(() => {
-    return ads.find((a) => a.id === selectedAdId) || filteredAds[0] || ads[0];
-  }, [ads, selectedAdId, filteredAds]);
+    return ads.find((a) => a.id === selectedAdId) || paginatedAds[0] || filteredAds[0] || ads[0];
+  }, [ads, selectedAdId, paginatedAds, filteredAds]);
 
   // Metric counters
   const counts = React.useMemo(() => {
@@ -301,94 +332,126 @@ export default function AdModerationPage() {
 
           {/* Mobile Cards List */}
           <div className="space-y-3">
-            {filteredAds.length === 0 ? (
+            {mobileAds.length === 0 ? (
               <div className="bg-white p-6 rounded-2xl text-center border border-slate-200 text-slate-500 text-xs">
                 Nenhum anúncio encontrado com os filtros selecionados.
               </div>
             ) : (
-              filteredAds.map((ad) => (
-                <div
-                  key={ad.id}
-                  className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="font-mono text-[10px] text-amber-600 font-bold">
-                          {ad.code}
-                        </span>
-                        <span className="text-slate-400">•</span>
+              <>
+                {mobileAds.map((ad) => (
+                  <div
+                    key={ad.id}
+                    className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3"
+                  >
+                    {/* Vehicle Hero Thumbnail */}
+                    <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+                      <VehicleImage
+                        src={ad.photos[0]}
+                        alt={ad.title}
+                        fill
+                        showDemoBadge
+                        sizes="(max-width: 640px) 100vw, 360px"
+                      />
+                      <div className="absolute top-2 left-2 flex items-center gap-1.5">
                         {getPlanBadge(ad.plan)}
                       </div>
-                      <h3 className="font-bold text-slate-900 text-sm mt-1 truncate">{ad.title}</h3>
-                      <p className="text-xs text-slate-500">
-                        {ad.year} • {ad.mileage} • {ad.transmission}
-                      </p>
+                      <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-2xs text-[10px] text-white font-medium flex items-center gap-1">
+                        <ImageIcon className="w-3 h-3" />
+                        <span>{ad.photos.length} fotos</span>
+                      </div>
                     </div>
-                    <div>{getStatusBadge(ad.status)}</div>
-                  </div>
 
-                  {/* Price & FIPE */}
-                  <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] text-slate-400 uppercase font-semibold block">
-                        Preço Anunciado
-                      </span>
-                      <span className="text-sm font-black text-slate-900">{ad.priceFormatted}</span>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-mono text-[10px] text-amber-600 font-bold">
+                            {ad.code}
+                          </span>
+                        </div>
+                        <h3 className="font-bold text-slate-900 text-sm mt-0.5 truncate">
+                          {ad.title}
+                        </h3>
+                        <p className="text-xs text-slate-500">
+                          {ad.year} • {ad.mileage} • {ad.transmission}
+                        </p>
+                      </div>
+                      <div>{getStatusBadge(ad.status)}</div>
                     </div>
-                    <div className="text-right">
-                      <span className="text-[10px] text-slate-400 uppercase font-semibold block">
-                        Tabela FIPE
-                      </span>
-                      <div className="flex items-center gap-1 justify-end">
-                        <span className="text-xs font-semibold text-slate-700">
-                          {ad.fipePriceFormatted}
+
+                    {/* Price & FIPE */}
+                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] text-slate-400 uppercase font-semibold block">
+                          Preço Anunciado
                         </span>
-                        <span
-                          className={`text-[10px] font-bold px-1 rounded ${
-                            ad.fipeVariation.startsWith('-')
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-amber-100 text-amber-800'
-                          }`}
-                        >
-                          {ad.fipeVariation}
+                        <span className="text-sm font-black text-slate-900">
+                          {ad.priceFormatted}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[10px] text-slate-400 uppercase font-semibold block">
+                          Tabela FIPE
+                        </span>
+                        <div className="flex items-center gap-1 justify-end">
+                          <span className="text-xs font-semibold text-slate-700">
+                            {ad.fipePriceFormatted}
+                          </span>
+                          <span
+                            className={`text-[10px] font-bold px-1 rounded ${
+                              ad.fipeVariation.startsWith('-')
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : 'bg-amber-100 text-amber-800'
+                            }`}
+                          >
+                            {ad.fipeVariation}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Seller & Location */}
+                    <div className="text-xs text-slate-600 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Vendedor:</span>
+                        <span className="font-medium text-slate-800 truncate max-w-[180px]">
+                          {ad.sellerName}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Localidade:</span>
+                        <span className="text-slate-800">{ad.location}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Placa:</span>
+                        <span className="font-mono font-medium text-slate-800">
+                          {ad.plateMasked}
                         </span>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Seller & Location */}
-                  <div className="text-xs text-slate-600 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Vendedor:</span>
-                      <span className="font-medium text-slate-800 truncate max-w-[180px]">
-                        {ad.sellerName}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Localidade:</span>
-                      <span className="text-slate-800">{ad.location}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Placa:</span>
-                      <span className="font-mono font-medium text-slate-800">{ad.plateMasked}</span>
-                    </div>
+                    {/* Read-Only Mobile Detail Trigger */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setInspectingAd(ad);
+                        setIsMobileModalOpen(true);
+                      }}
+                      className="w-full py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors shadow-xs flex items-center justify-center gap-1.5"
+                    >
+                      <Car className="w-4 h-4 text-slate-400" />
+                      <span>Ver detalhes do anúncio</span>
+                    </button>
                   </div>
+                ))}
 
-                  {/* Read-Only Mobile Detail Trigger */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setInspectingAd(ad);
-                      setIsMobileModalOpen(true);
-                    }}
-                    className="w-full py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors shadow-xs flex items-center justify-center gap-1.5"
-                  >
-                    <Car className="w-4 h-4 text-slate-400" />
-                    <span>Ver detalhes do anúncio</span>
-                  </button>
-                </div>
-              ))
+                <LoadMore
+                  currentCount={mobileAds.length}
+                  totalCount={filteredAds.length}
+                  onLoadMore={() => setMobileVisibleCount((prev) => prev + 6)}
+                  step={6}
+                  itemName="anúncios"
+                />
+              </>
             )}
           </div>
         </div>
@@ -585,7 +648,7 @@ export default function AdModerationPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-slate-700">
-                      {filteredAds.length === 0 ? (
+                      {paginatedAds.length === 0 ? (
                         <tr>
                           <td colSpan={5} className="py-12 text-center text-slate-400">
                             <p className="text-sm font-semibold">Nenhum anúncio encontrado</p>
@@ -595,7 +658,7 @@ export default function AdModerationPage() {
                           </td>
                         </tr>
                       ) : (
-                        filteredAds.map((ad) => {
+                        paginatedAds.map((ad) => {
                           const isSelected = selectedAd?.id === ad.id;
                           return (
                             <tr
@@ -616,14 +679,13 @@ export default function AdModerationPage() {
                             >
                               <td className="py-3 px-3.5">
                                 <div className="flex items-center gap-2.5">
-                                  <div
-                                    className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${
-                                      isSelected
-                                        ? 'bg-red-600 text-white border-red-700'
-                                        : 'bg-slate-100 text-slate-600 border-slate-200'
-                                    }`}
-                                  >
-                                    <Car className="w-4 h-4" />
+                                  <div className="relative w-12 h-9 rounded-lg border border-slate-200 overflow-hidden shrink-0 bg-slate-100">
+                                    <VehicleImage
+                                      src={ad.photos[0]}
+                                      alt={ad.title}
+                                      fill
+                                      sizes="48px"
+                                    />
                                   </div>
                                   <div>
                                     <span className="font-bold text-slate-900 block group-hover:text-red-700 transition-colors">
@@ -685,16 +747,15 @@ export default function AdModerationPage() {
                   </table>
                 </div>
 
-                {/* Table Footer */}
-                <div className="p-3.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
-                  <span>
-                    Exibindo <strong>{filteredAds.length}</strong> de <strong>{ads.length}</strong>{' '}
-                    anúncios em moderação
-                  </span>
-                  <span className="font-mono text-[11px] text-slate-400">
-                    ADM-D-014 • DEMO DATA
-                  </span>
-                </div>
+                {/* Table Pagination */}
+                <AdminPagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  pageSize={PAGE_SIZE}
+                  totalItems={filteredAds.length}
+                  onPageChange={setCurrentPage}
+                  itemName="anúncios"
+                />
               </div>
 
               {/* Right Column: Selected Vehicle Preview & Moderation Panel (Figma ADM-D-014) */}
@@ -760,22 +821,38 @@ export default function AdModerationPage() {
                       </div>
                     </div>
 
-                    {/* Vehicle Preview Card Mock */}
-                    <div className="border border-slate-200 rounded-xl p-3 bg-slate-50/50 flex items-center gap-3">
-                      <div className="w-16 h-12 rounded-lg bg-slate-200 border border-slate-300 flex items-center justify-center shrink-0 text-slate-600">
-                        <Car className="w-6 h-6" />
+                    {/* Selected Vehicle Preview Hero Image */}
+                    <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+                      <VehicleImage
+                        src={selectedAd.photos[0]}
+                        alt={selectedAd.title}
+                        fill
+                        priority
+                        showDemoBadge
+                        sizes="(max-width: 1280px) 100vw, 450px"
+                      />
+                      <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                        {getPlanBadge(selectedAd.plan)}
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <span className="text-[11px] font-bold text-slate-800 block truncate">
+                      <div className="absolute bottom-2.5 right-2.5 px-2 py-1 rounded-md bg-black/70 backdrop-blur-xs text-[11px] text-white font-medium flex items-center gap-1.5">
+                        <ImageIcon className="w-3.5 h-3.5" />
+                        <span>{selectedAd.photos.length} fotos</span>
+                      </div>
+                    </div>
+
+                    {/* Vehicle Quick Specs Strip */}
+                    <div className="border border-slate-200 rounded-xl p-3 bg-slate-50/70 flex items-center justify-between text-xs">
+                      <div>
+                        <span className="text-[11px] font-bold text-slate-800 block">
                           {selectedAd.brand} {selectedAd.model} ({selectedAd.year})
                         </span>
-                        <span className="text-[10px] text-slate-500 block">
+                        <span className="text-[10px] text-slate-500 block mt-0.5">
                           {selectedAd.mileage} • {selectedAd.fuel} • {selectedAd.transmission}
                         </span>
-                        <span className="text-[10px] font-mono text-slate-600 block">
-                          Placa: {selectedAd.plateMasked} (LGPD Censurada)
-                        </span>
                       </div>
+                      <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded bg-slate-200 text-slate-700">
+                        Placa: {selectedAd.plateMasked}
+                      </span>
                     </div>
 
                     {/* Seller Information */}

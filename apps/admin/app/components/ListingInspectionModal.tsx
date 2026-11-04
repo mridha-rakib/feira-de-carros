@@ -21,6 +21,7 @@ import {
 import Image from 'next/image';
 import * as React from 'react';
 import type { ModerationAd, ModerationAdStatus } from '../../lib/types/b2-presentation';
+import { VehicleImage } from './VehicleImage';
 
 interface ListingInspectionModalProps {
   ad: ModerationAd | null;
@@ -203,29 +204,67 @@ export function ListingInspectionModal({
 
             {/* Gallery Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="aspect-4/3 rounded-xl bg-slate-200 border border-slate-300/80 overflow-hidden flex flex-col items-center justify-center p-2 text-center text-slate-500 relative group">
-                <div className="w-8 h-8 rounded-full bg-white/80 flex items-center justify-center mb-1 text-slate-700 shadow-xs">
-                  <Car className="w-4 h-4" />
+              <div className="aspect-[4/3] rounded-xl bg-slate-100 border border-slate-200 overflow-hidden relative group">
+                <VehicleImage
+                  src={ad.photos[0]}
+                  alt={`${ad.title} - Foto Frontal`}
+                  fill
+                  showDemoBadge
+                  sizes="(max-width: 640px) 50vw, 200px"
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 text-white">
+                  <span className="text-[10px] font-bold block leading-tight">Foto Frontal</span>
+                  <span className="text-[9px] text-slate-300">Principal (Capa)</span>
                 </div>
-                <span className="text-[11px] font-bold text-slate-700">Foto Frontal</span>
-                <span className="text-[9px] text-slate-500">Principal (Capa)</span>
               </div>
-              <div className="aspect-4/3 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex flex-col items-center justify-center p-2 text-center text-slate-400">
-                <Car className="w-5 h-5 mb-1 text-slate-400" />
-                <span className="text-[10px]">Traseira</span>
+
+              <div className="aspect-[4/3] rounded-xl bg-slate-100 border border-slate-200 overflow-hidden relative group">
+                <VehicleImage
+                  src={ad.photos[1] || ad.photos[0]}
+                  alt={`${ad.title} - Traseira`}
+                  fill
+                  sizes="(max-width: 640px) 50vw, 200px"
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 text-white">
+                  <span className="text-[10px] font-bold block leading-tight">Traseira</span>
+                  <span className="text-[9px] text-slate-300">Enquadramento OK</span>
+                </div>
               </div>
-              <div className="aspect-4/3 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex flex-col items-center justify-center p-2 text-center text-slate-400">
-                <Car className="w-5 h-5 mb-1 text-slate-400" />
-                <span className="text-[10px]">Lateral Esquerda</span>
+
+              <div className="aspect-[4/3] rounded-xl bg-slate-100 border border-slate-200 overflow-hidden relative group">
+                <VehicleImage
+                  src={ad.photos[2] || ad.photos[0]}
+                  alt={`${ad.title} - Lateral`}
+                  fill
+                  sizes="(max-width: 640px) 50vw, 200px"
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 text-white">
+                  <span className="text-[10px] font-bold block leading-tight">Lateral</span>
+                  <span className="text-[9px] text-slate-300">Carroceria</span>
+                </div>
               </div>
-              <div className="aspect-4/3 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex flex-col items-center justify-center p-2 text-center text-slate-400">
-                <Car className="w-5 h-5 mb-1 text-slate-400" />
-                <span className="text-[10px]">Painel / Interior</span>
+
+              <div className="aspect-[4/3] rounded-xl bg-slate-100 border border-slate-200 overflow-hidden relative group">
+                <VehicleImage
+                  src={ad.photos[3] || ad.photos[0]}
+                  alt={`${ad.title} - Interior`}
+                  fill
+                  sizes="(max-width: 640px) 50vw, 200px"
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 text-white">
+                  <span className="text-[10px] font-bold block leading-tight">
+                    Painel / Interior
+                  </span>
+                  <span className="text-[9px] text-slate-300">Quadro de instrumentos</span>
+                </div>
               </div>
             </div>
-            <p className="text-[11px] text-slate-500 mt-2">
-              • Regra de privacidade: A placa original foi censurada automaticamente pelo sistema (
-              {ad.plateMasked}).
+            <p className="text-[11px] text-slate-500 mt-2.5 flex items-center justify-between">
+              <span>
+                • Regra de privacidade: A placa original foi censurada automaticamente pelo sistema
+                ({ad.plateMasked}).
+              </span>
+              <span className="font-mono text-[10px] text-slate-400">DEMO ASSETS • LGPD OK</span>
             </p>
           </div>
 
