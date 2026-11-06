@@ -1,30 +1,24 @@
 'use client';
 
 import { ApiError } from '@feira/api-client';
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Input,
-  Label,
-} from '@feira/ui';
-import { AlertCircle, CheckCircle2, Eye, EyeOff, Lock, Mail, ShieldAlert } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff, Lock, ShieldAlert, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import * as React from 'react';
-import { mockAuthAdapter } from '../../lib/adapters/mock-auth-adapter';
+import { getAuthAdapter } from '../../lib/adapters/auth-factory';
+import { getSafeRedirectUrl } from '../../lib/security/redirect-validator';
 
-function AdminLoginForm() {
+function AdminLoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectPath = searchParams.get('redirect') || '/';
 
-  const [email, setEmail] = React.useState('admin@feiradecarros.com.br');
-  const [password, setPassword] = React.useState('admin123');
+  // Audit Finding F-03: Validate redirect against strict internal routes
+  const rawRedirect = searchParams.get('redirect');
+  const safeRedirectPath = React.useMemo(() => getSafeRedirectUrl(rawRedirect, '/'), [rawRedirect]);
+
+  // Audit Finding F-01: Remove hardcoded demonstration credentials in production UI
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
   const [showPassword, setShowPassword] = React.useState(false);
 
   const [isLoading, setIsLoading] = React.useState(false);
@@ -38,7 +32,6 @@ function AdminLoginForm() {
     setErrorType(null);
     setFieldErrors({});
 
-    // Client validation
     const errors: { email?: string; password?: string } = {};
     if (!email.trim()) {
       errors.email = 'O e-mail institucional é obrigatório';
@@ -57,8 +50,9 @@ function AdminLoginForm() {
 
     setIsLoading(true);
     try {
-      await mockAuthAdapter.login({ email, password });
-      router.push(redirectPath);
+      const auth = getAuthAdapter();
+      await auth.login({ email, password });
+      router.push(safeRedirectPath);
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.statusCode === 401) {
@@ -80,233 +74,324 @@ function AdminLoginForm() {
     }
   };
 
-  const fillCredentials = (type: 'valid' | 'wrong' | 'denied') => {
-    setErrorMessage(null);
-    setErrorType(null);
-    setFieldErrors({});
-
-    if (type === 'valid') {
-      setEmail('admin@feiradecarros.com.br');
-      setPassword('admin123');
-    } else if (type === 'wrong') {
-      setEmail('admin@feiradecarros.com.br');
-      setPassword('wrong-password');
-    } else if (type === 'denied') {
-      setEmail('denied@feiradecarros.com.br');
-      setPassword('staff123');
-    }
-  };
-
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-slate-900 text-slate-100 p-4 sm:p-8">
-      {/* Top Header Logo */}
-      <header className="w-full flex items-center justify-between max-w-6xl mx-auto py-2">
-        <div className="flex items-center gap-3">
-          <Image
-            src="/brand/logo-dark.png"
-            alt="Feira de Carros Logo"
-            width={160}
-            height={40}
-            priority
-            className="h-8 w-auto object-contain"
-          />
-          <Badge
-            variant="outline"
-            className="text-xs text-amber-400 border-amber-400/40 hidden sm:inline-flex"
-          >
-            ADM-D-001 / ADM-M-013
-          </Badge>
-        </div>
-        <div className="text-xs text-slate-400 flex items-center gap-2">
-          <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          Gateway Seguro
-        </div>
-      </header>
+    <div className="min-h-screen flex flex-col lg:flex-row bg-[#F8FAFC]">
+      {/* ============================================================== */}
+      {/* DESKTOP LEFT PANEL (Figma ADM-D-001) / MOBILE TOP (ADM-M-013)  */}
+      {/* ============================================================== */}
+      <div className="w-full lg:w-[45%] bg-[#0B111E] text-white p-6 sm:p-10 lg:p-14 flex flex-col justify-between shrink-0">
+        <div>
+          {/* Logo */}
+          <div className="mb-8 lg:mb-14">
+            <Image
+              src="/brand/logo-white.png"
+              alt="Feira de Carros"
+              width={160}
+              height={40}
+              priority
+              className="h-8 sm:h-9 w-auto object-contain"
+            />
+          </div>
 
-      {/* Main Login Card Container */}
-      <main className="w-full max-w-md mx-auto my-auto py-6">
-        <Card className="border-slate-800 bg-slate-950/90 shadow-2xl backdrop-blur-md">
-          <CardHeader className="space-y-1.5 text-center pb-6">
-            <div className="mx-auto w-12 h-12 rounded-xl bg-red-600/10 border border-red-600/20 flex items-center justify-center text-red-500 mb-2">
-              <Lock className="w-6 h-6" />
+          {/* Section Subtitle Badge */}
+          <div className="mb-3">
+            <span className="text-[11px] font-bold text-red-500 uppercase tracking-widest">
+              Painel interno • Acesso restrito
+            </span>
+          </div>
+
+          {/* Headline */}
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white mb-4 leading-tight">
+            <span className="hidden lg:inline">Controle seguro para sua equipe.</span>
+            <span className="lg:hidden">Acesso seguro à equipe</span>
+          </h1>
+
+          {/* Subheading */}
+          <p className="text-sm text-slate-400 leading-relaxed max-w-md mb-8">
+            <span className="hidden lg:inline">
+              Acesse revisões de vendedores, aprovação de anúncios e operações autorizadas em um
+              único ambiente.
+            </span>
+            <span className="lg:hidden">
+              Gestão de anúncios, vendedores e operações autorizadas.
+            </span>
+          </p>
+
+          {/* 3 Value Propositions with Shield Check Icons (Figma ADM-D-001) */}
+          <div className="hidden lg:flex flex-col gap-5 pt-2">
+            <div className="flex items-start gap-3.5">
+              <div className="w-9 h-9 rounded-full bg-red-950/80 border border-red-800/60 text-red-400 flex items-center justify-center shrink-0 mt-0.5">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-white">
+                  Aprovação exclusivamente autorizada
+                </h2>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Decisões finais de vendedores e anúncios pertencem ao Main Admin.
+                </p>
+              </div>
             </div>
-            <CardTitle className="text-2xl font-bold tracking-tight text-white">
-              Acesso Administrativo
-            </CardTitle>
-            <CardDescription className="text-sm text-slate-400">
-              Entre com suas credenciais institucionais para gerenciar o ecossistema Feira de
-              Carros.
-            </CardDescription>
-          </CardHeader>
 
-          <CardContent>
-            {/* Error Banners */}
+            <div className="flex items-start gap-3.5">
+              <div className="w-9 h-9 rounded-full bg-red-950/80 border border-red-800/60 text-red-400 flex items-center justify-center shrink-0 mt-0.5">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-white">Financeiro e privacidade</h2>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Pagamentos, CPF/CNPJ e operações sensíveis exigem permissão.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3.5">
+              <div className="w-9 h-9 rounded-full bg-red-950/80 border border-red-800/60 text-red-400 flex items-center justify-center shrink-0 mt-0.5">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-white">Rastreamento de alterações</h2>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Resultados reais exigem confirmação do servidor e trilha de auditoria.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Left Footer */}
+        <div className="hidden lg:block pt-12 border-t border-slate-800/80 text-left">
+          <p className="text-[11px] font-bold text-red-400 uppercase tracking-wider mb-1">
+            Feira de Carros / Main Admin • Sales • Support
+          </p>
+          <p className="text-xs text-slate-500 leading-relaxed max-w-sm">
+            Funções liberadas somente por política de permissões. Sem acesso público a conversas,
+            documentos ou pagamentos de venda de veículos.
+          </p>
+        </div>
+      </div>
+
+      {/* ============================================================== */}
+      {/* RIGHT LOGIN FORM AREA (Figma ADM-D-001 & ADM-M-013)            */}
+      {/* ============================================================== */}
+      <div className="flex-1 flex flex-col justify-center items-center p-4 sm:p-8 lg:p-12 overflow-y-auto">
+        <div className="w-full max-w-md space-y-6">
+          {/* Main White Login Card */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm">
+            {/* Lock Icon in Rounded Square */}
+            <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center mb-4">
+              <Lock className="w-5 h-5" />
+            </div>
+
+            {/* Title & Subtitle */}
+            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+              <span className="hidden lg:inline">Acesse sua área administrativa</span>
+              <span className="lg:hidden">Entrar no painel</span>
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1 mb-6">
+              <span className="hidden lg:inline">
+                Somente contas internas com permissão válida.
+              </span>
+              <span className="lg:hidden">Use somente sua conta interna autorizada.</span>
+            </p>
+
+            {/* Error Alert Banner */}
             {errorMessage && (
               <div
-                className={`mb-5 p-3.5 rounded-lg text-sm flex items-start gap-3 border ${
+                className={`mb-5 p-3.5 rounded-xl text-xs flex items-start gap-2.5 border ${
                   errorType === '403'
-                    ? 'bg-amber-950/40 border-amber-700/50 text-amber-300'
-                    : 'bg-red-950/40 border-red-700/50 text-red-300'
+                    ? 'bg-amber-50 border-amber-200 text-amber-900'
+                    : 'bg-red-50 border-red-200 text-red-900'
                 }`}
                 role="alert"
               >
                 {errorType === '403' ? (
-                  <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5 text-amber-400" />
+                  <ShieldAlert className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
                 ) : (
-                  <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-400" />
+                  <AlertCircle className="w-4 h-4 shrink-0 text-red-600 mt-0.5" />
                 )}
                 <div>
-                  <p className="font-semibold">
-                    {errorType === '403' ? 'Permissão Negada' : 'Falha no Acesso'}
+                  <p className="font-bold">
+                    {errorType === '403' ? 'Acesso não autorizado' : 'Credenciais inválidas'}
                   </p>
-                  <p className="text-xs opacity-90 mt-0.5">{errorMessage}</p>
+                  <p className="opacity-90 mt-0.5">{errorMessage}</p>
                 </div>
               </div>
             )}
 
+            {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Email Input */}
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="admin-email"
-                  className="text-xs font-semibold uppercase tracking-wider text-slate-300"
-                >
-                  E-mail Institucional
-                </Label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
-                  <Input
-                    id="admin-email"
-                    type="email"
-                    autoComplete="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="colaborador@feiradecarros.com.br"
-                    disabled={isLoading}
-                    className={`pl-9 bg-slate-900/80 border-slate-700 text-white placeholder:text-slate-500 focus-visible:ring-red-500 h-10 ${
-                      fieldErrors.email ? 'border-red-500 ring-1 ring-red-500' : ''
-                    }`}
-                  />
-                </div>
+              {/* Email Field */}
+              <div className="space-y-1.5 text-left">
+                <label htmlFor="admin-email" className="block text-xs font-semibold text-slate-700">
+                  E-mail corporativo
+                </label>
+                <input
+                  id="admin-email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin.demo@feiradecarros.exemplo"
+                  disabled={isLoading}
+                  className={`w-full px-3.5 py-2.5 rounded-xl text-sm border bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600 transition-all ${
+                    fieldErrors.email ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300'
+                  }`}
+                />
                 {fieldErrors.email && (
-                  <p className="text-xs text-red-400 font-medium">{fieldErrors.email}</p>
+                  <p className="text-xs text-red-600 font-medium">{fieldErrors.email}</p>
                 )}
               </div>
 
-              {/* Password Input */}
-              <div className="space-y-1.5">
-                <div className="flex justify-between items-center">
-                  <Label
-                    htmlFor="admin-password"
-                    className="text-xs font-semibold uppercase tracking-wider text-slate-300"
-                  >
-                    Senha de Acesso
-                  </Label>
-                </div>
+              {/* Password Field */}
+              <div className="space-y-1.5 text-left">
+                <label
+                  htmlFor="admin-password"
+                  className="block text-xs font-semibold text-slate-700"
+                >
+                  Senha
+                </label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
-                  <Input
+                  <input
                     id="admin-password"
                     type={showPassword ? 'text' : 'password'}
                     autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
+                    placeholder="••••••••••••"
                     disabled={isLoading}
-                    className={`pl-9 pr-10 bg-slate-900/80 border-slate-700 text-white placeholder:text-slate-500 focus-visible:ring-red-500 h-10 ${
-                      fieldErrors.password ? 'border-red-500 ring-1 ring-red-500' : ''
+                    className={`w-full px-3.5 py-2.5 pr-10 rounded-xl text-sm border bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600 transition-all ${
+                      fieldErrors.password
+                        ? 'border-red-500 ring-1 ring-red-500'
+                        : 'border-slate-300'
                     }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-slate-400 hover:text-slate-200 transition-colors"
+                    className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 transition-colors"
                     aria-label={showPassword ? 'Ocultar senha' : 'Exibir senha'}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {fieldErrors.password && (
-                  <p className="text-xs text-red-400 font-medium">{fieldErrors.password}</p>
+                  <p className="text-xs text-red-600 font-medium">{fieldErrors.password}</p>
                 )}
+              </div>
+
+              {/* Mobile Help Link (Figma ADM-M-013) */}
+              <div className="lg:hidden pt-1 text-left">
+                <span className="text-xs text-slate-500">
+                  Problemas para acessar? Contate o administrador.
+                </span>
               </div>
 
               {/* Submit Button */}
-              <Button
+              <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-11 bg-red-600 hover:bg-red-700 text-white font-semibold transition-all shadow-md shadow-red-950/50 mt-2"
+                className="w-full mt-2 py-3 px-4 rounded-xl bg-[#B91C1C] hover:bg-[#991B1B] text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition-all disabled:opacity-60 cursor-pointer"
               >
                 {isLoading ? (
-                  <span className="flex items-center gap-2">
-                    <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                    Autenticando...
-                  </span>
+                  <span>Autenticando...</span>
                 ) : (
-                  'Entrar no Painel'
+                  <>
+                    <span>Entrar no painel</span>
+                    <span className="hidden lg:inline">→</span>
+                  </>
                 )}
-              </Button>
+              </button>
             </form>
 
-            {/* Quick Testing Simulation Shortcuts (Development only) */}
-            {process.env.NODE_ENV !== 'production' && (
-              <div className="mt-6 pt-5 border-t border-slate-800 text-center">
-                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-2">
-                  Simulações de Teste de QA
+            {/* Notice Card Under Button (Figma ADM-D-001 & ADM-M-013) */}
+            <div className="mt-5 p-3.5 rounded-xl bg-amber-50/70 border border-amber-200/70 text-left">
+              <p className="text-[10px] font-bold text-amber-800 uppercase tracking-wider mb-1">
+                <span className="hidden lg:inline">Método de autenticação interna a confirmar</span>
+                <span className="lg:inline hidden"> • </span>
+                <span className="lg:hidden">Autenticação a confirmar</span>
+              </p>
+              <p className="text-[11px] text-amber-700 leading-relaxed">
+                <span className="hidden lg:inline">
+                  E-mail/senha são um exemplo visual. Provedor, recuperação, MFA e regras de sessão
+                  ainda dependem de definição técnica. O botão navega somente no protótipo.
                 </span>
-                <div className="flex flex-wrap gap-1.5 justify-center">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fillCredentials('valid')}
-                    className="text-xs h-7 bg-slate-900 border-slate-700 text-slate-300 hover:text-white"
-                  >
-                    Admin Válido
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fillCredentials('wrong')}
-                    className="text-xs h-7 bg-slate-900 border-slate-700 text-slate-300 hover:text-white"
-                  >
-                    Senha Incorreta (401)
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fillCredentials('denied')}
-                    className="text-xs h-7 bg-slate-900 border-slate-700 text-slate-300 hover:text-white"
-                  >
-                    Sem Permissão (403)
-                  </Button>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </main>
+                <span className="lg:hidden">
+                  O método e as regras de sessão dependem da configuração aprovada.
+                </span>
+              </p>
+            </div>
+          </div>
 
-      {/* Footer */}
-      <footer className="w-full text-center py-4 text-xs text-slate-500 border-t border-slate-800/60 max-w-6xl mx-auto">
-        <p>© 2026 Feira de Carros Marketplace • Acesso restrito e monitorado sob termos da LGPD.</p>
-      </footer>
+          {/* ============================================================== */}
+          {/* DESKTOP: 3 STATE PREVIEW CARDS (Figma ADM-D-001)               */}
+          {/* ============================================================== */}
+          <div className="hidden lg:block space-y-3 pt-2 text-left">
+            <h3 className="text-xs font-bold text-slate-700">
+              Estados de acesso • exemplos de interface
+            </h3>
+            <div className="grid grid-cols-3 gap-2.5">
+              {/* Card 1 */}
+              <div className="p-3 rounded-xl bg-red-50/60 border border-red-100 text-left">
+                <p className="text-xs font-bold text-red-900">Credenciais inválidas</p>
+                <p className="text-[11px] text-red-700/90 mt-1 leading-snug">
+                  Exibir mensagem genérica e permitir tentativa segura.
+                </p>
+              </div>
+
+              {/* Card 2 */}
+              <div className="p-3 rounded-xl bg-amber-50/60 border border-amber-100 text-left">
+                <p className="text-xs font-bold text-amber-900">Acesso não autorizado</p>
+                <p className="text-[11px] text-amber-700/90 mt-1 leading-snug">
+                  Não revelar privilégios, contas ou dados privados.
+                </p>
+              </div>
+
+              {/* Card 3 */}
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-left">
+                <p className="text-xs font-bold text-slate-900">Conta suspensa</p>
+                <p className="text-[11px] text-slate-600 mt-1 leading-snug">
+                  Negar sessão e orientar canal interno apropriado.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* ============================================================== */}
+          {/* MOBILE: PRIVACIDADE E ACESSO CARD (Figma ADM-M-013)             */}
+          {/* ============================================================== */}
+          <div className="lg:hidden p-4 rounded-2xl bg-white border border-slate-200/80 text-left space-y-2">
+            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+              Privacidade e acesso
+            </h3>
+            <ul className="text-xs text-slate-600 space-y-1.5 leading-relaxed">
+              <li>• Permissões validadas no servidor.</li>
+              <li>• Nenhum dado sensível é exposto antes do login.</li>
+              <li>• Acesso negado não confirma a existência da conta.</li>
+            </ul>
+          </div>
+
+          {/* Footer Note */}
+          <div className="text-center text-[11px] text-slate-400 pt-2 space-y-1">
+            <p>
+              <span className="hidden lg:inline">
+                AMBIENTE DEMONSTRATIVO • Sem login real; autorização, erros e sucesso dependem do
+                backend.
+              </span>
+              <span className="lg:hidden">AMBIENTE DEMONSTRATIVO • Nenhuma autenticação real.</span>
+            </p>
+            <p className="lg:hidden">FEIRA DE CARROS • ADMIN MOBILE WEB</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
 export default function AdminLoginPage() {
   return (
-    <React.Suspense
-      fallback={
-        <div className="min-h-screen bg-slate-900 flex items-center justify-center text-slate-400">
-          Carregando portal administrativo...
-        </div>
-      }
-    >
-      <AdminLoginForm />
+    <React.Suspense fallback={<div className="min-h-screen bg-[#F8FAFC]" />}>
+      <AdminLoginContent />
     </React.Suspense>
   );
 }

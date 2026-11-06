@@ -1,4 +1,4 @@
-import { createLogger } from '@feira/logger';
+import { createLogger, sanitizeUrl } from '@feira/logger';
 import type { ApiErrorDetail, ApiErrorResponse } from './types/auth';
 
 const logger = createLogger('api-client');
@@ -40,6 +40,7 @@ export class ApiError extends Error {
 export interface ApiClientConfig {
   baseUrl: string;
   getToken?: () => string | null | Promise<string | null>;
+  credentials?: RequestCredentials;
   onUnauthorized?: () => void;
   onForbidden?: () => void;
 }
@@ -65,15 +66,17 @@ export class ApiClient {
       }
     }
 
+    const credentials = options.credentials || this.config.credentials || 'include';
     const startTime = Date.now();
     try {
       const response = await fetch(url, {
         ...options,
         headers,
+        credentials,
       });
 
       const durationMs = Date.now() - startTime;
-      logger.logRequest(method, url, durationMs, response.status);
+      logger.logRequest(method, sanitizeUrl(url), durationMs, response.status);
 
       if (!response.ok) {
         let errorBody: unknown;
