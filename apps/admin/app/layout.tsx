@@ -8,12 +8,12 @@ export const metadata: Metadata = {
   description: 'Back-office operacional para moderação, suporte e gestão comercial.',
   icons: {
     icon: [
-      { url: '/favicon.ico' },
-      { url: '/brand/2026/brand-icon-red.png', sizes: '32x32', type: 'image/png' },
-      { url: '/brand/2026/icon-512.png', sizes: '512x512', type: 'image/png' },
+      { url: '/brand/2026/brand-icon-red.png?v=2026', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon.ico?v=2026' },
+      { url: '/brand/2026/icon-512.png?v=2026', sizes: '512x512', type: 'image/png' },
     ],
-    shortcut: '/favicon.ico',
-    apple: '/brand/2026/icon-512.png',
+    shortcut: '/favicon.ico?v=2026',
+    apple: '/brand/2026/icon-512.png?v=2026',
   },
 };
 
