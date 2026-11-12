@@ -188,10 +188,10 @@ export default function PaymentsPage() {
             />
 
             {/* Split Screen Master-Detail Layout (Figma ADM-D-024 Corrected Design) */}
-            {/* List panel: Exactly 740px in 1600px desktop, Detail panel: Exactly 521px */}
-            <div className="flex flex-col 2xl:flex-row gap-6 items-start justify-between">
-              {/* Left Column: Data Table & Pagination (740px calibrated in 1600px desktop) */}
-              <div className="w-full 2xl:w-[740px] shrink-0 space-y-4">
+            {/* List panel: Exactly 740px in 1600px desktop, adaptive in 1366px; Detail panel: Exactly 521px in 1600px, adaptive in 1366px */}
+            <div className="flex flex-col xl:flex-row gap-4 2xl:gap-6 items-start justify-between">
+              {/* Left Column: Data Table & Pagination (740px in 1600px desktop, adaptive in 1366px) */}
+              <div className="w-full xl:flex-1 xl:min-w-0 2xl:w-[740px] 2xl:flex-none space-y-4">
                 {paginatedTransactions.length > 0 ? (
                   <>
                     <TransactionTable
@@ -230,8 +230,8 @@ export default function PaymentsPage() {
                 )}
               </div>
 
-              {/* Right Column: Selected Transaction Detail Panel (521px calibrated in 1600px desktop) */}
-              <div className="w-full 2xl:w-[521px] shrink-0 sticky top-6">
+              {/* Right Column: Selected Transaction Detail Panel (521px in 1600px desktop, adaptive in 1366px) */}
+              <div className="w-full xl:w-[380px] 2xl:w-[521px] shrink-0 sticky top-6">
                 <TransactionDetailPanel transaction={selectedTransaction} />
               </div>
             </div>

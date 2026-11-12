@@ -20,18 +20,18 @@ export function TransactionTable({
 }: TransactionTableProps) {
   return (
     <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
-      <div className="w-full overflow-hidden">
+      <div className="w-full overflow-x-auto">
         <table
-          className="w-full text-left border-collapse text-xs table-fixed"
+          className="w-full text-left border-collapse text-xs table-fixed min-w-[650px] 2xl:min-w-[740px]"
           data-testid="transactions-table"
         >
           <colgroup>
-            <col className="w-[125px]" />
-            <col className="w-[160px]" />
-            <col className="w-[145px]" />
-            <col className="w-[115px]" />
-            <col className="w-[85px]" />
-            <col className="w-[110px]" />
+            <col className="w-[105px] 2xl:w-[125px]" />
+            <col className="w-[130px] 2xl:w-[160px]" />
+            <col className="w-[120px] 2xl:w-[145px]" />
+            <col className="w-[115px] 2xl:w-[115px]" />
+            <col className="w-[75px] 2xl:w-[85px]" />
+            <col className="w-[105px] 2xl:w-[110px]" />
           </colgroup>
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50/75 text-slate-500 font-semibold text-[11px] uppercase tracking-wider select-none">

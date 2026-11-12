@@ -32,7 +32,7 @@ export function AdminShell({
         </div>
 
         {/* Scrollable Main Area */}
-        <main className={`flex-1 p-4 sm:p-6 lg:p-8 ${maxWidthClass} w-full mx-auto pb-8`}>
+        <main className={`flex-1 p-4 sm:p-6 lg:p-6 2xl:p-8 ${maxWidthClass} w-full mx-auto pb-8`}>
           {children}
         </main>
       </div>
