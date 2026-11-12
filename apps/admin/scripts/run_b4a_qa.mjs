@@ -138,6 +138,19 @@ async function main() {
     await saveScreenshot(pageCash, 'ADM-D-026-STATE-Cash-Blocked-Result.png');
     await ctxCash.close();
 
+    // 5b. DESKTOP ADM-D-026 Unauthorized Role State
+    console.log('\n--- Testing ADM-D-026 (Unauthorized Role State) ---');
+    const { context: ctxUnauth, page: pageUnauth } = await createAuthenticatedPage(browser, {
+      viewport: { width: 1600, height: 1000 },
+    });
+    await pageUnauth.goto(`${BASE_URL}/pagamentos/TX-2026-0005/dinheiro?role=support`);
+    await pageUnauth.waitForSelector('[data-testid="unauthorized-desktop-alert"]');
+    await pageUnauth.waitForTimeout(400);
+    await saveScreenshot(pageUnauth, 'ADM-D-026-STATE-Unauthorized-Role.png', {
+      fullPage: true,
+    });
+    await ctxUnauth.close();
+
     // =========================================================================
     // 6. DESKTOP ADM-D-027 (Histórico de recebimentos em dinheiro — node 225:1602)
     // =========================================================================
@@ -193,12 +206,20 @@ async function main() {
         fullPage: true,
       });
 
-      // On 390px, also capture read-only inspection modal
+      // On 390px, also capture read-only inspection modal and mobile blocked cash route
       if (vp.width === 390) {
         await pageMobile.click('[data-testid="mobile-tx-card-TX-2026-0001"] button');
         await pageMobile.waitForSelector('div[role="dialog"]');
         await pageMobile.waitForTimeout(300);
         await saveScreenshot(pageMobile, 'ADM-M-009-Mobile-Inspection-Modal.png');
+
+        // Capture mobile blocked cash registration route
+        await pageMobile.goto(`${BASE_URL}/pagamentos/TX-2026-0005/dinheiro`);
+        await pageMobile.waitForSelector('[data-testid="mobile-cash-registration-blocked"]');
+        await pageMobile.waitForTimeout(300);
+        await saveScreenshot(pageMobile, 'ADM-D-026-Mobile-Cash-Blocked-390px.png', {
+          fullPage: true,
+        });
       }
 
       await ctxMobile.close();

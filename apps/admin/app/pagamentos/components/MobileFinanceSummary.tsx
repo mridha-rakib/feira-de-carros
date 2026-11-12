@@ -47,7 +47,7 @@ export function MobileFinanceSummary({
 
   return (
     <div
-      className="lg:hidden min-h-screen bg-slate-900 text-slate-100 pb-28 select-none"
+      className="block lg:hidden min-h-screen bg-slate-900 text-slate-100 pb-28 select-none"
       data-testid="mobile-finance-management"
     >
       {/* 1. Mobile Header with Official 2026 Brand Logo */}

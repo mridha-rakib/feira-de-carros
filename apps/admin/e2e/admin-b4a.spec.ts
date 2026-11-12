@@ -64,6 +64,33 @@ test.describe('Admin B4A — Financial Transactions & Cash Ledger (ADM-D-024, 02
       await expect(detailPanel.getByText('Regra de Independência')).toBeVisible();
     });
 
+    test('maintains approved side-by-side master-detail layout at 1366px without stacking', async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 1366, height: 768 });
+      await page.goto('/pagamentos');
+      await page.waitForLoadState('domcontentloaded');
+
+      const table = page.locator('[data-testid="transactions-table"]');
+      const detailPanel = page.locator('[data-testid="selected-transaction-detail-panel"]');
+
+      await expect(table).toBeVisible();
+      await expect(detailPanel).toBeVisible();
+
+      const tableBox = await table.boundingBox();
+      const detailBox = await detailPanel.boundingBox();
+
+      expect(tableBox).not.toBeNull();
+      expect(detailBox).not.toBeNull();
+
+      if (tableBox && detailBox) {
+        // Table top and detail top should be aligned horizontally side-by-side (not stacked below)
+        expect(Math.abs(tableBox.y - detailBox.y)).toBeLessThan(50);
+        // Table X should be strictly to the left of detail panel
+        expect(tableBox.x).toBeLessThan(detailBox.x);
+      }
+    });
+
     test('supports row selection and updating detail panel with pending cash action', async ({
       page,
     }) => {
@@ -161,6 +188,19 @@ test.describe('Admin B4A — Financial Transactions & Cash Ledger (ADM-D-024, 02
       await expect(blockedState).not.toBeVisible();
     });
 
+    test('unauthorized mock role on desktop: enforces read-only access and hides confirmation button', async ({
+      page,
+    }) => {
+      await page.goto('/pagamentos/TX-2026-0005/dinheiro?role=support');
+      await page.waitForLoadState('domcontentloaded');
+
+      await expect(page.getByText('ADM-D-026', { exact: true })).toBeVisible();
+      await expect(page.locator('[data-testid="unauthorized-desktop-alert"]')).toBeVisible();
+      await expect(page.locator('[data-testid="unauthorized-role-badge"]')).toBeVisible();
+      await expect(page.locator('[data-testid="submit-cash-registration-btn"]')).not.toBeVisible();
+      await expect(page.locator('#slip-number')).toBeDisabled();
+    });
+
     test('ADM-D-027: cash receipts ledger at /pagamentos/dinheiro', async ({ page }) => {
       await page.goto('/pagamentos/dinheiro');
       await page.waitForLoadState('domcontentloaded');
@@ -245,6 +285,21 @@ test.describe('Admin B4A — Financial Transactions & Cash Ledger (ADM-D-024, 02
       await expect(
         page.getByRole('navigation', { name: 'Navegação móvel principal' }),
       ).toBeVisible();
+    });
+
+    test('mobile ADM-M-009 / ADM-021: blocks cash registration route /pagamentos/[id]/dinheiro on mobile', async ({
+      page,
+    }) => {
+      await page.goto('/pagamentos/TX-2026-0005/dinheiro');
+      await page.waitForLoadState('domcontentloaded');
+
+      await expect(page.locator('[data-testid="mobile-cash-registration-blocked"]')).toBeVisible();
+      await expect(page.locator('[data-testid="mobile-cash-blocked-alert"]')).toBeVisible();
+      await expect(
+        page.getByRole('button', { name: /Confirmar Recebimento em Espécie/i }),
+      ).not.toBeVisible();
+      await expect(page.locator('[data-testid="submit-cash-registration-btn"]')).not.toBeVisible();
+      await expect(page.locator('input#slip-number')).not.toBeVisible();
     });
   });
 });
