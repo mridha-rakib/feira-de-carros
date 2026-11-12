@@ -56,7 +56,17 @@ export function AdminSidebar() {
       {/* Navigation Links */}
       <nav className="flex-1 space-y-1">
         {NAV_ITEMS.map((item) => {
-          const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+          const isFinanceRoute =
+            pathname.startsWith('/pagamentos') ||
+            pathname.startsWith('/reembolsos') ||
+            pathname.startsWith('/contestacoes') ||
+            pathname.startsWith('/relatorios');
+          const isActive =
+            item.href === '/'
+              ? pathname === '/'
+              : item.href === '/pagamentos'
+                ? isFinanceRoute
+                : pathname.startsWith(item.href);
           const Icon = item.icon;
 
           return (

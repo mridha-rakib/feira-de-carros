@@ -21,14 +21,12 @@ test-results/
 
 # Environment files
 .env*.local
-.env
 !.env.example
 
 # IDE & OS files
 .DS_Store
 *.pem
 Thumbs.db
-.vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json
 .idea/
@@ -42,3 +40,4 @@ pnpm-debug.log*
 *.tsbuildinfo
 
 screenshots/
+config.bat

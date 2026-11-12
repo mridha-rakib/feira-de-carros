@@ -29,6 +29,7 @@ import type { CashReceiptRecord } from '../../../lib/types/finance-presentation'
 import { AdminPagination } from '../../components/AdminPagination';
 import { AdminShell } from '../../components/AdminShell';
 import { CashReceiptDetailModal } from '../components/CashReceiptDetailModal';
+import { FinanceNavigationTabs } from '../components/FinanceNavigationTabs';
 
 const PAGE_SIZE = 10;
 
@@ -123,6 +124,9 @@ export default function CashReceiptsLedgerPage() {
             </button>
           </div>
         </div>
+
+        {/* Finance Navigation Tabs */}
+        <FinanceNavigationTabs />
 
         {/* Immutability Policy Banner */}
         <div className="p-4 rounded-2xl bg-slate-900 text-slate-200 text-xs space-y-1.5 border border-slate-800">

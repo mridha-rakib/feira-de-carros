@@ -1,7 +1,11 @@
 import type {
+  CardDisputeRecord,
   CashReceiptRecord,
   FinanceKpiMetrics,
+  RefundRequestRecord,
+  RevenueReportMetrics,
   TransactionRecord,
+  TransactionReferenceMap,
 } from '../types/finance-presentation';
 
 export const mockTransactions: TransactionRecord[] = [
@@ -325,3 +329,450 @@ export function formatBrl(value: number): string {
     currency: 'BRL',
   }).format(value);
 }
+
+// =========================================================================
+// B4B — TRANSACTION REFERENCE MAPPING (TX-2026-* <-> PAY-2026-*)
+// =========================================================================
+
+export const TRANSACTION_REFERENCE_MAPPINGS: TransactionReferenceMap[] = [
+  {
+    internalTxId: 'TX-2026-0001',
+    figmaPayId: 'PAY-2026-0001',
+    sellerName: 'Mariana Silva Costa',
+    amountBrl: 40.0,
+  },
+  {
+    internalTxId: 'TX-2026-0002',
+    figmaPayId: 'PAY-2026-0002',
+    sellerName: 'Bruno Ferreira Almeida',
+    amountBrl: 50.0,
+  },
+  {
+    internalTxId: 'TX-2026-0003',
+    figmaPayId: 'PAY-2026-0003',
+    sellerName: 'Vale Auto Veículos Ltda',
+    amountBrl: 30.0,
+  },
+  {
+    internalTxId: 'TX-2026-0004',
+    figmaPayId: 'PAY-2026-0004',
+    sellerName: 'Rafael Santos Pereira',
+    amountBrl: 40.0,
+  },
+  {
+    internalTxId: 'TX-2026-0005',
+    figmaPayId: 'PAY-2026-0005',
+    sellerName: 'Lucas Ribeiro Alvarenga',
+    amountBrl: 30.0,
+  },
+  {
+    internalTxId: 'TX-2026-0006',
+    figmaPayId: 'PAY-2026-0006',
+    sellerName: 'Fernanda Mendes Rocha',
+    amountBrl: 30.0,
+  },
+  {
+    internalTxId: 'TX-2026-0007',
+    figmaPayId: 'PAY-2026-0007',
+    sellerName: 'Tiago Pereira Ramos',
+    amountBrl: 50.0,
+  },
+];
+
+export function mapTxToPay(txId: string): string {
+  const found = TRANSACTION_REFERENCE_MAPPINGS.find((m) => m.internalTxId === txId);
+  return found ? found.figmaPayId : txId.replace('TX-', 'PAY-');
+}
+
+export function mapPayToTx(payId: string): string {
+  const found = TRANSACTION_REFERENCE_MAPPINGS.find((m) => m.figmaPayId === payId);
+  return found ? found.internalTxId : payId.replace('PAY-', 'TX-');
+}
+
+// =========================================================================
+// B4B — REFUND REQUESTS QUEUE (ADM-D-028 & ADM-D-029)
+// =========================================================================
+
+export const mockRefundRequests: RefundRequestRecord[] = [
+  {
+    id: 'CXL-DEMO-001',
+    transactionId: 'TX-2026-0001',
+    orderId: 'ORD-2026-0081',
+    adId: 'ANX-2026-0151',
+    vehicleTitle: 'Volkswagen Polo 1.0 TSI Comfortline 2024',
+    sellerId: 'USR-2026-0001',
+    sellerName: 'Mariana Silva Costa',
+    sellerDocumentMasked: '***.452.886-**',
+    sellerEmailMasked: 'mariana.costa@exemplo.com.br',
+    sellerPhone: '(31) 98765-4321',
+    planName: 'Plano Destaque Prata — 30 dias',
+    amountBrl: 40.0,
+    method: 'PIX',
+    requestedAt: '16/01/2026 09:15',
+    adPublishedAt: '15/01/2026 14:32',
+    legalDeadline: '3 dias úteis (Análise CDC Art. 49)',
+    reason: 'Desistência da contratação do destaque no prazo legal de 7 dias (CDC Art. 49).',
+    status: 'PENDING_REVIEW',
+    reviewCriteria: {
+      withinSevenDays: true,
+      boostAlreadyConsumed: false,
+      eligibleForRefund: true,
+    },
+    auditTimeline: [
+      {
+        id: 'evt-cxl-1',
+        timestamp: '15/01/2026 14:33:04',
+        title: 'Pagamento Pix original liquidado',
+        description: 'Transação TX-2026-0001 confirmada via PSP Pix (R$ 40,00).',
+        type: 'SUCCESS',
+        operator: 'Sistema (PSP Pix)',
+      },
+      {
+        id: 'evt-cxl-2',
+        timestamp: '16/01/2026 09:15:30',
+        title: 'Solicitação de cancelamento registrada pelo cliente',
+        description:
+          'Protocolo CXL-DEMO-001 aberto pelo painel do vendedor alegando direito de arrependimento.',
+        type: 'WARNING',
+        operator: 'Mariana Silva Costa',
+      },
+      {
+        id: 'evt-cxl-3',
+        timestamp: '16/01/2026 09:15:35',
+        title: 'Triagem administrativa automática iniciada',
+        description: 'Prazo legal de 3 dias úteis estabelecido. Elegibilidade preliminar positiva.',
+        type: 'INFO',
+        operator: 'Sistema de Compliance',
+      },
+    ],
+    notes:
+      'Vendedora solicitou cancelamento menos de 24 horas após contratação. Destaque foi pausado preventivamente.',
+    provenance: 'DEMO DATA — Amostra Fictícia B4B (Figma ADM-D-028 / ADM-D-029)',
+  },
+  {
+    id: 'CXL-DEMO-002',
+    transactionId: 'TX-2026-0004',
+    orderId: 'ORD-2026-0080',
+    adId: 'ANX-2026-0312',
+    vehicleTitle: 'Hyundai HB20 Comfort 1.0 Flex 2022',
+    sellerId: 'USR-2026-0004',
+    sellerName: 'Rafael Santos Pereira',
+    sellerDocumentMasked: '***.198.346-**',
+    sellerEmailMasked: 'rafael.santos@exemplo.com.br',
+    sellerPhone: '(31) 98765-4324',
+    planName: 'Plano Destaque Prata — 30 dias',
+    amountBrl: 40.0,
+    method: 'PIX',
+    requestedAt: '17/01/2026 14:00',
+    adPublishedAt: '10/01/2026 11:20',
+    legalDeadline: 'Sob validação jurídica (Destaque usufruído por 7 dias)',
+    reason:
+      'Veículo vendido por conta própria fora da plataforma antes do término do período de destaque.',
+    status: 'HOLD_LEGAL',
+    reviewCriteria: {
+      withinSevenDays: false,
+      boostAlreadyConsumed: true,
+      eligibleForRefund: false,
+      rejectionReasonOption: 'Serviço de publicidade digital integralmente usufruído no período.',
+    },
+    auditTimeline: [
+      {
+        id: 'evt-cxl-4',
+        timestamp: '10/01/2026 11:21:03',
+        title: 'Pagamento Pix liquidado',
+        description: 'Ordem ORD-2026-0080 ativada com destaque na home.',
+        type: 'SUCCESS',
+        operator: 'Sistema (PSP Pix)',
+      },
+      {
+        id: 'evt-cxl-5',
+        timestamp: '17/01/2026 14:00:10',
+        title: 'Solicitação de reembolso após 7 dias de veiculação',
+        description: 'Cliente solicita estorno proporcional alegando venda rápida externa.',
+        type: 'ALERT',
+        operator: 'Rafael Santos Pereira',
+      },
+      {
+        id: 'evt-cxl-6',
+        timestamp: '17/01/2026 14:05:00',
+        title: 'Retenção por regra contratual de prestação de serviços',
+        description:
+          'Termos de Uso § 7.2: Taxa de anúncio veiculado não é reembolsável após fruição inicial.',
+        type: 'WARNING',
+        operator: 'Jurídico Feira de Carros',
+      },
+    ],
+    notes:
+      'Retenção de política jurídica necessária para evitar cancelamento após fruição de audiência.',
+    provenance: 'DEMO DATA — Amostra Fictícia B4B (Figma ADM-D-028 / ADM-D-029)',
+  },
+  {
+    id: 'CXL-DEMO-003',
+    transactionId: 'TX-2026-0005',
+    orderId: 'ORD-2026-0085',
+    adId: 'ANX-2026-0420',
+    vehicleTitle: 'Chevrolet Onix Plus Premier 1.0 Turbo 2023',
+    sellerId: 'USR-2026-0005',
+    sellerName: 'Lucas Ribeiro Alvarenga',
+    sellerDocumentMasked: '***.765.316-**',
+    sellerEmailMasked: 'lucas.ribeiro@exemplo.com.br',
+    sellerPhone: '(31) 98765-4325',
+    planName: 'Plano Básico Trimestral — Anúncio',
+    amountBrl: 30.0,
+    method: 'CASH',
+    requestedAt: '09/01/2026 10:00',
+    adPublishedAt: 'Pendente de balcão (Não veiculado)',
+    legalDeadline: 'Ordem não liquidada — Cancelamento de pré-reserva',
+    reason:
+      'Desistência de comparecimento presencial para pagamento em dinheiro no balcão de Ipatinga.',
+    status: 'PENDING_REVIEW',
+    reviewCriteria: {
+      withinSevenDays: true,
+      boostAlreadyConsumed: false,
+      eligibleForRefund: true,
+      rejectionReasonOption:
+        'Sem movimentação financeira física (Apenas cancelamento de ordem pendente).',
+    },
+    auditTimeline: [
+      {
+        id: 'evt-cxl-7',
+        timestamp: '08/01/2026 09:10:00',
+        title: 'Ordem presencial criada em aberto',
+        description: 'Aguardava comparecimento para pagamento no balcão.',
+        type: 'INFO',
+        operator: 'Lucas Ribeiro Alvarenga',
+      },
+      {
+        id: 'evt-cxl-8',
+        timestamp: '09/01/2026 10:00:22',
+        title: 'Desistência comunicada via canal de atendimento',
+        description: 'Vendedor optou por não prosseguir com a ativação veicular.',
+        type: 'WARNING',
+        operator: 'Lucas Ribeiro Alvarenga',
+      },
+    ],
+    notes:
+      'Como o pagamento em dinheiro nunca foi efetuado, o estorno é meramente contábil/cadastral.',
+    provenance: 'DEMO DATA — Amostra Fictícia B4B (Figma ADM-D-028 / ADM-D-029)',
+  },
+];
+
+// =========================================================================
+// B4B — CARD DISPUTES & CHARGEBACKS (ADM-D-030)
+// Exact Figma sample: 3 demo disputes, R$ 130 total, 2 under review, 1 incomplete
+// =========================================================================
+
+export const mockCardDisputes: CardDisputeRecord[] = [
+  {
+    id: 'DSP-2026-0001',
+    transactionId: 'TX-2026-0002',
+    orderId: 'ORD-2026-0082',
+    adId: 'ANX-2026-0204',
+    vehicleTitle: 'Toyota Corolla XEi 2.0 Flex 2023',
+    sellerName: 'Bruno Ferreira Almeida',
+    sellerDocumentMasked: '***.814.926-**',
+    cardBrand: 'Mastercard',
+    cardLastFour: '4810',
+    amountBrl: 50.0,
+    disputedAt: '16/01/2026 11:40',
+    pspCaseId: 'CHG-CIELO-98214',
+    pspDeadline: '5 dias restantes',
+    disputeReason:
+      'Não reconhecimento de compra pelo titular do cartão de crédito (Fraude amigável).',
+    status: 'UNDER_REVIEW',
+    evidenceSubmitted: true,
+    timeline: [
+      {
+        id: 'evt-dsp-1',
+        timestamp: '14/01/2026 10:16:01',
+        title: 'Transação original aprovada',
+        description: 'AUTH-CC-44810294 via Adquirente Cielo (R$ 50,00).',
+        type: 'SUCCESS',
+        operator: 'Sistema (Adquirente)',
+      },
+      {
+        id: 'evt-dsp-2',
+        timestamp: '16/01/2026 11:40:00',
+        title: 'Notificação de contestação recebida do PSP',
+        description: 'Bandeira Mastercard reportou contestação formal. Saldo sob reserva cautelar.',
+        type: 'ALERT',
+        operator: 'Adquirente Cielo',
+      },
+      {
+        id: 'evt-dsp-3',
+        timestamp: '16/01/2026 15:20:00',
+        title: 'Pacote de defesa técnica anexado',
+        description:
+          'Submetidos logs de autenticação, IP de acesso, CPF conferido e comprovante de publicação.',
+        type: 'INFO',
+        operator: 'Admin Principal',
+      },
+    ],
+    provenance: 'DEMO DATA — Amostra Fictícia B4B (Figma ADM-D-030)',
+  },
+  {
+    id: 'DSP-2026-0002',
+    transactionId: 'TX-2026-0007',
+    orderId: 'ORD-2026-0094',
+    adId: 'ANX-2026-0511',
+    vehicleTitle: 'Jeep Compass Longitude 2.0 Turbo 2023',
+    sellerName: 'Tiago Pereira Ramos',
+    sellerDocumentMasked: '***.331.896-**',
+    cardBrand: 'Visa',
+    cardLastFour: '9102',
+    amountBrl: 50.0,
+    disputedAt: '15/01/2026 16:20',
+    pspCaseId: 'CHG-REDE-44120',
+    pspDeadline: '3 dias restantes',
+    disputeReason: 'Cancelamento de serviço de anúncio não processado no prazo acordado.',
+    status: 'UNDER_REVIEW',
+    evidenceSubmitted: true,
+    timeline: [
+      {
+        id: 'evt-dsp-4',
+        timestamp: '13/01/2026 14:10:00',
+        title: 'Cobrança com cartão Visa autorizada',
+        description: 'Ordem ORD-2026-0094 processada pela Rede.',
+        type: 'SUCCESS',
+        operator: 'Sistema (Rede)',
+      },
+      {
+        id: 'evt-dsp-5',
+        timestamp: '15/01/2026 16:20:10',
+        title: 'Contestação comercial aberta',
+        description: 'Emissor abriu disputa por alegação de desacordo contratual.',
+        type: 'ALERT',
+        operator: 'Emissor do Cartão',
+      },
+      {
+        id: 'evt-dsp-6',
+        timestamp: '15/01/2026 17:00:00',
+        title: 'Defesa preliminar encaminhada',
+        description: 'Histórico de veiculação do anúncio ANX-2026-0511 disponibilizado.',
+        type: 'INFO',
+        operator: 'Moderação Financeira',
+      },
+    ],
+    provenance: 'DEMO DATA — Amostra Fictícia B4B (Figma ADM-D-030)',
+  },
+  {
+    id: 'DSP-2026-0003',
+    transactionId: 'TX-2026-0006',
+    orderId: 'ORD-2026-0091',
+    adId: 'ANX-2026-0489',
+    vehicleTitle: 'Renault Sandero Stepway 1.6 Flex 2021',
+    sellerName: 'Fernanda Mendes Rocha',
+    sellerDocumentMasked: '***.512.906-**',
+    cardBrand: 'Elo',
+    cardLastFour: '3319',
+    amountBrl: 30.0,
+    disputedAt: '14/01/2026 18:05',
+    pspCaseId: 'CHG-GETNET-10928',
+    pspDeadline: '1 dia restante (Urgente)',
+    disputeReason: 'Desacordo comercial / Alegação de cobrança em duplicidade na fatura.',
+    status: 'INCOMPLETE_EVIDENCE',
+    evidenceSubmitted: false,
+    timeline: [
+      {
+        id: 'evt-dsp-7',
+        timestamp: '12/01/2026 08:30:00',
+        title: 'Autorização com cartão Elo',
+        description: 'Ordem de anúncio avulso compensada.',
+        type: 'SUCCESS',
+        operator: 'Getnet PSP',
+      },
+      {
+        id: 'evt-dsp-8',
+        timestamp: '14/01/2026 18:05:00',
+        title: 'Contestação por duplicidade aberta',
+        description: 'Disputa exige comprovante de conciliação de faturas do adquirente.',
+        type: 'ALERT',
+        operator: 'Getnet PSP',
+      },
+      {
+        id: 'evt-dsp-9',
+        timestamp: '14/01/2026 18:10:00',
+        title: 'Alerta de evidência incompleta',
+        description:
+          'Necessário extrato do adquirente comprovando lançamento único antes do prazo fatal.',
+        type: 'WARNING',
+        operator: 'Sistema de Disputas',
+      },
+    ],
+    provenance: 'DEMO DATA — Amostra Fictícia B4B (Figma ADM-D-030)',
+  },
+];
+
+export const FIGMA_DISPUTES_METRICS = {
+  totalDisputedBrl: 130.0, // 50 + 50 + 30
+  totalDisputesCount: 3,
+  underReviewCount: 2,
+  underReviewAmountBrl: 100.0,
+  incompleteEvidenceCount: 1,
+  incompleteEvidenceAmountBrl: 30.0,
+  guaranteedRevenueNoticeBrl: 0.0, // Regra: Valores contestados NUNCA são contados como receita garantida
+};
+
+// =========================================================================
+// B4B — REVENUE AND PAYMENT REPORTS (ADM-D-031)
+// Exact approved demonstration data:
+// Confirmed revenue: R$ 42.580,00 | Period: Maio – Outubro 2026
+// Active advertisements: 1.248 | Platform processed vehicle sales: R$ 0,00
+// =========================================================================
+
+export const mockRevenueReport: RevenueReportMetrics = {
+  totalConfirmedRevenueBrl: 42580.0,
+  periodLabel: 'Maio – Outubro 2026',
+  activeAdvertisementsCount: 1248,
+  vehicleSalesProcessedBrl: 0.0, // Plataforma apenas monetiza anúncios/destaques; intermediação de compra e venda não ocorre no ambiente
+  monthlyData: [
+    {
+      monthKey: '2026-05',
+      monthLabel: 'Maio',
+      amountBrl: 4200.0,
+      plansAmountBrl: 3100.0,
+      boostsAmountBrl: 1100.0,
+      activeAdsCount: 780,
+    },
+    {
+      monthKey: '2026-06',
+      monthLabel: 'Junho',
+      amountBrl: 5180.0,
+      plansAmountBrl: 3700.0,
+      boostsAmountBrl: 1480.0,
+      activeAdsCount: 890,
+    },
+    {
+      monthKey: '2026-07',
+      monthLabel: 'Julho',
+      amountBrl: 6260.0,
+      plansAmountBrl: 4400.0,
+      boostsAmountBrl: 1860.0,
+      activeAdsCount: 975,
+    },
+    {
+      monthKey: '2026-08',
+      monthLabel: 'Agosto',
+      amountBrl: 6950.0,
+      plansAmountBrl: 4850.0,
+      boostsAmountBrl: 2100.0,
+      activeAdsCount: 1040,
+    },
+    {
+      monthKey: '2026-09',
+      monthLabel: 'Setembro',
+      amountBrl: 8150.0,
+      plansAmountBrl: 5600.0,
+      boostsAmountBrl: 2550.0,
+      activeAdsCount: 1130,
+    },
+    {
+      monthKey: '2026-10',
+      monthLabel: 'Outubro',
+      amountBrl: 11840.0,
+      plansAmountBrl: 7900.0,
+      boostsAmountBrl: 3940.0,
+      activeAdsCount: 1248,
+    },
+  ],
+};

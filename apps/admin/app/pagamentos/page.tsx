@@ -13,6 +13,7 @@ import type {
 import { AdminPagination } from '../components/AdminPagination';
 import { AdminShell } from '../components/AdminShell';
 import { FinanceKpiCards } from './components/FinanceKpiCards';
+import { FinanceNavigationTabs } from './components/FinanceNavigationTabs';
 import { MobileFinanceSummary } from './components/MobileFinanceSummary';
 import { TransactionDetailPanel } from './components/TransactionDetailPanel';
 import { TransactionInspectionModal } from './components/TransactionInspectionModal';
@@ -164,6 +165,9 @@ export default function PaymentsPage() {
                 </button>
               </div>
             </div>
+
+            {/* Financial Navigation Tabs (Transações, Caixa, Reembolsos, Contestações, Relatórios) */}
+            <FinanceNavigationTabs />
 
             {/* 4 Summary KPI Cards */}
             <FinanceKpiCards
