@@ -105,13 +105,14 @@ export function UserSearchFilters({
       </div>
 
       {/* Results Count & Filter Status */}
-      <div className="flex items-center justify-between text-xs text-slate-500 pt-1 border-t border-slate-100">
-        <div className="flex items-center gap-1.5">
+      <div className="flex items-center justify-between text-xs text-slate-500 pt-1 border-t border-slate-100 flex-wrap gap-2">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <span>Exibindo</span>
           <span className="font-bold text-slate-900">{filteredCount}</span>
           <span>de</span>
           <span className="font-bold text-slate-900">{totalCount}</span>
-          <span>usuários cadastrados</span>
+          <span>registros da amostra local</span>
+          <span className="text-slate-400 font-normal">(base total ilustrativa: 2.406 contas)</span>
         </div>
         {hasActiveFilters && (
           <span className="text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md font-medium border border-amber-200">
