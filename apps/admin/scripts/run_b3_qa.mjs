@@ -128,22 +128,28 @@ async function main() {
     await saveScreenshot(page1600, 'ADM-D-003-DETAIL-04-Rafael-Santos.png', { fullPage: true });
     console.log('✓ Rafael Santos (DETAIL-04) captured');
 
-    // Lucas Ribeiro (DETAIL-05 — Suspended)
+    // Lucas Ribeiro (DETAIL-05 — Registered Buyer)
     await desktopView.getByText('Lucas Ribeiro Alvarenga').first().click();
     await page1600.waitForSelector(
       '[data-testid="selected-user-detail-panel"] >> text=USR-2026-0005',
     );
+    await saveScreenshot(page1600, 'ADM-D-003-DETAIL-05-Lucas-Ribeiro-Comprador.png', {
+      fullPage: true,
+    });
     await saveScreenshot(page1600, 'ADM-D-003-DETAIL-05-Lucas-Ribeiro-Suspenso.png', {
       fullPage: true,
     });
     console.log('✓ Lucas Ribeiro (DETAIL-05) captured');
 
-    // Fernanda Rocha (DETAIL-06)
+    // Fernanda Rocha (DETAIL-06 — Suspended Seller)
     await desktopView.getByText('Fernanda Mendes Rocha').first().click();
     await page1600.waitForSelector(
       '[data-testid="selected-user-detail-panel"] >> text=USR-2026-0006',
     );
     await saveScreenshot(page1600, 'ADM-D-003-DETAIL-06-Fernanda-Rocha.png', { fullPage: true });
+    await saveScreenshot(page1600, 'ADM-D-003-DETAIL-06-Fernanda-Rocha-Suspenso.png', {
+      fullPage: true,
+    });
     console.log('✓ Fernanda Rocha (DETAIL-06) captured');
 
     // Tiago Pereira (DETAIL-07)
@@ -187,6 +193,17 @@ async function main() {
 
     await page1600.click('[data-testid="user-status-change-modal"] button:has-text("Cancelar")');
     await page1600.waitForSelector('[data-testid="user-status-change-modal"]', { state: 'hidden' });
+
+    // Capture Brand Logo & Navigation on Login Page
+    console.log('\n--- Testing Login Page (ADM-D-001) Brand Logo ---');
+    const loginContext = await browser.newContext({
+      viewport: { width: 1600, height: 900 },
+    });
+    const loginPage = await loginContext.newPage();
+    await loginPage.goto(`${BASE_URL}/login`);
+    await loginPage.waitForSelector('img[alt="Feira de Carros"]');
+    await saveScreenshot(loginPage, 'ADM-D-001-Desktop-Login-1600px.png', { fullPage: true });
+    await loginContext.close();
 
     await context1600.close();
 

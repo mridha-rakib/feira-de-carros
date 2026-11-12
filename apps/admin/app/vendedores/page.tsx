@@ -1,5 +1,6 @@
 'use client';
 
+import { BrandLogo } from '@feira/ui';
 import {
   AlertCircle,
   Building2,
@@ -201,14 +202,7 @@ export default function SellerApprovalPage() {
         {/* Mobile Dark Header */}
         <header className="bg-[#0B111E] text-white p-4">
           <div className="flex items-center justify-between">
-            <Image
-              src="/brand/logo-white.png"
-              alt="Feira de Carros"
-              width={120}
-              height={32}
-              priority
-              className="h-6 w-auto object-contain"
-            />
+            <BrandLogo variant="on-dark" priority width={130} height={26} className="h-6 w-auto" />
             <div className="text-right">
               <span className="text-[10px] font-bold text-red-500 uppercase tracking-wider block">
                 ADMIN • MOBILE WEB

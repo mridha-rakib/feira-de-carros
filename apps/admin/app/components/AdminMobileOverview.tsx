@@ -1,7 +1,7 @@
 'use client';
 
+import { BrandLogo } from '@feira/ui';
 import { Car, FileText, Lock, ShieldAlert, Users } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import * as React from 'react';
 import type {
@@ -23,14 +23,7 @@ export function AdminMobileOverview({ metrics, attention }: AdminMobileOverviewP
       {/* Top Dark Header (Figma ADM-M-001) */}
       <header className="bg-[#0B111E] text-white p-4">
         <div className="flex items-center justify-between">
-          <Image
-            src="/brand/logo-white.png"
-            alt="Feira de Carros"
-            width={120}
-            height={32}
-            priority
-            className="h-6 w-auto object-contain"
-          />
+          <BrandLogo variant="on-dark" priority width={130} height={26} className="h-6 w-auto" />
           <div className="text-right">
             <span className="text-[10px] font-bold text-red-500 uppercase tracking-wider block">
               Admin • Mobile Web

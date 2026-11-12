@@ -39,6 +39,11 @@ test.describe('Admin B3 — Users Management (ADM-D-003 & ADM-M-008)', () => {
     const desktopView = page.getByTestId('desktop-users-management');
     await expect(desktopView).toBeVisible();
 
+    // Verify Official 2026 Brand Logo in Sidebar
+    const brandLogo = page.locator('aside img[alt="Feira de Carros"]');
+    await expect(brandLogo).toBeVisible();
+    await expect(brandLogo).toHaveAttribute('src', /logo-on-dark\.png/);
+
     // Verify Title & Badges
     await expect(desktopView.getByRole('heading', { name: 'Gestão de Usuários' })).toBeVisible();
     await expect(desktopView.getByText('ADM-D-003')).toBeVisible();
@@ -116,9 +121,9 @@ test.describe('Admin B3 — Users Management (ADM-D-003 & ADM-M-008)', () => {
     const desktopView = page.getByTestId('desktop-users-management');
     const searchInput = desktopView.getByPlaceholder(/Pesquisar por nome/i);
 
-    // Filter by Lucas Ribeiro (DETAIL-05 — Suspended)
-    await searchInput.fill('Lucas Ribeiro');
-    await expect(desktopView.getByText('Lucas Ribeiro Alvarenga').first()).toBeVisible();
+    // Filter by Fernanda Rocha (DETAIL-06 — Suspended Seller)
+    await searchInput.fill('Fernanda Rocha');
+    await expect(desktopView.getByText('Fernanda Mendes Rocha').first()).toBeVisible();
     await expect(desktopView.getByText('Suspensão preventiva').first()).toBeVisible();
 
     // Clear search
@@ -225,8 +230,8 @@ test.describe('Admin B3 — Users Management (ADM-D-003 & ADM-M-008)', () => {
     const mobileView = page.getByTestId('mobile-users-management');
     await expect(mobileView).toBeVisible();
 
-    // Verify Title & Badge
-    await expect(mobileView.getByRole('heading', { name: 'Gestão de Usuários' })).toBeVisible();
+    // Verify Title & Badge (ADM-M-008 — Pesquisa de Clientes)
+    await expect(mobileView.getByRole('heading', { name: 'Pesquisa de Clientes' })).toBeVisible();
     await expect(mobileView.getByText('ADM-M-008')).toBeVisible();
 
     // Verify initial 6 cards loaded

@@ -1,5 +1,6 @@
 'use client';
 
+import { BrandLogo } from '@feira/ui';
 import { RefreshCw, Users } from 'lucide-react';
 import * as React from 'react';
 import { mockAdminUsers } from '../../lib/adapters/mock-users-data';
@@ -75,17 +76,13 @@ export default function UsersManagementPage() {
   // Filter users list
   const filteredUsers = React.useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
+    const searchWords = term ? term.split(/\s+/).filter(Boolean) : [];
 
     return users.filter((u) => {
+      const searchableText =
+        `${u.name} ${u.email} ${u.code} ${u.city} ${u.document} ${u.phone} ${u.dealership?.tradeName ?? ''}`.toLowerCase();
       const matchesSearch =
-        !term ||
-        u.name.toLowerCase().includes(term) ||
-        u.email.toLowerCase().includes(term) ||
-        u.code.toLowerCase().includes(term) ||
-        u.city.toLowerCase().includes(term) ||
-        u.document.toLowerCase().includes(term) ||
-        u.phone.includes(term) ||
-        (u.dealership?.tradeName.toLowerCase().includes(term) ?? false);
+        searchWords.length === 0 || searchWords.every((word) => searchableText.includes(word));
 
       const matchesRole = selectedRole === 'all' || u.role === selectedRole;
       const matchesStatus = selectedStatus === 'all' || u.status === selectedStatus;
@@ -170,7 +167,7 @@ export default function UsersManagementPage() {
   return (
     <>
       {/* ============================================================== */}
-      {/* MOBILE USERS VIEW (Figma ADM-M-008)                             */}
+      {/* MOBILE CLIENT SEARCH VIEW (Figma ADM-M-008)                     */}
       {/* ============================================================== */}
       <div
         data-testid="mobile-users-management"
@@ -178,22 +175,37 @@ export default function UsersManagementPage() {
       >
         {/* Mobile Header Bar */}
         <div className="bg-[#0B111E] text-white p-4 sticky top-0 z-30 shadow-md">
-          <div className="flex items-center justify-between mb-3">
+          {/* Top Brand & Viewport Indicator */}
+          <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+            <BrandLogo variant="on-dark" priority width={120} height={24} className="h-5 w-auto" />
+            <div className="text-right">
+              <span className="text-[10px] font-bold text-red-500 uppercase tracking-wider block">
+                ADMIN • MOBILE WEB
+              </span>
+              <span className="text-[10px] text-slate-400">Modo Somente Leitura</span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <Users className="w-5 h-5 text-red-500" />
-              <h1 className="text-base font-bold tracking-tight">Gestão de Usuários</h1>
+              <h1 className="text-base font-bold tracking-tight">Pesquisa de Clientes</h1>
             </div>
             <span className="text-[10px] font-mono bg-slate-800 px-2 py-0.5 rounded text-slate-300">
               ADM-M-008
             </span>
           </div>
 
+          <p className="text-[11px] text-slate-400 mb-3">
+            Consulta rápida com mascaramento LGPD e inspeção somente leitura.
+          </p>
+
           {/* Mobile Search */}
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => handleSearchChange(e.target.value)}
-            placeholder="Buscar por nome, e-mail, CPF/CNPJ..."
+            placeholder="Buscar cliente por nome, CPF/CNPJ, código..."
             className="w-full px-3 py-2 bg-slate-800/90 border border-slate-700 text-xs rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-red-500"
           />
         </div>

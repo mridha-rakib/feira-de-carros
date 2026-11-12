@@ -1,5 +1,6 @@
 'use client';
 
+import { BrandLogo } from '@feira/ui';
 import {
   Car,
   CreditCard,
@@ -9,7 +10,6 @@ import {
   ShieldCheck,
   Users,
 } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type * as React from 'react';
@@ -42,14 +42,7 @@ export function AdminSidebar() {
       {/* Brand Header */}
       <div className="flex items-center gap-2 mb-8 px-2">
         <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="/brand/logo-white.png"
-            alt="Feira de Carros"
-            width={140}
-            height={36}
-            priority
-            className="h-8 w-auto object-contain"
-          />
+          <BrandLogo variant="on-dark" priority width={168} height={34} className="h-8 w-auto" />
         </Link>
       </div>
 

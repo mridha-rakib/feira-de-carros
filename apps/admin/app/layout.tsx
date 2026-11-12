@@ -6,6 +6,15 @@ import { Providers } from './providers';
 export const metadata: Metadata = {
   title: 'Painel de Controle | Feira de Carros Admin',
   description: 'Back-office operacional para moderação, suporte e gestão comercial.',
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/brand/2026/brand-icon-red.png', sizes: '32x32', type: 'image/png' },
+      { url: '/brand/2026/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/brand/2026/icon-512.png',
+  },
 };
 
 export default function RootLayout({

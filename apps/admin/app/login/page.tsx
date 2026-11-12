@@ -1,8 +1,8 @@
 'use client';
 
 import { ApiError } from '@feira/api-client';
+import { BrandLogo } from '@feira/ui';
 import { AlertCircle, Eye, EyeOff, Lock, ShieldAlert, ShieldCheck } from 'lucide-react';
-import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import * as React from 'react';
 import { getAuthAdapter } from '../../lib/adapters/auth-factory';
@@ -83,13 +83,12 @@ function AdminLoginContent() {
         <div>
           {/* Logo */}
           <div className="mb-8 lg:mb-14">
-            <Image
-              src="/brand/logo-white.png"
-              alt="Feira de Carros"
-              width={160}
-              height={40}
+            <BrandLogo
+              variant="on-dark"
               priority
-              className="h-8 sm:h-9 w-auto object-contain"
+              width={180}
+              height={36}
+              className="h-8 sm:h-9 w-auto"
             />
           </div>
 

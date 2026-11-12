@@ -45,44 +45,45 @@ describe('Admin B3 — Users Management Data & Business Rules (ADM-D-003)', () =
     expect(user?.dealership?.plan).toBe('Destaque Ouro');
   });
 
-  it('verifies ADM-D-003-DETAIL-04 — Rafael Santos', () => {
+  it('verifies ADM-D-003-DETAIL-04 — Rafael Santos (Approved Seller)', () => {
     const user = mockAdminUsers.find((u) => u.name.includes('Rafael Santos'));
     expect(user).toBeDefined();
     expect(user?.code).toBe('USR-2026-0004');
+    expect(user?.role).toBe('seller');
+    expect(user?.status).toBe('ACTIVE');
+  });
+
+  it('verifies ADM-D-003-DETAIL-05 — Lucas Ribeiro (Registered Buyer)', () => {
+    const user = mockAdminUsers.find((u) => u.name.includes('Lucas Ribeiro'));
+    expect(user).toBeDefined();
+    expect(user?.code).toBe('USR-2026-0005');
     expect(user?.role).toBe('member');
     expect(user?.status).toBe('ACTIVE');
   });
 
-  it('verifies ADM-D-003-DETAIL-05 — Lucas Ribeiro (Suspended state)', () => {
-    const user = mockAdminUsers.find((u) => u.name.includes('Lucas Ribeiro'));
+  it('verifies ADM-D-003-DETAIL-06 — Fernanda Rocha (Suspended Seller)', () => {
+    const user = mockAdminUsers.find((u) => u.name.includes('Fernanda Mendes Rocha'));
     expect(user).toBeDefined();
-    expect(user?.code).toBe('USR-2026-0005');
+    expect(user?.code).toBe('USR-2026-0006');
+    expect(user?.role).toBe('seller');
     expect(user?.status).toBe('SUSPENDED');
     expect(user?.statusReason).toBeDefined();
     expect(user?.statusReason).toContain('Suspensão preventiva');
     expect(user?.activity.reportsReceived).toBeGreaterThan(0);
   });
 
-  it('verifies ADM-D-003-DETAIL-06 — Fernanda Rocha', () => {
-    const user = mockAdminUsers.find((u) => u.name.includes('Fernanda Mendes Rocha'));
-    expect(user).toBeDefined();
-    expect(user?.code).toBe('USR-2026-0006');
-    expect(user?.role).toBe('member');
-    expect(user?.status).toBe('ACTIVE');
-  });
-
-  it('verifies ADM-D-003-DETAIL-07 — Tiago Pereira (Support staff)', () => {
+  it('verifies ADM-D-003-DETAIL-07 — Tiago Pereira (Pending Seller Applicant)', () => {
     const user = mockAdminUsers.find((u) => u.name.includes('Tiago Pereira'));
     expect(user).toBeDefined();
     expect(user?.code).toBe('USR-2026-0007');
-    expect(user?.role).toBe('support');
-    expect(user?.email).toContain('@feiradecarros.com.br');
+    expect(user?.role).toBe('seller');
+    expect(user?.status).toBe('PENDING');
   });
 
   it('maintains chronological audit trails on all sensitive accounts', () => {
-    const lucas = mockAdminUsers.find((u) => u.code === 'USR-2026-0005');
-    expect(lucas?.auditTrail.length).toBeGreaterThanOrEqual(2);
-    const suspensionLog = lucas?.auditTrail.find((l) => l.action === 'SUSPEND');
+    const fernanda = mockAdminUsers.find((u) => u.code === 'USR-2026-0006');
+    expect(fernanda?.auditTrail.length).toBeGreaterThanOrEqual(2);
+    const suspensionLog = fernanda?.auditTrail.find((l) => l.action === 'SUSPEND');
     expect(suspensionLog).toBeDefined();
     expect(suspensionLog?.operatorRole).toBe('main_admin');
   });
