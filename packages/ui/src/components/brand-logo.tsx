@@ -25,23 +25,51 @@ const LOGO_PATHS: Record<
   BrandLogoVariant,
   { src: string; defaultWidth: number; defaultHeight: number }
 > = {
-  'on-dark': { src: '/brand/2026/logo-on-dark.png', defaultWidth: 178, defaultHeight: 36 },
-  'on-light': { src: '/brand/2026/logo-on-light.png', defaultWidth: 178, defaultHeight: 36 },
-  'mono-white': { src: '/brand/2026/logo-mono-white.png', defaultWidth: 178, defaultHeight: 36 },
-  'mono-black': { src: '/brand/2026/logo-mono-black.png', defaultWidth: 178, defaultHeight: 36 },
+  'on-dark': {
+    src: '/brand/2026/logo-on-dark.png?v=2026_v2',
+    defaultWidth: 178,
+    defaultHeight: 36,
+  },
+  'on-light': {
+    src: '/brand/2026/logo-on-light.png?v=2026_v2',
+    defaultWidth: 178,
+    defaultHeight: 36,
+  },
+  'mono-white': {
+    src: '/brand/2026/logo-mono-white.png?v=2026_v2',
+    defaultWidth: 178,
+    defaultHeight: 36,
+  },
+  'mono-black': {
+    src: '/brand/2026/logo-mono-black.png?v=2026_v2',
+    defaultWidth: 178,
+    defaultHeight: 36,
+  },
   'stacked-on-dark': {
-    src: '/brand/2026/logo-stacked-on-dark.png',
+    src: '/brand/2026/logo-stacked-on-dark.png?v=2026_v2',
     defaultWidth: 148,
     defaultHeight: 70,
   },
   'stacked-on-light': {
-    src: '/brand/2026/logo-stacked-on-light.png',
+    src: '/brand/2026/logo-stacked-on-light.png?v=2026_v2',
     defaultWidth: 148,
     defaultHeight: 70,
   },
-  'icon-red': { src: '/brand/2026/brand-icon-red.png', defaultWidth: 36, defaultHeight: 36 },
-  'icon-white': { src: '/brand/2026/brand-icon-white.png', defaultWidth: 36, defaultHeight: 36 },
-  'icon-black': { src: '/brand/2026/brand-icon-black.png', defaultWidth: 36, defaultHeight: 36 },
+  'icon-red': {
+    src: '/brand/2026/brand-icon-red.png?v=2026_v2',
+    defaultWidth: 36,
+    defaultHeight: 36,
+  },
+  'icon-white': {
+    src: '/brand/2026/brand-icon-white.png?v=2026_v2',
+    defaultWidth: 36,
+    defaultHeight: 36,
+  },
+  'icon-black': {
+    src: '/brand/2026/brand-icon-black.png?v=2026_v2',
+    defaultWidth: 36,
+    defaultHeight: 36,
+  },
 };
 
 export function BrandLogo({

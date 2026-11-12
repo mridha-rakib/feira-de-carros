@@ -9,9 +9,16 @@ interface AdminShellProps {
   breadcrumbs?: string[];
   location?: string;
   userName?: string;
+  maxWidthClass?: string;
 }
 
-export function AdminShell({ children, breadcrumbs, location, userName }: AdminShellProps) {
+export function AdminShell({
+  children,
+  breadcrumbs,
+  location,
+  userName,
+  maxWidthClass = 'max-w-7xl',
+}: AdminShellProps) {
   return (
     <div className="min-h-screen flex bg-slate-50 text-slate-800 antialiased selection:bg-red-500/20 selection:text-red-900">
       {/* Desktop Sidebar (hidden on mobile) */}
@@ -25,7 +32,9 @@ export function AdminShell({ children, breadcrumbs, location, userName }: AdminS
         </div>
 
         {/* Scrollable Main Area */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto pb-8">{children}</main>
+        <main className={`flex-1 p-4 sm:p-6 lg:p-8 ${maxWidthClass} w-full mx-auto pb-8`}>
+          {children}
+        </main>
       </div>
     </div>
   );
