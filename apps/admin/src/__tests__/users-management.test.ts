@@ -34,14 +34,15 @@ describe('Admin B3 — Users Management Data & Business Rules (ADM-D-003)', () =
     expect(user?.city).toBe('Timóteo');
   });
 
-  it('verifies ADM-D-003-DETAIL-03 — Vale Auto Veículos', () => {
+  it('verifies ADM-D-003-DETAIL-03 — Vale Auto Veículos (12 linked advertisements)', () => {
     const user = mockAdminUsers.find((u) => u.name.includes('Vale Auto Veículos'));
     expect(user).toBeDefined();
     expect(user?.code).toBe('USR-2026-0003');
     expect(user?.role).toBe('dealer');
     expect(user?.dealership).toBeDefined();
     expect(user?.dealership?.tradeName).toBe('Vale Auto Veículos');
-    expect(user?.dealership?.inventoryCount).toBe(34);
+    expect(user?.dealership?.inventoryCount).toBe(12);
+    expect(user?.activity.activeListings).toBe(12);
     expect(user?.dealership?.plan).toBe('Destaque Ouro');
   });
 
@@ -86,5 +87,13 @@ describe('Admin B3 — Users Management Data & Business Rules (ADM-D-003)', () =
     const suspensionLog = fernanda?.auditTrail.find((l) => l.action === 'SUSPEND');
     expect(suspensionLog).toBeDefined();
     expect(suspensionLog?.operatorRole).toBe('main_admin');
+  });
+
+  it('aligns with Figma ADM-D-003 illustrative marketplace KPI fixtures', async () => {
+    const { FIGMA_USERS_KPI_METRICS } = await import('../../app/usuarios/components/UserKpiCards');
+    expect(FIGMA_USERS_KPI_METRICS.totalAccounts).toBe('2.406');
+    expect(FIGMA_USERS_KPI_METRICS.approvedSellers).toBe('682');
+    expect(FIGMA_USERS_KPI_METRICS.dealerships).toBe('74');
+    expect(FIGMA_USERS_KPI_METRICS.suspendedAccounts).toBe('14');
   });
 });

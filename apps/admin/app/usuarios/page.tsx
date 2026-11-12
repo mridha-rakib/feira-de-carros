@@ -9,12 +9,11 @@ import type {
   AdminUserRole,
   AdminUserStatus,
 } from '../../lib/types/users-presentation';
-import { AdminMobileNavigation } from '../components/AdminMobileNavigation';
 import { AdminPagination } from '../components/AdminPagination';
 import { AdminShell } from '../components/AdminShell';
 import { UserInspectionModal } from '../components/UserInspectionModal';
 import { UserStatusChangeModal } from '../components/UserStatusChangeModal';
-import { UserCardList } from './components/UserCardList';
+import { MobileClientSearch } from './components/MobileClientSearch';
 import { UserDetailPanel } from './components/UserDetailPanel';
 import { UserEmptyState } from './components/UserEmptyState';
 import { UserKpiCards } from './components/UserKpiCards';
@@ -22,7 +21,6 @@ import { UserSearchFilters } from './components/UserSearchFilters';
 import { UserTable } from './components/UserTable';
 
 const PAGE_SIZE = 10;
-const MOBILE_PAGE_SIZE = 6;
 
 export default function UsersManagementPage() {
   const [users, setUsers] = React.useState<AdminUserRecord[]>(mockAdminUsers);
@@ -43,25 +41,21 @@ export default function UsersManagementPage() {
 
   // Pagination states
   const [currentPage, setCurrentPage] = React.useState(1);
-  const [mobileVisibleCount, setMobileVisibleCount] = React.useState(MOBILE_PAGE_SIZE);
 
   // Filter change handlers that automatically reset pagination
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
     setCurrentPage(1);
-    setMobileVisibleCount(MOBILE_PAGE_SIZE);
   };
 
   const handleRoleChange = (role: 'all' | AdminUserRole) => {
     setSelectedRole(role);
     setCurrentPage(1);
-    setMobileVisibleCount(MOBILE_PAGE_SIZE);
   };
 
   const handleStatusFilterChange = (status: 'all' | AdminUserStatus) => {
     setSelectedStatus(status);
     setCurrentPage(1);
-    setMobileVisibleCount(MOBILE_PAGE_SIZE);
   };
 
   // Reset all filters helper
@@ -70,7 +64,6 @@ export default function UsersManagementPage() {
     setSelectedRole('all');
     setSelectedStatus('all');
     setCurrentPage(1);
-    setMobileVisibleCount(MOBILE_PAGE_SIZE);
   };
 
   // Filter users list
@@ -99,10 +92,6 @@ export default function UsersManagementPage() {
     return filteredUsers.slice(start, start + PAGE_SIZE);
   }, [filteredUsers, currentPage]);
 
-  const mobileUsers = React.useMemo(() => {
-    return filteredUsers.slice(0, mobileVisibleCount);
-  }, [filteredUsers, mobileVisibleCount]);
-
   // Selected user for desktop side panel
   const selectedUser = React.useMemo(() => {
     return (
@@ -118,13 +107,13 @@ export default function UsersManagementPage() {
   const counts = React.useMemo(() => {
     const total = users.length;
     const members = users.filter((u) => u.role === 'member').length;
-    const sellersAndDealers = users.filter(
-      (u) => u.role === 'seller' || u.role === 'dealer',
-    ).length;
+    const sellers = users.filter((u) => u.role === 'seller').length;
+    const dealers = users.filter((u) => u.role === 'dealer').length;
+    const sellersAndDealers = sellers + dealers;
     const suspendedOrBanned = users.filter(
       (u) => u.status === 'SUSPENDED' || u.status === 'BANNED',
     ).length;
-    return { total, members, sellersAndDealers, suspendedOrBanned };
+    return { total, members, sellers, dealers, sellersAndDealers, suspendedOrBanned };
   }, [users]);
 
   // Status change handler with audit logging
@@ -169,125 +158,14 @@ export default function UsersManagementPage() {
       {/* ============================================================== */}
       {/* MOBILE CLIENT SEARCH VIEW (Figma ADM-M-008)                     */}
       {/* ============================================================== */}
-      <div
-        data-testid="mobile-users-management"
-        className="block lg:hidden min-h-screen bg-slate-50 pb-24"
-      >
-        {/* Mobile Header Bar */}
-        <div className="bg-[#0B111E] text-white p-4 sticky top-0 z-30 shadow-md">
-          {/* Top Brand & Viewport Indicator */}
-          <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
-            <BrandLogo variant="on-dark" priority width={120} height={24} className="h-5 w-auto" />
-            <div className="text-right">
-              <span className="text-[10px] font-bold text-red-500 uppercase tracking-wider block">
-                ADMIN • MOBILE WEB
-              </span>
-              <span className="text-[10px] text-slate-400">Modo Somente Leitura</span>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-red-500" />
-              <h1 className="text-base font-bold tracking-tight">Pesquisa de Clientes</h1>
-            </div>
-            <span className="text-[10px] font-mono bg-slate-800 px-2 py-0.5 rounded text-slate-300">
-              ADM-M-008
-            </span>
-          </div>
-
-          <p className="text-[11px] text-slate-400 mb-3">
-            Consulta rápida com mascaramento LGPD e inspeção somente leitura.
-          </p>
-
-          {/* Mobile Search */}
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            placeholder="Buscar cliente por nome, CPF/CNPJ, código..."
-            className="w-full px-3 py-2 bg-slate-800/90 border border-slate-700 text-xs rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-red-500"
-          />
-        </div>
-
-        {/* Mobile Filter Chips & Summary */}
-        <div className="p-4 space-y-3">
-          {/* Quick Stats Pill Row */}
-          <div className="grid grid-cols-4 gap-2 text-center">
-            <div className="p-2 bg-white rounded-xl border border-slate-200 shadow-2xs">
-              <span className="text-[10px] text-slate-500 block">Total</span>
-              <span className="text-sm font-extrabold text-slate-900">{counts.total}</span>
-            </div>
-            <div className="p-2 bg-white rounded-xl border border-slate-200 shadow-2xs">
-              <span className="text-[10px] text-slate-500 block">Membros</span>
-              <span className="text-sm font-extrabold text-slate-900">{counts.members}</span>
-            </div>
-            <div className="p-2 bg-white rounded-xl border border-slate-200 shadow-2xs">
-              <span className="text-[10px] text-slate-500 block">Vendedores</span>
-              <span className="text-sm font-extrabold text-slate-900">
-                {counts.sellersAndDealers}
-              </span>
-            </div>
-            <div className="p-2 bg-white rounded-xl border border-slate-200 shadow-2xs">
-              <span className="text-[10px] text-slate-500 block">Suspensos</span>
-              <span className="text-sm font-extrabold text-red-600">
-                {counts.suspendedOrBanned}
-              </span>
-            </div>
-          </div>
-
-          {/* Mobile Filter Dropdowns */}
-          <div className="grid grid-cols-2 gap-2">
-            <select
-              aria-label="Filtrar por papel"
-              value={selectedRole}
-              onChange={(e) => handleRoleChange(e.target.value as 'all' | AdminUserRole)}
-              className="w-full text-xs py-2 px-2.5 bg-white border border-slate-300 rounded-xl text-slate-700 font-medium focus:outline-none"
-            >
-              <option value="all">Todos os papéis</option>
-              <option value="member">Membros (Compradores)</option>
-              <option value="seller">Vendedores Particulares</option>
-              <option value="dealer">Concessionárias</option>
-              <option value="support">Suporte</option>
-              <option value="sales">Comercial</option>
-              <option value="main_admin">Admin Principal</option>
-            </select>
-
-            <select
-              aria-label="Filtrar por situação"
-              value={selectedStatus}
-              onChange={(e) => handleStatusFilterChange(e.target.value as 'all' | AdminUserStatus)}
-              className="w-full text-xs py-2 px-2.5 bg-white border border-slate-300 rounded-xl text-slate-700 font-medium focus:outline-none"
-            >
-              <option value="all">Todas as situações</option>
-              <option value="ACTIVE">Ativo</option>
-              <option value="PENDING">Pendente</option>
-              <option value="SUSPENDED">Suspenso</option>
-              <option value="BANNED">Bloqueado</option>
-            </select>
-          </div>
-
-          {/* Mobile User Cards List or Empty State */}
-          {mobileUsers.length > 0 ? (
-            <UserCardList
-              users={mobileUsers}
-              totalFilteredCount={filteredUsers.length}
-              visibleCount={mobileVisibleCount}
-              onLoadMore={() => setMobileVisibleCount((prev) => prev + MOBILE_PAGE_SIZE)}
-              onInspectUser={(user) => {
-                setInspectingUser(user);
-                setIsMobileReadOnly(true);
-                setIsModalOpen(true);
-              }}
-            />
-          ) : (
-            <UserEmptyState onResetFilters={handleResetFilters} searchTerm={searchTerm} />
-          )}
-        </div>
-
-        {/* Mobile Navigation Bar */}
-        <AdminMobileNavigation />
-      </div>
+      <MobileClientSearch
+        users={users}
+        onInspectUser={(user) => {
+          setInspectingUser(user);
+          setIsMobileReadOnly(true);
+          setIsModalOpen(true);
+        }}
+      />
 
       {/* ============================================================== */}
       {/* DESKTOP USERS MANAGEMENT (Figma ADM-D-003)                      */}
@@ -316,7 +194,10 @@ export default function UsersManagementPage() {
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-400">Ambiente de Demonstração (LGPD)</span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  Amostra demonstrativa: 22 contas carregadas (Base total: 2.406)
+                </span>
                 <button
                   type="button"
                   onClick={handleResetFilters}

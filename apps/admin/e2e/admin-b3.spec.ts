@@ -48,11 +48,17 @@ test.describe('Admin B3 — Users Management (ADM-D-003 & ADM-M-008)', () => {
     await expect(desktopView.getByRole('heading', { name: 'Gestão de Usuários' })).toBeVisible();
     await expect(desktopView.getByText('ADM-D-003')).toBeVisible();
 
-    // Verify 4 KPI Summary Cards
-    await expect(desktopView.getByText('Total de Usuários')).toBeVisible();
-    await expect(desktopView.getByText('Membros / Compradores')).toBeVisible();
-    await expect(desktopView.getByText('Vendedores & Lojistas')).toBeVisible();
-    await expect(desktopView.getByText('Suspensos / Bloqueados')).toBeVisible();
+    // Verify 4 KPI Summary Cards (Figma ADM-D-003)
+    await expect(desktopView.getByRole('button', { name: /Total de contas/i })).toContainText(
+      '2.406',
+    );
+    await expect(desktopView.getByRole('button', { name: /Vendedores aprovados/i })).toContainText(
+      '682',
+    );
+    await expect(desktopView.getByRole('button', { name: /Concessionárias/i })).toContainText('74');
+    await expect(desktopView.getByRole('button', { name: /Contas suspensas/i })).toContainText(
+      '14',
+    );
 
     // Verify Table & Reference Users
     await expect(desktopView.locator('table')).toBeVisible();
@@ -106,7 +112,7 @@ test.describe('Admin B3 — Users Management (ADM-D-003 & ADM-M-008)', () => {
       detailPanel.getByRole('heading', { name: 'Vale Auto Veículos Ltda' }),
     ).toBeVisible();
     await expect(detailPanel.getByText('USR-2026-0003')).toBeVisible();
-    await expect(detailPanel.getByText('34 veículos no catálogo')).toBeVisible();
+    await expect(detailPanel.getByText('12 veículos no catálogo')).toBeVisible();
     await expect(detailPanel.getByText('Destaque Ouro')).toBeVisible();
   });
 
@@ -221,32 +227,29 @@ test.describe('Admin B3 — Users Management (ADM-D-003 & ADM-M-008)', () => {
     });
   });
 
-  test('mobile ADM-M-008: renders user cards, load more, and read-only inspection modal', async ({
+  test('mobile ADM-M-008: renders restricted client search, criteria section, and masked consultation', async ({
     page,
+    isMobile,
   }) => {
+    test.skip(!isMobile, 'Mobile only test');
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/usuarios');
 
     const mobileView = page.getByTestId('mobile-users-management');
     await expect(mobileView).toBeVisible();
 
-    // Verify Title & Badge (ADM-M-008 — Pesquisa de Clientes)
-    await expect(mobileView.getByRole('heading', { name: 'Pesquisa de Clientes' })).toBeVisible();
+    // Verify Title & Badge (ADM-M-008 — Pesquisa de clientes)
+    await expect(mobileView.getByRole('heading', { name: 'Pesquisa de clientes' })).toBeVisible();
     await expect(mobileView.getByText('ADM-M-008')).toBeVisible();
 
-    // Verify initial 6 cards loaded
-    await expect(mobileView.getByText('Mariana Silva Costa').first()).toBeVisible();
+    // Verify Criteria for Consultation and Privacy Notice
+    await expect(mobileView.getByText('Critérios de Consulta Autorizada')).toBeVisible();
+    await expect(mobileView.getByText('Privacidade por campo ativa (LGPD)')).toBeVisible();
 
-    // Verify Load More
-    const loadMoreContainer = mobileView.getByTestId('load-more-container');
-    await expect(loadMoreContainer).toBeVisible();
-    await expect(loadMoreContainer.getByText(/Exibindo 6 de 22 usuários/i)).toBeVisible();
+    // Verify full directory is NOT revealed before search
+    await expect(mobileView.getByText('Aguardando consulta')).toBeVisible();
 
-    const loadMoreBtn = mobileView.getByTestId('load-more-button');
-    await loadMoreBtn.click();
-    await expect(loadMoreContainer.getByText(/Exibindo 12 de 22 usuários/i)).toBeVisible();
-
-    // Capture Mobile 390px Screenshot
+    // Capture Mobile 390px Initial Search Screen
     await page.screenshot({
       path: path.join(outputDir, 'ADM-M-008-Mobile-Users-390px.png'),
       fullPage: true,
@@ -266,8 +269,18 @@ test.describe('Admin B3 — Users Management (ADM-D-003 & ADM-M-008)', () => {
       fullPage: true,
     });
 
+    // Perform Authorized Customer Lookup for Mariana Costa
+    await page.setViewportSize({ width: 390, height: 844 });
+    await mobileView.getByRole('button', { name: 'Mariana Costa' }).click();
+
+    // Verify Masked Customer Summary Card is displayed
+    await expect(mobileView.getByText('Mariana Silva Costa')).toBeVisible();
+    await expect(mobileView.getByText('USR-2026-0001').first()).toBeVisible();
+    await expect(mobileView.getByText('***.452.886-**')).toBeVisible();
+    await expect(mobileView.getByText('Ativo', { exact: true })).toBeVisible();
+
     // Open Read-Only Modal on Mobile
-    await mobileView.getByRole('button', { name: 'Inspecionar Dossiê (Leitura)' }).first().click();
+    await mobileView.getByRole('button', { name: 'Inspecionar Dossiê (Modo Leitura)' }).click();
     const modal = page.getByTestId('user-inspection-modal');
     await expect(modal).toBeVisible();
 

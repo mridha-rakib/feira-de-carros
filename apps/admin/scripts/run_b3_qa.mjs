@@ -9,7 +9,7 @@ import next from 'next';
 const PORT = 3012;
 const BASE_URL = `http://localhost:${PORT}`;
 
-const ROOT_SCREENSHOTS_DIR = path.resolve('../../screenshots/admin-b3');
+const ROOT_SCREENSHOTS_DIR = path.resolve(import.meta.dirname, '../../../screenshots/admin-b3');
 const ARTIFACTS_DIR =
   'C:\\Users\\rakib_bro\\.gemini\\antigravity\\brain\\a7c0407c-7356-40dd-bed2-ada338d6a46f\\screenshots';
 
@@ -113,7 +113,7 @@ async function main() {
     // Vale Auto Veículos (DETAIL-03)
     await desktopView.getByText('Vale Auto Veículos Ltda').first().click();
     await page1600.waitForSelector(
-      '[data-testid="selected-user-detail-panel"] >> text=34 veículos no catálogo',
+      '[data-testid="selected-user-detail-panel"] >> text=12 veículos no catálogo',
     );
     await saveScreenshot(page1600, 'ADM-D-003-DETAIL-03-Vale-Auto-Veiculos.png', {
       fullPage: true,
@@ -260,9 +260,16 @@ async function main() {
     await mobilePage.setViewportSize({ width: 430, height: 932 });
     await saveScreenshot(mobilePage, 'ADM-M-008-Mobile-Users-430px.png', { fullPage: true });
 
-    // Open Mobile Read-Only Inspection Modal
+    // Perform Authorized Customer Lookup for Mariana Costa (ADM-M-008)
     await mobilePage.setViewportSize({ width: 390, height: 844 });
-    await mobilePage.locator('button:has-text("Inspecionar Dossiê (Leitura)")').first().click();
+    await mobilePage.getByRole('button', { name: 'Mariana Costa' }).click();
+    await mobilePage.waitForSelector('text=Mariana Silva Costa');
+
+    // Open Mobile Read-Only Inspection Modal
+    await mobilePage
+      .locator('button:has-text("Inspecionar Dossiê (Modo Leitura)")')
+      .first()
+      .click();
     await mobilePage.waitForSelector('[data-testid="user-inspection-modal"]');
     await mobilePage.waitForSelector('text=Consulta em modo leitura no mobile');
     await saveScreenshot(mobilePage, 'ADM-M-008-Mobile-Inspection-Modal.png');
