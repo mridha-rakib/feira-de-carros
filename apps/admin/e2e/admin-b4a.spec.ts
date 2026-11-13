@@ -23,7 +23,7 @@ test.describe('Admin B4A — Financial Transactions & Cash Ledger (ADM-D-024, 02
       page,
     }) => {
       // 1. Verify Page Badge & Title
-      await expect(page.getByText('ADM-D-024')).toBeVisible();
+      await expect(page.getByText('ADM-D-024').first()).toBeVisible();
       await expect(page.getByRole('heading', { name: /Transações de Pagamentos/i })).toBeVisible();
 
       // 2. Verify Official 2026 Brand Logo in Sidebar
@@ -205,7 +205,7 @@ test.describe('Admin B4A — Financial Transactions & Cash Ledger (ADM-D-024, 02
       await page.goto('/pagamentos/dinheiro');
       await page.waitForLoadState('domcontentloaded');
 
-      await expect(page.getByText('ADM-D-027')).toBeVisible();
+      await expect(page.getByText('ADM-D-027').first()).toBeVisible();
       await expect(
         page.getByRole('heading', { name: /Livro Caixa — Recebimentos em Dinheiro/i }),
       ).toBeVisible();

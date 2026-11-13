@@ -410,7 +410,7 @@ export const mockRefundRequests: RefundRequestRecord[] = [
     method: 'PIX',
     requestedAt: '16/01/2026 09:15',
     adPublishedAt: '15/01/2026 14:32',
-    legalDeadline: '3 dias úteis (Análise CDC Art. 49)',
+    legalDeadline: '3 dias úteis (Triagem Interna) • CDC Art. 49 (7 dias)',
     reason: 'Desistência da contratação do destaque no prazo legal de 7 dias (CDC Art. 49).',
     status: 'PENDING_REVIEW',
     reviewCriteria: {
@@ -439,8 +439,9 @@ export const mockRefundRequests: RefundRequestRecord[] = [
       {
         id: 'evt-cxl-3',
         timestamp: '16/01/2026 09:15:35',
-        title: 'Triagem administrativa automática iniciada',
-        description: 'Prazo legal de 3 dias úteis estabelecido. Elegibilidade preliminar positiva.',
+        title: 'Triagem administrativa da plataforma iniciada',
+        description:
+          'Prazo interno de triagem de 3 dias úteis estabelecido. Solicitação recebida dentro dos 7 dias corridos do Art. 49 do CDC.',
         type: 'INFO',
         operator: 'Sistema de Compliance',
       },

@@ -55,7 +55,7 @@ export function RefundKpiCards({ selectedStatus, onFilterStatus }: RefundKpiCard
       >
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">
-            Em Análise (3 dias úteis)
+            Em Análise (Triagem: 3 dias)
           </span>
           <div className="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
             <Clock className="w-4 h-4" />
@@ -66,8 +66,8 @@ export function RefundKpiCards({ selectedStatus, onFilterStatus }: RefundKpiCard
           <span className="text-xs font-semibold text-amber-700">dentro do prazo</span>
         </div>
         <div className="mt-2 pt-2 border-t border-amber-50 flex items-center justify-between text-xs">
-          <span className="text-amber-800">Direito arrependimento:</span>
-          <span className="font-bold text-amber-900">{formatBrl(70)}</span>
+          <span className="text-amber-800">Direito legal (Art. 49):</span>
+          <span className="font-bold text-amber-900">7 dias corridos</span>
         </div>
       </button>
 
