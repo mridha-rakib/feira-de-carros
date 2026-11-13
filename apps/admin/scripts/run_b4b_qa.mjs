@@ -147,6 +147,13 @@ async function main() {
     await saveScreenshot(page29_1600, 'ADM-D-029-Simulation-Hold-Preview.png');
     testResults.totalCaptured++;
 
+    // 2.3b Invalid ID Not Found State
+    await page29_1600.goto(`${BASE_URL}/reembolsos/INVALID-ID-DEMO`);
+    await page29_1600.waitForSelector('[data-testid="refund-not-found-state"]');
+    await page29_1600.waitForTimeout(300);
+    await saveScreenshot(page29_1600, 'ADM-D-029-Invalid-ID-Not-Found-State.png');
+    testResults.totalCaptured++;
+
     // 2.4 Mobile 390px
     const { context: ctx29_390, page: page29_390 } = await createAuthenticatedPage(browser, {
       viewport: { width: 390, height: 844 },

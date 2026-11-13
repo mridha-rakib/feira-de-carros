@@ -37,7 +37,7 @@ export default function RefundReviewDetailPage() {
   const id = Array.isArray(params?.id) ? params.id[0] : (params?.id as string);
 
   const refund = React.useMemo(() => {
-    return mockRefundRequests.find((r) => r.id === id) || mockRefundRequests[0] || null;
+    return mockRefundRequests.find((r) => r.id === id) || null;
   }, [id]);
 
   const [simulationState, setSimulationState] = React.useState<
@@ -47,17 +47,21 @@ export default function RefundReviewDetailPage() {
   if (!refund) {
     return (
       <AdminShell breadcrumbs={['Admin', 'Financeiro', 'Reembolsos', 'Não encontrado']}>
-        <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 space-y-4 max-w-lg mx-auto">
+        <div
+          data-testid="refund-not-found-state"
+          className="p-12 text-center bg-white rounded-2xl border border-slate-200 space-y-4 max-w-lg mx-auto"
+        >
           <RotateCcw className="w-10 h-10 text-slate-400 mx-auto" />
           <h2 className="text-lg font-bold text-slate-800">
             Solicitação de Reembolso não encontrada
           </h2>
           <p className="text-xs text-slate-500">
-            O protocolo "{id}" não existe na base de dados de demonstração.
+            O protocolo "{id}" não foi localizado na base de solicitações de reembolso.
           </p>
           <Link
             href="/reembolsos"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl"
+            data-testid="back-to-refunds-not-found-btn"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Voltar para Fila de Reembolsos</span>
@@ -101,8 +105,8 @@ export default function RefundReviewDetailPage() {
 
           <div className="flex items-center gap-3">
             <RefundStatusBadge status={refund.status} />
-            <span className="text-xs font-mono text-slate-400 bg-slate-100 px-2.5 py-1 rounded-lg">
-              SLA: 3 dias úteis
+            <span className="text-xs font-mono text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+              Triagem: 3 dias úteis • CDC: 7 dias
             </span>
           </div>
         </div>
@@ -118,9 +122,10 @@ export default function RefundReviewDetailPage() {
           </div>
           <p className="leading-relaxed text-amber-900/90">
             Esta interface destina-se{' '}
-            <strong>exclusivamente à auditoria e instrução do parecer</strong>. Nenhum valor é
-            debitado da conta gráfica ou transferido via PSP sem homologação do responsável
-            financeiro e assinatura digital do parecer de encerramento.
+            <strong>exclusivamente à auditoria e instrução do parecer</strong>. O prazo operacional
+            de 3 dias úteis para triagem interna da plataforma não se confunde com o prazo legal de
+            7 dias corridos do direito de arrependimento (Art. 49 do CDC). Nenhum estorno é
+            executado automaticamente e nenhuma transação bancária é realizada nesta tela.
           </p>
         </div>
 
@@ -167,11 +172,11 @@ export default function RefundReviewDetailPage() {
 
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
                   <span className="text-[10px] font-bold text-slate-400 uppercase block">
-                    Prazo Legal (CDC)
+                    Prazos & Diretrizes
                   </span>
                   <span className="text-sm font-bold text-amber-700">3 dias úteis</span>
                   <span className="text-[10px] text-slate-500 block mt-0.5">
-                    {refund.legalDeadline}
+                    Triagem interna (CDC Art. 49: 7 dias corridos)
                   </span>
                 </div>
               </div>
@@ -204,11 +209,12 @@ export default function RefundReviewDetailPage() {
                 <div className="flex items-start justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
                   <div className="space-y-0.5 pr-4">
                     <strong className="text-slate-800 block">
-                      1. Direito de arrependimento tempestivo (até 7 dias corridos)
+                      1. Direito legal de arrependimento (Art. 49 do CDC — até 7 dias corridos)
                     </strong>
                     <p className="text-slate-500 text-[11px]">
-                      A contratação e a solicitação ocorreram dentro do intervalo estipulado pelo
-                      Código de Defesa do Consumidor.
+                      A contratação e a solicitação ocorreram dentro do intervalo legal de 7 dias
+                      corridos assegurado pelo Código de Defesa do Consumidor. A triagem operacional
+                      da plataforma observa o prazo interno de 3 dias úteis.
                     </p>
                   </div>
                   <div className="shrink-0">

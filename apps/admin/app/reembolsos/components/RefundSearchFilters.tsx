@@ -92,7 +92,7 @@ export function RefundSearchFilters({
           <strong className="text-slate-800">{totalRecords}</strong> solicitações de cancelamento
         </span>
         <span className="text-[11px] font-mono text-slate-400">
-          Política: Prazo de 3 dias úteis para triagem
+          Triagem interna: 3 dias úteis • CDC Art. 49: 7 dias corridos
         </span>
       </div>
     </div>

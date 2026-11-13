@@ -94,8 +94,9 @@ export default function RefundsPage() {
               </span>
             </div>
             <p className="text-sm text-slate-500">
-              Triagem de desistências e direitos de arrependimento (Art. 49 do CDC). Prazo legal de
-              3 dias úteis para parecer administrativo.
+              Triagem de protocolos de cancelamento. Prazo operacional de 3 dias úteis para parecer
+              administrativo, observando o direito legal de arrependimento (CDC Art. 49: 7 dias
+              corridos).
             </p>
           </div>
 
