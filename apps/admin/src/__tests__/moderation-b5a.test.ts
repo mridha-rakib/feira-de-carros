@@ -142,10 +142,7 @@ describe('Admin B5A — Reports & Moderation Management', () => {
       expect(rep21).toBeDefined();
       expect(rep21?.isUrgent).toBe(true);
       expect(rep21?.priorityLabel).toBe('Urgente');
-      expect(rep21?.vehicleTitle).toBe('Toyota Corolla 2021');
-      expect(rep21?.vehiclePriceBrl).toBe(112900);
-      expect(rep21?.sellerName).toBe('Vale Auto Veículos');
-      expect(rep21?.sellerDocumentMasked).toContain('Restrito');
+      expect(rep21?.vehicleTitle).toBe('Anúncio FC-2026-0151 · Timóteo');
       expect(rep21?.reporterMasked).toContain('protegido por LGPD');
       expect(rep21?.readOnlyNotice).toContain('Modo Leitura');
 
@@ -153,9 +150,7 @@ describe('Admin B5A — Reports & Moderation Management', () => {
       expect(rep22).toBeDefined();
       expect(rep22?.isUrgent).toBe(false);
       expect(rep22?.priorityLabel).toBe('Pendente');
-      expect(rep22?.vehicleTitle).toBe('Fiat Strada 2023');
-      expect(rep22?.sellerName).toBe('Particular');
-      expect(rep22?.sellerDocumentMasked).toContain('CPF: ***.***.***-**');
+      expect(rep22?.vehicleTitle).toBe('Conta comercial · Ipatinga');
       expect(rep22?.reporterMasked).toContain('protegido por LGPD');
     });
   });

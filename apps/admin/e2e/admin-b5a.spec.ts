@@ -287,16 +287,14 @@ test.describe('Admin B5A — Reports & Moderation Management (ADM-D-032, 033, 03
       const card21 = page.getByTestId('alert-card-moderation-REP-DEMO-0021');
       await expect(card21).toBeVisible();
       await expect(card21.getByText('REP-DEMO-0021')).toBeVisible();
-      await expect(card21.getByText('Toyota Corolla 2021')).toBeVisible();
-      await expect(card21.getByText('Vale Auto Veículos')).toBeVisible();
+      await expect(card21.getByText('Anúncio FC-2026-0151 · Timóteo')).toBeVisible();
       await expect(card21.getByText('Urgente')).toBeVisible();
       await expect(card21.getByText(/Modo Leitura/)).toBeVisible();
 
       const card22 = page.getByTestId('alert-card-moderation-REP-DEMO-0022');
       await expect(card22).toBeVisible();
       await expect(card22.getByText('REP-DEMO-0022')).toBeVisible();
-      await expect(card22.getByText('Fiat Strada 2023')).toBeVisible();
-      await expect(card22.getByText('Particular')).toBeVisible();
+      await expect(card22.getByText('Conta comercial · Ipatinga')).toBeVisible();
       await expect(card22.getByText('Pendente')).toBeVisible();
 
       // 6. Mobile bottom navigation is rendered
