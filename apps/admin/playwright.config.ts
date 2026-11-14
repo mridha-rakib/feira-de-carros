@@ -35,7 +35,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `pnpm exec next start -p ${PORT}`,
+    command: 'node ./scripts/start_test_server.mjs',
     url: `${BASE_URL}/login`,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
@@ -43,6 +43,7 @@ export default defineConfig({
       ADMIN_E2E_MOCK: 'true',
       NEXT_PUBLIC_APP_ENV: 'test',
       APP_ENV: 'test',
+      PORT: `${PORT}`,
     },
   },
 });
