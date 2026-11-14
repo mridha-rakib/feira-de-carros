@@ -106,50 +106,50 @@ async function main() {
     await saveScreenshot(page32_1600, 'ADM-D-032-Selected-RPT-DEMO-010-Bruno.png');
     testResults.totalCaptured++;
 
-    // 1.5 Tablet 768px
+    // 1.5 Tablet 768px (Mobile & Tablet Viewport < 1024px)
     const { context: ctx32_768, page: page32_768 } = await createAuthenticatedPage(browser, {
       viewport: { width: 768, height: 1024 },
     });
     await page32_768.goto(`${BASE_URL}/moderacao`);
-    await page32_768.waitForSelector('[data-testid="moderation-queue-page"]');
+    await page32_768.waitForSelector('[data-testid="mobile-moderation-page"]');
     await page32_768.waitForTimeout(400);
-    await saveScreenshot(page32_768, 'ADM-D-032-Tablet-Moderation-Queue-768px.png', {
+    await saveScreenshot(page32_768, 'ADM-M-005-Tablet-Moderation-768px.png', {
       fullPage: true,
     });
     testResults.totalCaptured++;
 
-    // 1.6 Mobile 430px
+    // 1.6 Mobile 430px (Approved Figma ADM-M-005)
     const { context: ctx32_430, page: page32_430 } = await createAuthenticatedPage(browser, {
       viewport: { width: 430, height: 932 },
     });
     await page32_430.goto(`${BASE_URL}/moderacao`);
-    await page32_430.waitForSelector('[data-testid="moderation-queue-page"]');
+    await page32_430.waitForSelector('[data-testid="mobile-moderation-page"]');
     await page32_430.waitForTimeout(400);
-    await saveScreenshot(page32_430, 'ADM-D-032-Mobile-Moderation-Queue-430px.png', {
+    await saveScreenshot(page32_430, 'ADM-M-005-Mobile-Moderation-430px.png', {
       fullPage: true,
     });
     testResults.totalCaptured++;
 
-    // 1.7 Mobile 390px
+    // 1.7 Mobile 390px (Approved Figma ADM-M-005)
     const { context: ctx32_390, page: page32_390 } = await createAuthenticatedPage(browser, {
       viewport: { width: 390, height: 844 },
     });
     await page32_390.goto(`${BASE_URL}/moderacao`);
-    await page32_390.waitForSelector('[data-testid="moderation-queue-page"]');
+    await page32_390.waitForSelector('[data-testid="mobile-moderation-page"]');
     await page32_390.waitForTimeout(400);
-    await saveScreenshot(page32_390, 'ADM-D-032-Mobile-Moderation-Queue-390px.png', {
+    await saveScreenshot(page32_390, 'ADM-M-005-Mobile-Moderation-390px.png', {
       fullPage: true,
     });
     testResults.totalCaptured++;
 
-    // 1.8 Mobile 360px
+    // 1.8 Mobile 360px (Approved Figma ADM-M-005)
     const { context: ctx32_360, page: page32_360 } = await createAuthenticatedPage(browser, {
       viewport: { width: 360, height: 800 },
     });
     await page32_360.goto(`${BASE_URL}/moderacao`);
-    await page32_360.waitForSelector('[data-testid="moderation-queue-page"]');
+    await page32_360.waitForSelector('[data-testid="mobile-moderation-page"]');
     await page32_360.waitForTimeout(400);
-    await saveScreenshot(page32_360, 'ADM-D-032-Mobile-Moderation-Queue-360px.png', {
+    await saveScreenshot(page32_360, 'ADM-M-005-Mobile-Moderation-360px.png', {
       fullPage: true,
     });
     testResults.totalCaptured++;
@@ -344,26 +344,26 @@ async function main() {
     await saveScreenshot(page35_1600, 'ADM-D-035-Blocked-Confirmation-Result-State.png');
     testResults.totalCaptured++;
 
-    // 4.6 Tablet 768px
+    // 4.6 Tablet 768px (Restricted Read-Only State)
     const { context: ctx35_768, page: page35_768 } = await createAuthenticatedPage(browser, {
       viewport: { width: 768, height: 1024 },
     });
     await page35_768.goto(`${BASE_URL}/moderacao/RPT-DEMO-008/decisao`);
-    await page35_768.waitForSelector('[data-testid="moderation-decision-page"]');
+    await page35_768.waitForSelector('[data-testid="mobile-decision-restricted-view"]');
     await page35_768.waitForTimeout(400);
-    await saveScreenshot(page35_768, 'ADM-D-035-Tablet-Decision-Preview-768px.png', {
+    await saveScreenshot(page35_768, 'ADM-D-035-Tablet-Decision-Restricted-768px.png', {
       fullPage: true,
     });
     testResults.totalCaptured++;
 
-    // 4.7 Mobile 390px
+    // 4.7 Mobile 390px (Restricted Read-Only State)
     const { context: ctx35_390, page: page35_390 } = await createAuthenticatedPage(browser, {
       viewport: { width: 390, height: 844 },
     });
     await page35_390.goto(`${BASE_URL}/moderacao/RPT-DEMO-008/decisao`);
-    await page35_390.waitForSelector('[data-testid="moderation-decision-page"]');
+    await page35_390.waitForSelector('[data-testid="mobile-decision-restricted-view"]');
     await page35_390.waitForTimeout(400);
-    await saveScreenshot(page35_390, 'ADM-D-035-Mobile-Decision-Preview-390px.png', {
+    await saveScreenshot(page35_390, 'ADM-D-035-Mobile-Decision-Restricted-390px.png', {
       fullPage: true,
     });
     testResults.totalCaptured++;
@@ -419,15 +419,26 @@ async function main() {
           lgpdProtection: 'Identidades protegidas e sem exportação irrestrita',
         },
         {
+          frameCode: 'ADM-M-005',
+          name: 'Visão móvel de denúncias e moderação',
+          route: '/moderacao (mobile viewports < 1024px)',
+          figmaNode: '447:9382',
+          kpis: {
+            pendingReports: 7,
+            urgentReports: 2,
+            mainAdminAccess: 'Revisão e leitura autorizada',
+            supportAccess: 'DENY_PENDING',
+          },
+          alertCardsSample: ['REP-DEMO-0021', 'REP-DEMO-0022'],
+          securityInvariant:
+            'Fail-closed: visualização exclusivamente em modo leitura sem controles operacionais',
+        },
+        {
           frameCode: 'ADM-D-035',
           name: 'Decisão e medidas de moderação',
           route: '/moderacao/[id]/decisao',
           figmaNode: '275:1904',
-          decisionOptions: [
-            'Denúncia não fundamentada',
-            'Solicitar correção',
-            'Medida restritiva',
-          ],
+          decisionOptions: ['Denúncia não fundamentada', 'Solicitar correção', 'Medida restritiva'],
           securityInvariant: 'Fail-closed: blocked authorization state with zero mutation',
         },
       ],
@@ -462,10 +473,11 @@ async function main() {
 
 ### 3. ADM-D-034 — Revisão de conversa vinculada à denúncia (node 275:1689)
 - **Route**: \`/moderacao/[id]/conversa\`
+- **Unverified Unilateral Evidence**: Explicitly marked as unilateral evidence submitted by complainant; does not imply platform-authenticated private-chat records.
 - **Strict Privacy Scope**: Limited strictly to the demonstrative excerpt attached to \`RPT-DEMO-008\`.
 - **Anti-Pattern Guard**: No global chat browsing, no full conversation export, no access to unrelated messages.
 - **RBAC**: Explicit banner confirming Support and Sales access is \`DENY_PENDING\`.
-- **Authenticity Status**: Shows "Verificação Pendente" for unverified complaint excerpts.
+- **Authenticity Status**: Shows "Evidência Unilateral Não Autenticada" for unverified complaint excerpts.
 
 ### 4. ADM-D-035 — Decisão e medidas de moderação (node 275:1904)
 - **Route**: \`/moderacao/[id]/decisao\`
@@ -475,6 +487,16 @@ async function main() {
   3. Medida restritiva (Suspensão preventiva)
 - **Mandatory Justification**: All decisions require explicit technical rationale before preview.
 - **Fail-Closed Execution**: Simulation preview confirms into a clear non-executed blocked state with zero persistent mutation.
+- **Mobile & Tablet Restrictions**: Interactive decision controls (options, textarea, simulation button) are strictly hidden/blocked on mobile and tablet viewports (< 1024px) with dedicated locked restriction state (ADM-019 / ADM-021).
+
+### 5. ADM-M-005 — Visão móvel de moderação (node 447:9382)
+- **Route**: \`/moderacao\` on mobile viewports (< 1024px)
+- **Approved Dark Header**: \`#0B111E\` background, official 2026 BrandLogo, \`ADM-M-005\` badge, \`Ipatinga - MG\`, \`Ambiente Demonstrativo (LGPD)\`.
+- **KPI Metrics**: Exactly 7 pending reports and 2 urgent reports.
+- **Role Permissions**: Main Admin read-only summary, Support \`DENY_PENDING\`.
+- **Fictional Alert Cards**: \`REP-DEMO-0021\` (Toyota Corolla 2021, urgent) and \`REP-DEMO-0022\` (Fiat Strada 2023, pending) with masked customer/seller info.
+- **Navigation**: Integrated with approved \`AdminMobileNavigation\`.
+- **Fail-Closed**: Zero operational decision or mutation controls exposed on mobile.
 `;
 
     fs.writeFileSync(path.join(ROOT_SCREENSHOTS_DIR, 'FIGMA-COMPARISON-NOTES.md'), figmaNotes);
@@ -506,4 +528,3 @@ async function main() {
 }
 
 main().catch(console.error);
-

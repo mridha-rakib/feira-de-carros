@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   MODERATION_KPI,
+  MODERATION_MOBILE_KPI,
   formatVehiclePrice,
   getReportById,
+  mockMobileModerationReports,
   mockModerationDecision,
   mockReports,
 } from '../../lib/adapters/mock-moderation-data';
@@ -75,13 +77,16 @@ describe('Admin B5A — Reports & Moderation Management', () => {
   });
 
   describe('Workflow 06 — ADM-D-034: Restricted Conversation Review', () => {
-    it('attaches scoped conversation excerpt only to authorized reported context', () => {
+    it('attaches scoped conversation excerpt only to authorized reported context as unilateral unverified evidence', () => {
       const rpt8 = getReportById('RPT-DEMO-008');
       expect(rpt8?.conversationExcerpt).toBeDefined();
       const excerpt = rpt8?.conversationExcerpt;
-      expect(excerpt?.scopeNotice).toContain('Trecho restrito');
+      expect(excerpt?.scopeNotice).toContain('Trecho unilateral');
+      expect(excerpt?.scopeNotice).toContain('Não constitui registro certificado de chat privado');
       expect(excerpt?.messages).toHaveLength(2);
       expect(excerpt?.evidenceAuthStatus).toBe('PENDING_VERIFICATION');
+      expect(excerpt?.auditSummary).toContain('Evidência documental unilateral');
+      expect(excerpt?.auditSummary).toContain('Não constitui espelhamento de chat');
       expect(excerpt?.permissionsNote).toContain('Support: DENY_PENDING');
 
       // Every message must be explicitly marked as excerpt
@@ -115,6 +120,43 @@ describe('Admin B5A — Reports & Moderation Management', () => {
       expect(mockModerationDecision.justificationRequired).toBe(true);
       expect(mockModerationDecision.auditNote).toContain('fail-closed');
       expect(mockModerationDecision.auditNote).toContain('Nenhuma medida é executada');
+    });
+  });
+
+  describe('Workflow 08 — ADM-M-005: Dedicated Mobile Moderation Fidelity & Restrictions', () => {
+    it('matches approved Figma ADM-M-005 mobile KPI metrics (7 pending, 2 urgent)', () => {
+      expect(MODERATION_MOBILE_KPI.pendingReports).toBe(7);
+      expect(MODERATION_MOBILE_KPI.urgentReports).toBe(2);
+      expect(MODERATION_MOBILE_KPI.mainAdminStatus).toBe('Revisão e leitura autorizada');
+      expect(MODERATION_MOBILE_KPI.supportStatus).toBe('DENY_PENDING');
+    });
+
+    it('separates mobile demonstration fixtures from desktop queue dataset', () => {
+      expect(mockMobileModerationReports).toHaveLength(2);
+      expect(mockMobileModerationReports.map((r) => r.id)).toEqual([
+        'REP-DEMO-0021',
+        'REP-DEMO-0022',
+      ]);
+
+      const rep21 = mockMobileModerationReports.find((r) => r.id === 'REP-DEMO-0021');
+      expect(rep21).toBeDefined();
+      expect(rep21?.isUrgent).toBe(true);
+      expect(rep21?.priorityLabel).toBe('Urgente');
+      expect(rep21?.vehicleTitle).toBe('Toyota Corolla 2021');
+      expect(rep21?.vehiclePriceBrl).toBe(112900);
+      expect(rep21?.sellerName).toBe('Vale Auto Veículos');
+      expect(rep21?.sellerDocumentMasked).toContain('Restrito');
+      expect(rep21?.reporterMasked).toContain('protegido por LGPD');
+      expect(rep21?.readOnlyNotice).toContain('Modo Leitura');
+
+      const rep22 = mockMobileModerationReports.find((r) => r.id === 'REP-DEMO-0022');
+      expect(rep22).toBeDefined();
+      expect(rep22?.isUrgent).toBe(false);
+      expect(rep22?.priorityLabel).toBe('Pendente');
+      expect(rep22?.vehicleTitle).toBe('Fiat Strada 2023');
+      expect(rep22?.sellerName).toBe('Particular');
+      expect(rep22?.sellerDocumentMasked).toContain('CPF: ***.***.***-**');
+      expect(rep22?.reporterMasked).toContain('protegido por LGPD');
     });
   });
 });

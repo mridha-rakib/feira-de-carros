@@ -2,6 +2,7 @@
 
 import { AdminPagination } from '@/app/components/AdminPagination';
 import { AdminShell } from '@/app/components/AdminShell';
+import { MobileModerationView } from '@/app/moderacao/components/MobileModerationView';
 import { ModerationKpiCards } from '@/app/moderacao/components/ModerationKpiCards';
 import { ModerationSearchFilters } from '@/app/moderacao/components/ModerationSearchFilters';
 import { ReportDetailPanel } from '@/app/moderacao/components/ReportDetailPanel';
@@ -89,131 +90,138 @@ export default function ModerationQueuePage() {
   }, [filteredReports, selectedReportId]);
 
   return (
-    <AdminShell
-      breadcrumbs={['Admin', 'Denúncias', 'Fila de denúncias e moderação']}
-      maxWidthClass="max-w-[1330px]"
-    >
-      <div className="space-y-6" data-testid="moderation-queue-page">
-        {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-1">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-                Fila de denúncias e moderação
-              </h1>
-              <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-orange-100 text-orange-800">
-                ADM-D-032
-              </span>
-            </div>
-            <p className="text-sm text-slate-500">
-              Anúncios, vendedores e denúncias; acesso sensível condicionado por permissão.
-            </p>
-          </div>
+    <>
+      {/* ============================================================== */}
+      {/* MOBILE MODERATION (Figma ADM-M-005)                           */}
+      {/* ============================================================== */}
+      <MobileModerationView />
 
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleResetFilters}
-              className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 rounded-xl transition-colors"
-              title="Atualizar filtros"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+      {/* ============================================================== */}
+      {/* DESKTOP MODERATION QUEUE (Figma ADM-D-032)                     */}
+      {/* ============================================================== */}
+      <div
+        data-testid="desktop-moderation-queue"
+        className="hidden lg:block min-h-screen bg-slate-50"
+      >
+        <AdminShell
+          breadcrumbs={['Admin', 'Denúncias', 'Fila de denúncias e moderação']}
+          maxWidthClass="max-w-[1330px]"
+        >
+          <div className="space-y-6" data-testid="moderation-queue-page">
+            {/* Page Header */}
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-1">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+                    Fila de denúncias e moderação
+                  </h1>
+                  <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-orange-100 text-orange-800">
+                    ADM-D-032
+                  </span>
+                </div>
+                <p className="text-sm text-slate-500">
+                  Anúncios, vendedores e denúncias; acesso sensível condicionado por permissão.
+                </p>
+              </div>
 
-        {/* KPI Cards */}
-        <ModerationKpiCards selectedStatus={selectedStatus} onFilterStatus={handleStatusChange} />
-
-        {/* Search & Filters */}
-        <ModerationSearchFilters
-          searchTerm={searchTerm}
-          onSearchChange={handleSearchChange}
-          selectedCategory={selectedCategory}
-          onCategoryChange={handleCategoryChange}
-          selectedStatus={selectedStatus}
-          onStatusChange={handleStatusChange}
-          onResetFilters={handleResetFilters}
-          totalFiltered={filteredReports.length}
-          totalRecords={reports.length}
-          locationFilter={locationFilter}
-          onLocationChange={handleLocationChange}
-        />
-
-        {/* Desktop Master-Detail Layout */}
-        <div>
-          {/* Section Label */}
-          <div className="mb-3">
-            <h2 className="text-sm font-bold text-slate-800">Denúncias recebidas</h2>
-            <p className="text-xs text-slate-500">
-              Relatos de anúncio/vendedor, com evidências submetidas pelo denunciante; mensagens
-              privadas protegidas.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Table Column */}
-            <div className="lg:col-span-7 xl:col-span-8 space-y-4">
-              <ReportTable
-                reports={paginatedReports}
-                selectedReportId={selectedReport?.id || null}
-                onSelectReport={(r) => setSelectedReportId(r.id)}
-                onNavigateDetail={(id) => router.push(`/moderacao/${id}`)}
-              />
-
-              {totalPages > 1 && (
-                <AdminPagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  totalItems={filteredReports.length}
-                  pageSize={PAGE_SIZE}
-                  onPageChange={setCurrentPage}
-                />
-              )}
-            </div>
-
-            {/* Detail Panel Column */}
-            <div className="lg:col-span-5 xl:col-span-4">
-              <div className="sticky top-6">
-                <ReportDetailPanel report={selectedReport} />
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleResetFilters}
+                  className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 rounded-xl transition-colors"
+                  title="Atualizar filtros"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </button>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Mobile Read-Only Notice */}
-        <div className="lg:hidden p-4 rounded-2xl bg-slate-900 text-white text-xs">
-          <div className="flex items-center gap-2 font-bold text-slate-300 mb-1">
-            <MessageSquareWarning className="w-4 h-4 text-amber-400" />
-            <span>Moderação — Acesso móvel somente leitura</span>
-          </div>
-          <p className="text-slate-400 text-[11px]">
-            Nenhuma ação de moderação disponível em dispositivos móveis. Use o painel desktop para
-            revisar e pré-visualizar decisões.
-          </p>
-        </div>
+            {/* KPI Cards */}
+            <ModerationKpiCards
+              selectedStatus={selectedStatus}
+              onFilterStatus={handleStatusChange}
+            />
 
-        {/* Demo Footer */}
-        <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900">
-          <div className="flex items-start gap-2">
-            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            {/* Search & Filters */}
+            <ModerationSearchFilters
+              searchTerm={searchTerm}
+              onSearchChange={handleSearchChange}
+              selectedCategory={selectedCategory}
+              onCategoryChange={handleCategoryChange}
+              selectedStatus={selectedStatus}
+              onStatusChange={handleStatusChange}
+              onResetFilters={handleResetFilters}
+              totalFiltered={filteredReports.length}
+              totalRecords={reports.length}
+              locationFilter={locationFilter}
+              onLocationChange={handleLocationChange}
+            />
+
+            {/* Desktop Master-Detail Layout */}
             <div>
-              <strong>SMG-08 / REL-07 — ACESSO SENSÍVEL PENDENTE</strong>
-              <p className="text-[11px] text-amber-800 mt-0.5">
-                Nenhum usuário foi suspenso, nenhum anúncio removido e nenhuma conversa aberta por
-                este protótipo. Páginas de report detail, conversation review e disposition serão
-                módulos separados sob aprovação.
-              </p>
+              {/* Section Label */}
+              <div className="mb-3">
+                <h2 className="text-sm font-bold text-slate-800">Denúncias recebidas</h2>
+                <p className="text-xs text-slate-500">
+                  Relatos de anúncio/vendedor, com evidências submetidas pelo denunciante; mensagens
+                  privadas protegidas.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                {/* Table Column */}
+                <div className="lg:col-span-7 xl:col-span-8 space-y-4">
+                  <ReportTable
+                    reports={paginatedReports}
+                    selectedReportId={selectedReport?.id || null}
+                    onSelectReport={(r) => setSelectedReportId(r.id)}
+                    onNavigateDetail={(id) => router.push(`/moderacao/${id}`)}
+                  />
+
+                  {totalPages > 1 && (
+                    <AdminPagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      totalItems={filteredReports.length}
+                      pageSize={PAGE_SIZE}
+                      onPageChange={setCurrentPage}
+                    />
+                  )}
+                </div>
+
+                {/* Detail Panel Column */}
+                <div className="lg:col-span-5 xl:col-span-4">
+                  <div className="sticky top-6">
+                    <ReportDetailPanel report={selectedReport} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Demo Footer */}
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong>SMG-08 / REL-07 — ACESSO SENSÍVEL PENDENTE</strong>
+                  <p className="text-[11px] text-amber-800 mt-0.5">
+                    Nenhum usuário foi suspenso, nenhum anúncio removido e nenhuma conversa privada
+                    aberta por este protótipo. As rotas de detalhes da denúncia (ADM-D-033), revisão
+                    de evidência documental (ADM-D-034) e prévia de decisão (ADM-D-035) operam em
+                    modo fail-closed com bloqueio de execução real.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* LGPD Footer */}
+            <div className="text-center text-[11px] text-slate-400 pt-2 border-t border-slate-200">
+              AMBIENTE DEMONSTRATIVO • Registros fictícios; nenhum recebimento, cancelamento ou
+              membrete executado.
             </div>
           </div>
-        </div>
-
-        {/* LGPD Footer */}
-        <div className="text-center text-[11px] text-slate-400 pt-2 border-t border-slate-200">
-          AMBIENTE DEMONSTRATIVO • Registros fictícios; nenhum recebimento, cancelamento ou membrete
-          executado.
-        </div>
+        </AdminShell>
       </div>
-    </AdminShell>
+    </>
   );
 }

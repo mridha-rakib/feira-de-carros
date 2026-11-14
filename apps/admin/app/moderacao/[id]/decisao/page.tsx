@@ -136,8 +136,104 @@ export default function ModerationDecisionPage() {
           <p className="text-slate-400 leading-relaxed">{decision.auditNote}</p>
         </div>
 
-        {/* 2-Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* ============================================================== */}
+        {/* MOBILE & TABLET RESTRICTION VIEW (lg:hidden)                  */}
+        {/* Never expose interactive moderation-decision controls.         */}
+        {/* ============================================================== */}
+        <div data-testid="mobile-decision-restricted-view" className="lg:hidden space-y-4">
+          {/* Lock Banner */}
+          <div className="p-4 rounded-2xl bg-slate-900 text-white text-xs space-y-2 border border-slate-800 shadow-2xs">
+            <div className="flex items-center gap-2 font-bold text-amber-400">
+              <Lock className="w-5 h-5 shrink-0" />
+              <span>Deliberação Bloqueada em Ambiente Móvel e Tablet</span>
+            </div>
+            <p className="text-[11px] text-slate-300 leading-relaxed">
+              Por governança de integridade de catálogo (ADM-019 / ADM-021), a tomada de decisões,
+              seleção de medidas e formulação de justificativas são{' '}
+              <strong>estritamente proibidas em dispositivos móveis e tablets</strong>.
+            </p>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Para simular ou deliberar medidas sobre esta denúncia, acesse o terminal desktop
+              corporativo homologado (largura mínima de 1024px) com credenciais autorizadas de Main
+              Admin.
+            </p>
+          </div>
+
+          {/* Read-Only Summary of Report */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-slate-500" />
+                Resumo em Modo Leitura
+              </h2>
+              <span className="text-[10px] font-mono text-slate-400">ADM-021</span>
+            </div>
+
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Protocolo</span>
+                <span className="font-mono font-bold text-slate-800">
+                  {decision.reporterProtocol}
+                </span>
+              </div>
+              {decision.adId && (
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Anúncio</span>
+                  <span className="font-mono text-slate-700">{decision.adId}</span>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span className="text-slate-500">Vendedor</span>
+                <span className="text-slate-800 font-semibold">{decision.sellerName}</span>
+              </div>
+              <div className="pt-1 border-t border-slate-100">
+                <span className="text-[10px] font-bold text-slate-400 uppercase block mb-0.5">
+                  Alegação relatada
+                </span>
+                <p className="text-slate-700 text-xs leading-relaxed">{decision.allegation}</p>
+              </div>
+              <div className="flex justify-between pt-1 border-t border-slate-100">
+                <span className="text-slate-500">Estado de moderação</span>
+                <ReportStatusBadge status={decision.currentState} />
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Alçada Main Admin</span>
+                <span className="text-emerald-700 font-semibold text-[11px]">
+                  Leitura informativa
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Alçada Support</span>
+                <span className="text-red-700 font-semibold font-mono text-[11px]">
+                  DENY_PENDING
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation back buttons */}
+          <div className="space-y-2 pt-1">
+            <Link
+              href={`/moderacao/${report.id}`}
+              className="flex items-center justify-center gap-2 w-full py-2.5 px-3 bg-white border border-slate-200 text-slate-800 font-semibold text-xs rounded-xl shadow-2xs hover:bg-slate-50 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Voltar para detalhes da denúncia
+            </Link>
+            <Link
+              href="/moderacao"
+              className="flex items-center justify-center gap-2 w-full py-2.5 px-3 bg-slate-900 text-white font-bold text-xs rounded-xl hover:bg-slate-800 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Voltar para fila de moderação
+            </Link>
+          </div>
+        </div>
+
+        {/* ============================================================== */}
+        {/* DESKTOP INTERACTIVE DECISION SIMULATION (hidden lg:grid)       */}
+        {/* ============================================================== */}
+        <div className="hidden lg:grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left — Report Summary & Decision Form (8 cols) */}
           <div className="lg:col-span-8 space-y-6">
             {/* Report Summary Card */}

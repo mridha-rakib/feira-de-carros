@@ -6,6 +6,7 @@
 
 import type {
   ConversationExcerpt,
+  MobileModerationReport,
   ModerationDecisionPreview,
   ReportRecord,
 } from '../types/moderation-presentation';
@@ -65,7 +66,7 @@ export const mockReports: ReportRecord[] = [
     conversationExcerpt: {
       reportId: 'RPT-DEMO-008',
       scopeNotice:
-        'Trecho restrito ao contexto denunciado. Acesso somente ao conteúdo vinculado a este relatório.',
+        'Trecho unilateral anexado pelo denunciante como evidência documental. Não constitui registro certificado de chat privado nem espelhamento de conversas da plataforma.',
       messages: [
         {
           id: 'msg-1',
@@ -88,9 +89,9 @@ export const mockReports: ReportRecord[] = [
       ],
       evidenceAuthStatus: 'PENDING_VERIFICATION',
       auditSummary:
-        'Trecho de conversa vinculado ao protocolo RPT-DEMO-008 apresentado para instrução da revisão. Conteúdo não verificado de forma independente.',
+        'Evidência documental unilateral submetida pelo denunciante para instrução do protocolo RPT-DEMO-008. Não constitui espelhamento de chat nem histórico certificado. Autenticidade não verificada independentemente.',
       permissionsNote:
-        'Main Admin: revisão de contexto autorizada. Support: DENY_PENDING. Chat privado: somente contexto reportado + autorização.',
+        'Evidência documental unilateral submetida pelo denunciante. Main Admin: revisão de evidência autorizada para instrução. Support: DENY_PENDING. Não há acesso irrestrito a conversas privadas da plataforma.',
     },
     provenance: 'DEMO — Registro fictício; nenhuma denúncia real executada.',
   },
@@ -238,6 +239,57 @@ export const MODERATION_KPI = {
   corrections: 1,
   supportAccessLabel: 'DENY_PENDING',
 } as const;
+
+// ---------------------------------------------------------------------------
+// Mobile Moderation KPIs & Fictional Alert Cards (ADM-M-005 source-of-truth)
+// Node 447-9382: 7 pendentes, 2 urgentes, Support DENY_PENDING
+// Kept strictly separate from the desktop queue dataset.
+// ---------------------------------------------------------------------------
+export const MODERATION_MOBILE_KPI = {
+  pendingReports: 7,
+  urgentReports: 2,
+  mainAdminStatus: 'Revisão e leitura autorizada',
+  supportStatus: 'DENY_PENDING',
+} as const;
+
+export const mockMobileModerationReports: MobileModerationReport[] = [
+  {
+    id: 'REP-DEMO-0021',
+    adId: 'FC-2026-0121',
+    vehicleTitle: 'Toyota Corolla 2021',
+    vehiclePriceBrl: 112900,
+    sellerName: 'Vale Auto Veículos',
+    sellerDocumentMasked: 'CNPJ: Restrito / não público',
+    sellerType: 'concessionaria',
+    categoryLabel: 'Informações do anúncio divergentes',
+    allegation:
+      'Divergência apontada entre odômetro físico e quilometragem anunciada. Requer análise documental com concessionária.',
+    reporterMasked: 'Comprador (ID protegido por LGPD)',
+    reportedAt: '24/10/2026',
+    statusLabel: 'Em análise',
+    isUrgent: true,
+    priorityLabel: 'Urgente',
+    readOnlyNotice: 'Modo Leitura • Deliberação restrita ao terminal desktop',
+  },
+  {
+    id: 'REP-DEMO-0022',
+    adId: 'FC-2026-0142',
+    vehicleTitle: 'Fiat Strada 2023',
+    vehiclePriceBrl: 89900,
+    sellerName: 'Particular',
+    sellerDocumentMasked: 'CPF: ***.***.***-**',
+    sellerType: 'particular',
+    categoryLabel: 'Verificação de dados do anúncio',
+    allegation:
+      'Fotos submetidas podem não corresponder à versão descrita no anúncio. Aguardando verificação de evidência.',
+    reporterMasked: 'Comprador (ID protegido por LGPD)',
+    reportedAt: '25/10/2026',
+    statusLabel: 'Em análise',
+    isUrgent: false,
+    priorityLabel: 'Pendente',
+    readOnlyNotice: 'Modo Leitura • Deliberação restrita ao terminal desktop',
+  },
+];
 
 // ---------------------------------------------------------------------------
 // Utility

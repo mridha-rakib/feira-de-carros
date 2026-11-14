@@ -102,3 +102,24 @@ export interface ModerationDecisionOption {
   consequences: string[];
   requiresJustification: boolean;
 }
+
+// =========================================================================
+// Mobile Moderation Alert Card Fixture (ADM-M-005)
+// =========================================================================
+export interface MobileModerationReport {
+  id: string; // e.g. REP-DEMO-0021
+  adId?: string; // e.g. FC-2026-0121
+  vehicleTitle?: string; // e.g. Toyota Corolla 2021
+  vehiclePriceBrl?: number; // e.g. 112900
+  sellerName: string; // e.g. Vale Auto Veículos
+  sellerDocumentMasked: string; // e.g. CNPJ: Restrito / não público
+  sellerType: 'concessionaria' | 'particular';
+  categoryLabel: string; // e.g. Informações do anúncio divergentes
+  allegation: string;
+  reporterMasked: string; // e.g. Comprador (ID protegido por LGPD)
+  reportedAt: string; // e.g. 24/10/2026
+  statusLabel: string; // e.g. Em análise
+  isUrgent: boolean;
+  priorityLabel: string; // e.g. Urgente / Pendente
+  readOnlyNotice: string;
+}

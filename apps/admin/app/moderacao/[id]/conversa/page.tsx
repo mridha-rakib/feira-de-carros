@@ -123,12 +123,28 @@ export default function ReportConversationPage() {
               </span>
             </div>
             <p className="text-xs text-slate-500">
-              Trecho restrito vinculado à denúncia. Nenhum acesso irrestrito a mensagens privadas.
+              Evidência documental unilateral anexada pelo denunciante. Não constitui registro
+              certificado de chat privado nem espelhamento de conversas.
             </p>
           </div>
           <div className="flex items-center gap-2">
             <ReportStatusBadge status={report.status} size="md" />
           </div>
+        </div>
+
+        {/* Mobile Read-Only Restriction Notice */}
+        <div
+          data-testid="mobile-conversation-restricted-banner"
+          className="lg:hidden p-3.5 rounded-2xl bg-slate-900 text-white text-xs space-y-1 border border-slate-800 shadow-2xs"
+        >
+          <div className="flex items-center gap-2 font-bold text-amber-400">
+            <Lock className="w-4 h-4 shrink-0" />
+            <span>Ambiente Móvel — Visualização em Modo Leitura (ADM-019)</span>
+          </div>
+          <p className="text-[11px] text-slate-300 leading-relaxed">
+            Consulta exclusiva da evidência unilateral anexada pelo denunciante. Nenhuma ação
+            operacional de moderação pode ser executada por dispositivo móvel.
+          </p>
         </div>
 
         {/* Critical Privacy Restriction Banner */}
@@ -141,10 +157,11 @@ export default function ReportConversationPage() {
             <span>Restrição de Privacidade — LGPD / SMG-08</span>
           </div>
           <p className="text-red-800/90 leading-relaxed">
-            Este trecho de conversa é exibido <strong>exclusivamente</strong> no contexto desta
-            denúncia (Protocolo {report.id}). Não é um painel de mensagens privadas. Nenhuma
-            conversa não relacionada a esta denúncia pode ser acessada aqui. Support e Sales
-            permanecem em estado <strong>DENY_PENDING</strong>.
+            Este trecho de conversa constitui <strong>evidência documental unilateral</strong>{' '}
+            anexada pelo denunciante exclusivamente no contexto do Protocolo {report.id}. Não é um
+            espelhamento técnico de chat privado nem registro certificado pela plataforma. Nenhuma
+            conversa não relacionada à denúncia pode ser acessada aqui. Support e Sales permanecem
+            em estado <strong>DENY_PENDING</strong>.
           </p>
         </div>
 
@@ -158,7 +175,7 @@ export default function ReportConversationPage() {
                 <MessageSquare className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                 <div>
                   <p className="text-xs font-bold text-amber-900 mb-1">
-                    Escopo de Revisão Limitado
+                    Evidência Unilateral Não Autenticada — Escopo Limitado
                   </p>
                   <p className="text-xs text-amber-800 leading-relaxed">{excerpt.scopeNotice}</p>
                 </div>
@@ -170,10 +187,12 @@ export default function ReportConversationPage() {
               <div className="px-5 py-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <MessageSquare className="w-4 h-4 text-slate-500" />
-                  <h2 className="text-sm font-bold text-slate-800">Trecho de Conversa Vinculado</h2>
+                  <h2 className="text-sm font-bold text-slate-800">
+                    Evidência Documental Unilateral — Trecho Submetido pelo Denunciante
+                  </h2>
                 </div>
                 <span className="text-[11px] font-mono text-slate-400 bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-semibold">
-                  TRECHO — Não exportável
+                  EVIDÊNCIA NÃO CERTIFICADA
                 </span>
               </div>
 
@@ -248,10 +267,12 @@ export default function ReportConversationPage() {
                   <>
                     <Clock className="w-5 h-5 text-amber-500" />
                     <div>
-                      <p className="text-xs font-bold text-amber-800">Verificação Pendente</p>
+                      <p className="text-xs font-bold text-amber-800">
+                        Evidência Unilateral Não Autenticada
+                      </p>
                       <p className="text-[11px] text-slate-500">
-                        Conteúdo submetido pelo denunciante. Autenticidade não verificada
-                        independentemente.
+                        Conteúdo submetido pelo denunciante como evidência documental. Não constitui
+                        registro certificado de chat nem histórico homologado.
                       </p>
                     </div>
                   </>

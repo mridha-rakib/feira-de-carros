@@ -172,7 +172,9 @@ test.describe('Admin B5A — Reports & Moderation Management (ADM-D-032, 033, 03
 
       // Check evidence authenticity status
       await expect(page.getByText('Status de Autenticidade da Evidência')).toBeVisible();
-      await expect(page.getByText('Verificação Pendente')).toBeVisible();
+      await expect(
+        page.getByText('Evidência Unilateral Não Autenticada', { exact: true }),
+      ).toBeVisible();
     });
 
     test('handles report without conversation with restricted notice', async ({ page }) => {
@@ -240,15 +242,104 @@ test.describe('Admin B5A — Reports & Moderation Management (ADM-D-032, 033, 03
   });
 
   // ===========================================================================
-  // 5. MOBILE RESTRICTIONS
+  // 5. ADM-M-005 & MOBILE/TABLET RESTRICTIONS
   // ===========================================================================
-  test.describe('Mobile Read-Only Restrictions', () => {
-    test('displays read-only notice on mobile viewports', async ({ page }) => {
+  test.describe('ADM-M-005 — Dedicated Mobile Moderation & Restrictions', () => {
+    test('renders approved ADM-M-005 mobile screen with dark header, 7/2 KPIs and alert cards', async ({
+      page,
+    }) => {
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto('/moderacao');
       await page.waitForLoadState('domcontentloaded');
 
-      await expect(page.getByText('Moderação — Acesso móvel somente leitura')).toBeVisible();
+      // 1. Mobile Page & Dark Header with ADM-M-005 badge
+      const mobilePage = page.getByTestId('mobile-moderation-page');
+      await expect(mobilePage).toBeVisible();
+      await expect(page.getByTestId('mobile-moderation-badge')).toHaveText('ADM-M-005');
+      await expect(mobilePage.getByText('Ipatinga - MG')).toBeVisible();
+      await expect(mobilePage.getByText('Ambiente Demonstrativo (LGPD)')).toBeVisible();
+
+      // 2. Title and restriction banner
+      await expect(page.getByRole('heading', { name: /Moderação e Denúncias/i })).toBeVisible();
+      await expect(page.getByTestId('mobile-restrictions-banner')).toBeVisible();
+      await expect(page.getByTestId('mobile-restrictions-banner')).toContainText(
+        'Operações Restritas no Ambiente Móvel',
+      );
+
+      // 3. Figma ADM-M-005 KPI strip: 7 pending, 2 urgent
+      const pendingKpi = page.getByTestId('mobile-kpi-pending-reports');
+      await expect(pendingKpi).toBeVisible();
+      await expect(pendingKpi.getByText('7')).toBeVisible();
+      await expect(pendingKpi.getByText('pendentes')).toBeVisible();
+
+      const urgentKpi = page.getByTestId('mobile-kpi-urgent-reports');
+      await expect(urgentKpi).toBeVisible();
+      await expect(urgentKpi.getByText('2')).toBeVisible();
+      await expect(urgentKpi.getByText('urgentes')).toBeVisible();
+
+      // 4. Role permissions card (Main Admin read-only, Support DENY_PENDING)
+      const rolesCard = page.getByTestId('mobile-moderation-roles-card');
+      await expect(rolesCard).toBeVisible();
+      await expect(rolesCard.getByText('Revisão e leitura autorizada')).toBeVisible();
+      await expect(rolesCard.getByText('DENY_PENDING')).toBeVisible();
+
+      // 5. Fictional alert cards: REP-DEMO-0021 and REP-DEMO-0022
+      const card21 = page.getByTestId('alert-card-moderation-REP-DEMO-0021');
+      await expect(card21).toBeVisible();
+      await expect(card21.getByText('REP-DEMO-0021')).toBeVisible();
+      await expect(card21.getByText('Toyota Corolla 2021')).toBeVisible();
+      await expect(card21.getByText('Vale Auto Veículos')).toBeVisible();
+      await expect(card21.getByText('Urgente')).toBeVisible();
+      await expect(card21.getByText(/Modo Leitura/)).toBeVisible();
+
+      const card22 = page.getByTestId('alert-card-moderation-REP-DEMO-0022');
+      await expect(card22).toBeVisible();
+      await expect(card22.getByText('REP-DEMO-0022')).toBeVisible();
+      await expect(card22.getByText('Fiat Strada 2023')).toBeVisible();
+      await expect(card22.getByText('Particular')).toBeVisible();
+      await expect(card22.getByText('Pendente')).toBeVisible();
+
+      // 6. Mobile bottom navigation is rendered
+      await expect(page.getByLabel('Navegação móvel principal')).toBeVisible();
+
+      // 7. Desktop queue layout is hidden
+      await expect(page.getByTestId('desktop-moderation-queue')).toBeHidden();
+    });
+
+    test('enforces blocked decision controls on mobile viewports for /moderacao/[id]/decisao', async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto('/moderacao/RPT-DEMO-008/decisao');
+      await page.waitForLoadState('domcontentloaded');
+
+      // Locked restricted state must be visible
+      const restrictedView = page.getByTestId('mobile-decision-restricted-view');
+      await expect(restrictedView).toBeVisible();
+      await expect(restrictedView).toContainText('Deliberação Bloqueada em Ambiente Móvel');
+
+      // Interactive controls MUST NOT be visible on mobile
+      await expect(page.getByTestId('decision-option-NOT_SUBSTANTIATED')).toBeHidden();
+      await expect(page.getByTestId('decision-option-CORRECTION_REQUESTED')).toBeHidden();
+      await expect(page.getByTestId('decision-option-RESTRICTIVE_MEASURE')).toBeHidden();
+      await expect(page.getByTestId('decision-justification-input')).toBeHidden();
+      await expect(page.getByTestId('simulate-decision-btn')).toBeHidden();
+    });
+
+    test('displays unverified unilateral evidence notices on /moderacao/[id]/conversa', async ({
+      page,
+    }) => {
+      await page.goto('/moderacao/RPT-DEMO-008/conversa');
+      await page.waitForLoadState('domcontentloaded');
+
+      await expect(
+        page.getByText('Evidência documental unilateral', { exact: false }).first(),
+      ).toBeVisible();
+      await expect(
+        page
+          .getByText('Não constitui registro certificado de chat privado', { exact: false })
+          .first(),
+      ).toBeVisible();
     });
   });
 });

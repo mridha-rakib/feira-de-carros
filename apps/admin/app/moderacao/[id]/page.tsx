@@ -88,6 +88,21 @@ export default function ReportDetailPage() {
           </div>
         </div>
 
+        {/* Mobile Read-Only Restriction Notice */}
+        <div
+          data-testid="mobile-detail-restricted-banner"
+          className="lg:hidden p-3.5 rounded-2xl bg-slate-900 text-white text-xs space-y-1 border border-slate-800 shadow-2xs"
+        >
+          <div className="flex items-center gap-2 font-bold text-amber-400">
+            <Lock className="w-4 h-4 shrink-0" />
+            <span>Ambiente Móvel — Visualização em Modo Leitura (ADM-019)</span>
+          </div>
+          <p className="text-[11px] text-slate-300 leading-relaxed">
+            Deliberações formais e aplicação de sanções são restritas ao terminal desktop. Em
+            dispositivos móveis, apenas a consulta informativa está disponível.
+          </p>
+        </div>
+
         {/* Unverified Allegation Banner */}
         <div
           data-testid="unverified-allegation-banner"
