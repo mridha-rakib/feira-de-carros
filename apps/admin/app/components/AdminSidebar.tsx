@@ -8,6 +8,7 @@ import {
   MessageSquareWarning,
   Settings,
   ShieldCheck,
+  UserCheck,
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -28,6 +29,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Anúncios', href: '/anuncios', icon: Car },
   { label: 'Pagamentos', href: '/pagamentos', icon: CreditCard },
   { label: 'Mensagens e denúncias', href: '/moderacao', icon: MessageSquareWarning },
+  { label: 'Equipe e permissões', href: '/equipe', icon: UserCheck },
   { label: 'Configurações', href: '/configuracoes', icon: Settings },
 ];
 
@@ -63,6 +65,7 @@ export function AdminSidebar() {
             pathname.startsWith('/relatorios');
           const isUsersRoute =
             pathname.startsWith('/usuarios') || pathname.startsWith('/exclusao-contas');
+          const isTeamRoute = pathname.startsWith('/equipe');
           const isActive =
             item.href === '/'
               ? pathname === '/'
@@ -70,7 +73,9 @@ export function AdminSidebar() {
                 ? isFinanceRoute
                 : item.href === '/usuarios'
                   ? isUsersRoute
-                  : pathname.startsWith(item.href);
+                  : item.href === '/equipe'
+                    ? isTeamRoute
+                    : pathname.startsWith(item.href);
           const Icon = item.icon;
 
           return (
