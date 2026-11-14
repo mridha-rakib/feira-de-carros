@@ -13,7 +13,8 @@ import type {
   ReportRecord,
   ReportStatus,
 } from '@/lib/types/moderation-presentation';
-import { AlertTriangle, MessageSquareWarning, RefreshCw } from 'lucide-react';
+import { AlertTriangle, MessageSquare, MessageSquareWarning, RefreshCw } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 
@@ -124,7 +125,15 @@ export default function ModerationQueuePage() {
                 </p>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/consultas-intermediadas"
+                  data-testid="link-consultas-intermediadas"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-700 hover:text-slate-900 border border-slate-200 hover:bg-slate-50 transition-colors shadow-2xs"
+                >
+                  <MessageSquare className="w-3.5 h-3.5 text-blue-600" />
+                  Consultas intermediadas (3)
+                </Link>
                 <button
                   type="button"
                   onClick={handleResetFilters}

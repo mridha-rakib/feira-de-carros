@@ -64,7 +64,11 @@ export function AdminSidebar() {
             pathname.startsWith('/contestacoes') ||
             pathname.startsWith('/relatorios');
           const isUsersRoute =
-            pathname.startsWith('/usuarios') || pathname.startsWith('/exclusao-contas');
+            pathname.startsWith('/usuarios') ||
+            pathname.startsWith('/exclusao-contas') ||
+            pathname.startsWith('/correcoes-clientes');
+          const isModerationRoute =
+            pathname.startsWith('/moderacao') || pathname.startsWith('/consultas-intermediadas');
           const isTeamRoute = pathname.startsWith('/equipe');
           const isActive =
             item.href === '/'
@@ -73,9 +77,11 @@ export function AdminSidebar() {
                 ? isFinanceRoute
                 : item.href === '/usuarios'
                   ? isUsersRoute
-                  : item.href === '/equipe'
-                    ? isTeamRoute
-                    : pathname.startsWith(item.href);
+                  : item.href === '/moderacao'
+                    ? isModerationRoute
+                    : item.href === '/equipe'
+                      ? isTeamRoute
+                      : pathname.startsWith(item.href);
           const Icon = item.icon;
 
           return (
