@@ -1,7 +1,8 @@
 'use client';
 
 import { BrandLogo } from '@feira/ui';
-import { RefreshCw, Users } from 'lucide-react';
+import { RefreshCw, UserX, Users } from 'lucide-react';
+import Link from 'next/link';
 import * as React from 'react';
 import { mockAdminUsers } from '../../lib/adapters/mock-users-data';
 import type {
@@ -194,6 +195,14 @@ export default function UsersManagementPage() {
               </div>
 
               <div className="flex items-center gap-2">
+                <Link
+                  href="/exclusao-contas"
+                  data-testid="link-exclusao-contas"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-700 hover:text-slate-900 border border-slate-200 hover:bg-slate-50 transition-colors shadow-2xs"
+                >
+                  <UserX className="w-3.5 h-3.5 text-red-600" />
+                  Exclusão de contas (3)
+                </Link>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                   Amostra demonstrativa: 22 contas carregadas (Base total: 2.406)

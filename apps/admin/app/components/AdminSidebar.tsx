@@ -61,12 +61,16 @@ export function AdminSidebar() {
             pathname.startsWith('/reembolsos') ||
             pathname.startsWith('/contestacoes') ||
             pathname.startsWith('/relatorios');
+          const isUsersRoute =
+            pathname.startsWith('/usuarios') || pathname.startsWith('/exclusao-contas');
           const isActive =
             item.href === '/'
               ? pathname === '/'
               : item.href === '/pagamentos'
                 ? isFinanceRoute
-                : pathname.startsWith(item.href);
+                : item.href === '/usuarios'
+                  ? isUsersRoute
+                  : pathname.startsWith(item.href);
           const Icon = item.icon;
 
           return (
