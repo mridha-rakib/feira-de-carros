@@ -68,7 +68,7 @@ export const figmaRecentListings: FigmaRecentListing[] = [
     adCode: 'FC-2026-0142',
     vehicleTitle: 'Fiat Strada 2023',
     sellerName: 'Mariana Costa',
-    priceFormatted: 'R$ 82.300',
+    priceFormatted: 'R$ 82.900',
     status: 'Ativo',
     location: 'Ipatinga, MG',
   },

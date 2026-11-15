@@ -17,10 +17,10 @@ export function AdminShell({
   breadcrumbs,
   location,
   userName,
-  maxWidthClass = 'max-w-7xl',
+  maxWidthClass = 'max-w-[1440px]',
 }: AdminShellProps) {
   return (
-    <div className="min-h-screen flex bg-slate-50 text-slate-800 antialiased selection:bg-red-500/20 selection:text-red-900">
+    <div className="min-h-screen flex bg-[#f8f9fa] text-slate-800 antialiased selection:bg-red-500/20 selection:text-red-900">
       {/* Desktop Sidebar (hidden on mobile) */}
       <AdminSidebar />
 
