@@ -38,7 +38,7 @@ export function AdminSidebar() {
 
   return (
     <aside
-      className="hidden lg:flex flex-col w-64 shrink-0 min-h-screen bg-[#0B111E] text-slate-200 border-r border-slate-800/80 p-5 select-none"
+      className="hidden lg:flex flex-col w-[260px] shrink-0 min-h-screen bg-[#111827] text-slate-200 border-r border-slate-800/80 p-5 select-none"
       aria-label="Navegação administrativa desktop"
     >
       {/* Brand Header */}
@@ -88,20 +88,26 @@ export function AdminSidebar() {
             <Link
               key={item.label}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors relative ${
                 isActive
-                  ? 'bg-slate-800/90 text-white shadow-sm ring-1 ring-slate-700/50'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                  ? 'bg-[#1f2937] text-white shadow-xs font-semibold'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
               }`}
             >
+              {isActive && (
+                <div
+                  className="absolute left-0 top-1/2 -translate-y-1/2 bg-[#f42524] h-[22px] w-[3px] rounded-r-[3px]"
+                  aria-hidden="true"
+                />
+              )}
               <div
-                className={`w-6 h-6 rounded flex items-center justify-center ${
-                  isActive ? 'bg-red-600/20 text-red-400' : 'text-slate-400'
+                className={`w-6 h-6 rounded flex items-center justify-center shrink-0 ${
+                  isActive ? 'text-[#fca5a5]' : 'text-slate-400'
                 }`}
               >
                 <Icon className="w-4 h-4" />
               </div>
-              <span>{item.label}</span>
+              <span className="truncate">{item.label}</span>
             </Link>
           );
         })}
@@ -109,14 +115,14 @@ export function AdminSidebar() {
 
       {/* Role Access Callout Card (Figma ADM-D-002) */}
       <div className="mt-auto pt-6 space-y-4">
-        <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 text-left">
+        <div className="p-3.5 rounded-xl bg-[#1f2937] border border-[#374151] text-left">
           <div className="flex items-center gap-1.5 mb-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-            <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#f42524]" />
+            <span className="text-[10px] font-bold text-[#fca5a5] uppercase tracking-wider">
               Acesso • Main Admin
             </span>
           </div>
-          <p className="text-xs text-slate-400 leading-relaxed">
+          <p className="text-xs text-[#cbd5e1] leading-relaxed">
             Revisões e pagamentos somente com autorização.
           </p>
         </div>

@@ -23,7 +23,7 @@ export function DashboardSummaryCards({ metrics, isMobile = false }: DashboardSu
           <span className="text-xs font-medium text-slate-500">
             {isMobile ? 'Anúncios ativos' : 'Anúncios ativos'}
           </span>
-          <div className="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-full bg-[#fff0f1] text-[#b91c1c] flex items-center justify-center shrink-0">
             <Car className="w-4 h-4" />
           </div>
         </div>
@@ -44,7 +44,7 @@ export function DashboardSummaryCards({ metrics, isMobile = false }: DashboardSu
           <span className="text-xs font-medium text-slate-500">
             {isMobile ? 'Vendedores' : 'Vendedores aprovados'}
           </span>
-          <div className="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-full bg-[#fff0f1] text-[#b91c1c] flex items-center justify-center shrink-0">
             <Users className="w-4 h-4" />
           </div>
         </div>
@@ -65,7 +65,7 @@ export function DashboardSummaryCards({ metrics, isMobile = false }: DashboardSu
           <span className="text-xs font-medium text-slate-500">
             {isMobile ? 'Para analisar' : 'Aguardando aprovação'}
           </span>
-          <div className="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-full bg-[#fff0f1] text-[#b91c1c] flex items-center justify-center shrink-0">
             <ShieldAlert className="w-4 h-4" />
           </div>
         </div>
@@ -85,7 +85,7 @@ export function DashboardSummaryCards({ metrics, isMobile = false }: DashboardSu
           <span className="text-xs font-medium text-slate-500">
             {isMobile ? 'Receita' : 'Receita confirmada'}
           </span>
-          <div className="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-full bg-[#fff0f1] text-[#b91c1c] flex items-center justify-center shrink-0">
             <CreditCard className="w-4 h-4" />
           </div>
         </div>

@@ -25,9 +25,9 @@ export function AdminMobileNavigation() {
   return (
     <nav
       aria-label="Navegação móvel principal"
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 px-3 py-2 pb-safe"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#e2e8f0] px-2 py-1 pb-safe"
     >
-      <div className="flex items-center justify-around max-w-md mx-auto">
+      <div className="flex items-center justify-around max-w-lg mx-auto h-[60px]">
         {MOBILE_TABS.map((tab) => {
           const isActive = tab.href === '/' ? pathname === '/' : pathname.startsWith(tab.href);
           const Icon = tab.icon;
@@ -36,14 +36,14 @@ export function AdminMobileNavigation() {
             <Link
               key={tab.id}
               href={tab.href}
-              className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all ${
+              className={`flex-1 flex flex-col items-center justify-center h-[52px] rounded-[10px] transition-all gap-[3px] ${
                 isActive
-                  ? 'bg-red-50 text-red-600 font-bold'
-                  : 'text-slate-500 hover:text-slate-800 font-medium'
+                  ? 'bg-[#fff1f2] text-[#b91c1c] font-bold'
+                  : 'text-[#64748b] hover:text-[#111827] font-medium'
               }`}
             >
-              <Icon className="w-5 h-5 mb-0.5" />
-              <span className="text-[11px]">{tab.label}</span>
+              <Icon className="w-[20px] h-[20px]" />
+              <span className="text-[11px] leading-[14px]">{tab.label}</span>
             </Link>
           );
         })}
