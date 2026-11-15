@@ -103,7 +103,7 @@ export const mockIntermediatedInquiries: IntermediatedInquiryRecord[] = [
     advertisementId: 'LEG-2026-0009',
     vehicleTitle: 'Fiat Strada Endurance 2023',
     vehiclePriceFormatted: 'R$ 82.000',
-    vehicleImageUrl: '/images/vehicles/demo/pickup-fallback.svg',
+    vehicleImageUrl: '/images/vehicles/demo/fiat-strada-2023.jpg',
     ownerName: 'Antônio Carlos',
     hasOwnerAccount: false,
     ownerAccountNotice: 'Sem conta cadastrada na plataforma (Vendedor presencial da feira física)',

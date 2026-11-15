@@ -1,6 +1,7 @@
 'use client';
 
 import { Bell, ChevronRight, LogOut, MapPin } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { getAuthAdapter } from '../../lib/adapters/auth-factory';
@@ -67,12 +68,18 @@ export function AdminTopbar({
 
         {/* User Profile Avatar & Name */}
         <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-          <div className="w-8 h-8 rounded-full bg-red-100 border border-red-200 text-red-700 flex items-center justify-center text-xs font-bold">
-            AP
-          </div>
-          <span className="text-sm font-semibold text-slate-800 hidden md:inline-block">
-            {userName}
-          </span>
+          <Link
+            href="/perfil"
+            title="Ver perfil do administrador"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
+            <div className="w-8 h-8 rounded-full bg-red-100 border border-red-200 text-red-700 flex items-center justify-center text-xs font-bold">
+              AP
+            </div>
+            <span className="text-sm font-semibold text-slate-800 hidden md:inline-block">
+              {userName}
+            </span>
+          </Link>
           <button
             type="button"
             onClick={handleLogout}
