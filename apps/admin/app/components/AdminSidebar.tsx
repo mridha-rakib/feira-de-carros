@@ -38,7 +38,7 @@ export function AdminSidebar() {
 
   return (
     <aside
-      className="hidden lg:flex flex-col w-[260px] shrink-0 min-h-screen bg-[#111827] text-slate-200 border-r border-slate-800/80 p-5 select-none"
+      className="hidden lg:flex flex-col w-[252px] shrink-0 min-h-screen bg-[#111827] text-slate-200 border-r border-slate-800/80 p-5 select-none"
       aria-label="Navegação administrativa desktop"
     >
       {/* Brand Header */}
