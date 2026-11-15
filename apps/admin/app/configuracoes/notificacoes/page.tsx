@@ -7,10 +7,13 @@ import { SettingsSectionHeader } from '@/app/configuracoes/components/SettingsSe
 import { mockNotificationTemplates } from '@/lib/adapters/mock-content-settings-data';
 import type { NotificationTemplateRecord } from '@/lib/types/content-settings-presentation';
 import {
+  AlertTriangle,
   Bell,
   CheckCircle2,
   Code,
+  CreditCard,
   Edit3,
+  FileText,
   Lock,
   Mail,
   Send,
@@ -49,14 +52,14 @@ export default function NotificationTemplatesPage() {
 
   return (
     <AdminShell
-      breadcrumbs={['Admin', 'Configurações', 'Modelos de Notificação']}
+      breadcrumbs={['Admin', 'Configurações', 'Modelos de notificação por e-mail e push']}
       maxWidthClass="max-w-[1440px]"
     >
       <div className="space-y-6" data-testid="settings-notifications-page">
-        {/* Header */}
+        {/* Header matching Figma ADM-D-051 */}
         <SettingsSectionHeader
-          title="Modelos de Notificação e Mensageria"
-          subtitle="Gestão de templates transacionais de e-mail e push. Minimização de dados pessoais e disparo sob estrito fail-closed."
+          title="Modelos de notificação por e-mail e push"
+          subtitle="Categorias de eventos, prévia de conteúdo e controles de privacidade."
           badgeLabel="ADM-D-051"
           figmaNodeId="341:5342"
         />
@@ -71,265 +74,315 @@ export default function NotificationTemplatesPage() {
           description="Em cumprimento aos requisitos SMG-09, NOT-006 e NOT-007, o envio real de e-mails, SMS e notificações push está suspenso até a homologação dos provedores transacionais e políticas de opt-in/LGPD. Nenhuma mensagem externa é disparada por este painel."
         />
 
-        {/* KPI Cards (4 summary cards) */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-              Templates Configurados
-            </span>
-            <div className="text-2xl font-black text-slate-900 tracking-tight">5</div>
-            <div className="text-[11px] text-emerald-600 font-semibold mt-1">
-              Modelos transacionais ativos
+        {/* 4 Summary KPI Cards directly matching Figma node 342:5376 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[14px]">
+          {/* KPI 1: Eventos */}
+          <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs flex flex-col justify-between h-[122px]">
+            <div className="flex items-center gap-[10px]">
+              <div className="w-[34px] h-[34px] rounded-[17px] bg-[#fff0f1] flex items-center justify-center shrink-0">
+                <FileText className="w-[20px] h-[20px] text-[#b91c1c]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[12px] font-medium text-[#64748b]">Eventos</span>
+                <span className="text-[18px] font-bold text-[#101828] leading-tight">
+                  5 classes
+                </span>
+              </div>
             </div>
+            <p className="text-[11px] font-normal text-[#4b5563]">Amostra de notificações</p>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-              Canais Homologados
-            </span>
-            <div className="text-2xl font-black text-slate-900 tracking-tight">2</div>
-            <div className="text-[11px] text-slate-500 font-medium mt-1">E-mail e Push Mobile</div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-              Disparos em Background
-            </span>
-            <div className="text-2xl font-black text-red-600 tracking-tight">0</div>
-            <div className="text-[11px] text-slate-500 font-medium mt-1">HOLD SMG-09 ativo</div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-              Conformidade LGPD
-            </span>
-            <div className="text-2xl font-black text-slate-900 tracking-tight">100%</div>
-            <div className="text-[11px] text-emerald-600 font-semibold mt-1">
-              Minimização de dados
+          {/* KPI 2: Canais */}
+          <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs flex flex-col justify-between h-[122px]">
+            <div className="flex items-center gap-[10px]">
+              <div className="w-[34px] h-[34px] rounded-[17px] bg-[#fff0f1] flex items-center justify-center shrink-0">
+                <Shield className="w-[20px] h-[20px] text-[#b91c1c]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[12px] font-medium text-[#64748b]">Canais</span>
+                <span className="text-[18px] font-bold text-[#101828] leading-tight">
+                  E-mail / push
+                </span>
+              </div>
             </div>
+            <p className="text-[11px] font-normal text-[#4b5563]">
+              Conforme preferências e consentimento
+            </p>
+          </div>
+
+          {/* KPI 3: Envios efetuados */}
+          <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs flex flex-col justify-between h-[122px]">
+            <div className="flex items-center gap-[10px]">
+              <div className="w-[34px] h-[34px] rounded-[17px] bg-[#fff0f1] flex items-center justify-center shrink-0">
+                <CreditCard className="w-[20px] h-[20px] text-[#b91c1c]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[12px] font-medium text-[#64748b]">Envios efetuados</span>
+                <span className="text-[18px] font-bold text-[#101828] leading-tight">0</span>
+              </div>
+            </div>
+            <p className="text-[11px] font-normal text-[#4b5563]">Demonstração sem disparo</p>
+          </div>
+
+          {/* KPI 4: Cadência */}
+          <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs flex flex-col justify-between h-[122px]">
+            <div className="flex items-center gap-[10px]">
+              <div className="w-[34px] h-[34px] rounded-[17px] bg-[#fff0f1] flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-[20px] h-[20px] text-[#b91c1c]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[12px] font-medium text-[#64748b]">Cadência</span>
+                <span className="text-[18px] font-bold text-[#101828] leading-tight">Pendente</span>
+              </div>
+            </div>
+            <p className="text-[11px] font-normal text-[#4b5563]">SMG-09 / privacidade</p>
           </div>
         </div>
 
-        {/* Main Grid: Template List + Template Details / Form */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Column (6 cols): Templates Table */}
-          <div className="lg:col-span-6 space-y-4">
-            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <div className="flex items-center gap-2">
-                  <Bell className="w-4 h-4 text-red-600" />
-                  <h2 className="text-sm font-bold text-slate-900">Eventos de Notificação</h2>
-                </div>
-                <span className="text-xs text-slate-400 font-medium">5 eventos do sistema</span>
-              </div>
-
-              <div className="space-y-2" data-testid="notification-templates-list">
-                {mockNotificationTemplates.map((template) => {
-                  const isSelected = template.id === selectedTemplateId;
-                  return (
-                    <button
-                      key={template.id}
-                      type="button"
-                      onClick={() => handleSelectTemplate(template)}
-                      className={`p-3.5 rounded-xl border transition-all text-left w-full cursor-pointer ${
-                        isSelected
-                          ? 'bg-red-50/50 border-red-300 ring-1 ring-red-200'
-                          : 'bg-white border-slate-200/80 hover:bg-slate-50 hover:border-slate-300'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-slate-900">
-                              {template.name}
-                            </span>
-                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
-                              {template.id}
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-slate-500 mt-0.5">
-                            Categoria: {template.category}
-                          </p>
-                        </div>
-
-                        {/* Channel Badges */}
-                        <div className="flex items-center gap-1">
-                          {template.channels.includes('EMAIL') && (
-                            <span
-                              title="Canal E-mail"
-                              className="w-5 h-5 rounded flex items-center justify-center bg-blue-50 text-blue-700"
-                            >
-                              <Mail className="w-3 h-3" />
-                            </span>
-                          )}
-                          {template.channels.includes('PUSH') && (
-                            <span
-                              title="Canal Push Mobile"
-                              className="w-5 h-5 rounded flex items-center justify-center bg-purple-50 text-purple-700"
-                            >
-                              <Smartphone className="w-3 h-3" />
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="mt-2 pt-2 border-t border-slate-100/80 flex items-center justify-between text-[10px] text-slate-400">
-                        <span>{template.privacyLevel}</span>
-                        <span className="font-semibold text-emerald-600">
-                          {template.statusLabel}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+        {/* Template Control Card matching Figma node 342:5422 */}
+        <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs flex flex-col gap-[11px]">
+          <div className="flex items-center gap-[10px]">
+            <div className="w-[34px] h-[34px] rounded-[17px] bg-[#fff0f1] flex items-center justify-center shrink-0">
+              <Shield className="w-[20px] h-[20px] text-[#b91c1c]" />
             </div>
+            <h2 className="text-[18px] font-bold text-[#111827]">Modelos por evento e canal</h2>
+          </div>
+          <p className="text-[12px] font-normal text-[#64748b]">
+            Somente eventos aprovados; a configuração de template não ignora preferências do
+            utilizador, consentimento aplicável ou regras de retenção e entrega.
+          </p>
+          <div className="flex flex-wrap gap-[9px] pt-1">
+            <button
+              type="button"
+              onClick={() => {}}
+              className="bg-[#b91c1c] hover:bg-[#a8121c] text-white text-[12px] font-semibold px-[14px] py-[12px] rounded-[9px] transition-colors"
+            >
+              Ver mensagem de anúncio
+            </button>
+            <button
+              type="button"
+              onClick={() => {}}
+              className="bg-[#eef2f7] hover:bg-[#e2e8f0] text-[#344054] text-[12px] font-semibold px-[14px] py-[12px] rounded-[9px] transition-colors"
+            >
+              Prévia: editar modelo
+            </button>
+            <button
+              type="button"
+              onClick={() => {}}
+              className="bg-[#eef2f7] hover:bg-[#e2e8f0] text-[#344054] text-[12px] font-semibold px-[14px] py-[12px] rounded-[9px] transition-colors"
+            >
+              Regras de envio
+            </button>
+          </div>
+        </div>
 
-            {/* Privacy Invariant Card */}
-            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                <Shield className="w-4 h-4 text-emerald-600" />
-                <span>Diretrizes de Privacidade e LGPD em Mensageria</span>
-              </h3>
-              <ul className="space-y-2 text-xs text-slate-600">
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 mt-1.5" />
-                  <span>
-                    <strong>Vedada a exposição de dados sensíveis:</strong> CPF, CNPJ, dados de
-                    cartão ou endereços residenciais não podem ser incluídos em variáveis de
-                    templates.
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 mt-1.5" />
-                  <span>
-                    <strong>Transacionais estritos:</strong> E-mails de notificação são estritamente
-                    transacionais e não realizam campanhas publicitárias não solicitadas (SPAM).
-                  </span>
-                </li>
-              </ul>
+        {/* Main Content: Events Directory + Template Preview matching Figma node 342:5438 */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left Column (6 cols): Events Directory matching Figma node 342:5439 */}
+          <div className="lg:col-span-6 space-y-4">
+            <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-[10px]">
+                  <div className="w-[34px] h-[34px] rounded-[17px] bg-[#fff0f1] flex items-center justify-center shrink-0">
+                    <FileText className="w-[20px] h-[20px] text-[#b91c1c]" />
+                  </div>
+                  <h3 className="text-[18px] font-bold text-[#111827]">
+                    Eventos de notificação previstos
+                  </h3>
+                </div>
+                <span className="text-[11px] text-[#64748b]">5 modelos</span>
+              </div>
+              <p className="text-[12px] text-[#64748b]">
+                Disponibilidade de canal e momento do disparo sujeitos à política.
+              </p>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left" data-testid="notification-templates-table">
+                  <thead>
+                    <tr className="bg-[#f1f5f9] text-[10px] font-bold text-[#4b5563] uppercase tracking-wider rounded-[9px]">
+                      <th className="py-[11px] pl-[10px]">EVENTO / CÓDIGO</th>
+                      <th className="py-[11px] px-2">CANAL</th>
+                      <th className="py-[11px] pr-[10px]">CONTROLO</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {[
+                      { id: 'TPL-MSG-01', title: 'Nova mensagem', channel: 'E-mail / Push' },
+                      {
+                        id: 'TPL-SAVE-02',
+                        title: 'Pesquisa salva: novo anúncio',
+                        channel: 'E-mail / Push',
+                      },
+                      { id: 'TPL-EXP-03', title: 'Expiração do anúncio', channel: 'E-mail / Push' },
+                      { id: 'TPL-PAY-04', title: 'Confirmação de pagamento', channel: 'E-mail' },
+                      { id: 'TPL-DISP-05', title: 'Disputa de cobrança', channel: 'E-mail' },
+                    ].map((row) => {
+                      const isSelected = row.id === selectedTemplate.id;
+                      const matchedRecord =
+                        mockNotificationTemplates.find((t) => t.id === row.id) || selectedTemplate;
+                      return (
+                        <tr
+                          key={row.id}
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              handleSelectTemplate(matchedRecord);
+                            }
+                          }}
+                          onClick={() => handleSelectTemplate(matchedRecord)}
+                          className={`cursor-pointer transition-colors ${
+                            isSelected ? 'bg-[#fff5f5]' : 'bg-[#f8fafc] hover:bg-slate-100'
+                          }`}
+                        >
+                          <td className="py-[12px] pl-[10px]">
+                            <div className="flex flex-col">
+                              <span className="text-[12px] font-semibold text-[#111827]">
+                                {row.title}
+                              </span>
+                              <span className="text-[11px] font-normal text-[#4b5563]">
+                                {row.id}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="py-[12px] px-2 text-[12px] text-[#64748b]">
+                            {row.channel}
+                          </td>
+                          <td className="py-[12px] pr-[10px]">
+                            <span className="inline-flex items-center gap-[7px] px-[11px] py-[4px] rounded-[12px] bg-[#fff7ed] text-[#c2410c] text-[11px] font-semibold">
+                              <span className="w-[7px] h-[7px] rounded-full bg-[#ea580c]" />
+                              Pendente
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Blue Notice banner matching Figma node 342:5499 */}
+              <div className="bg-[#eff6ff] rounded-[9px] p-[13px] border border-blue-200/80 space-y-1">
+                <p className="text-[11px] font-bold text-[#1d4ed8]">
+                  DISPARO NÃO É AUTOMÁTICO NESTE PROTÓTIPO
+                </p>
+                <p className="text-[11px] text-[#1e40af]">
+                  Conforme NOT-006 e NOT-007, mensagens são geradas sob demanda sem webhook externo
+                  ou fila ativa.
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Right Column (6 cols): Selected Template Details & Simulation Form */}
+          {/* Right Column (6 cols): Selected Template Preview matching Figma node 342:5483 */}
           <div className="lg:col-span-6 space-y-4">
             <div
               data-testid="selected-template-panel"
-              className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs space-y-4"
+              className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs space-y-4"
             >
               <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                    Modelo Selecionado • ADM-D-051
+                <span className="text-[11px] uppercase font-bold text-[#b91c1c]">
+                  MODELO SELECIONADO · {selectedTemplate.id}
+                </span>
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-[#111827]">
+                  {selectedTemplate.category}
+                </span>
+              </div>
+
+              <div>
+                <h4 className="text-[18px] font-bold text-[#111827]">{selectedTemplate.name}</h4>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="inline-flex items-center gap-[7px] px-[11px] py-[4px] rounded-[12px] bg-[#fff7ed] text-[#c2410c] text-[11px] font-semibold">
+                    <span className="w-[7px] h-[7px] rounded-full bg-[#ea580c]" />
+                    Pendente de homologação de canal
                   </span>
-                  <h3 className="text-sm font-bold text-slate-900 mt-0.5">
-                    {selectedTemplate.name}
-                  </h3>
-                </div>
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-900 text-white">
-                  {selectedTemplate.id}
-                </span>
-              </div>
-
-              {/* Personalization Variables Reference */}
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
-                <span className="text-[10px] uppercase font-bold text-slate-500 flex items-center gap-1.5">
-                  <Code className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Variáveis Dinâmicas Homologadas</span>
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {selectedTemplate.variables.map((v) => (
-                    <span
-                      key={v}
-                      className="text-[10px] font-mono px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700 font-semibold"
-                    >
-                      {v}
-                    </span>
-                  ))}
                 </div>
               </div>
 
-              {/* Edit Template Form */}
-              <form onSubmit={handleSimulateSave} className="space-y-3.5">
-                <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                  <Edit3 className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Edição e Parametrização do Conteúdo</span>
-                </h4>
+              {/* Divided Data Rows matching Figma FDC DataRow */}
+              <div className="divide-y divide-[#d1d5db] border-y border-[#d1d5db] text-[13px]">
+                <div className="py-[7px] flex items-center justify-between">
+                  <span className="text-[#4b5563] w-[180px]">Identificador</span>
+                  <span className="font-semibold text-[#111827] flex-1 text-right">
+                    {selectedTemplate.id}
+                  </span>
+                </div>
+                <div className="py-[7px] flex items-center justify-between">
+                  <span className="text-[#4b5563] w-[180px]">Canais suportados</span>
+                  <span className="font-semibold text-[#111827] flex-1 text-right">
+                    {selectedTemplate.channels.join(' e ')}
+                  </span>
+                </div>
+                <div className="py-[7px] flex items-center justify-between">
+                  <span className="text-[#4b5563] w-[180px]">Política LGPD</span>
+                  <span className="font-semibold text-[#111827] flex-1 text-right">
+                    Minimização de dados
+                  </span>
+                </div>
+              </div>
 
-                <div>
+              {/* Template Editor Simulator */}
+              <form
+                onSubmit={handleSimulateSave}
+                className="space-y-3 bg-slate-50 p-3.5 rounded-[10px] border border-slate-200/80"
+              >
+                <div className="flex items-center gap-2">
+                  <Edit3 className="w-4 h-4 text-slate-500" />
+                  <span className="text-[12px] font-bold text-[#111827]">
+                    Editor de Minuta do Template (Simulação Local)
+                  </span>
+                </div>
+
+                <div className="space-y-1">
                   <label
-                    htmlFor="template-subject-input"
-                    className="block text-[10px] font-bold text-slate-600 mb-1"
+                    htmlFor="tpl-subject"
+                    className="text-[11px] font-semibold text-[#4b5563] block"
                   >
-                    Assunto do E-mail / Título do Push
+                    Assunto do e-mail / Título do push:
                   </label>
                   <input
-                    id="template-subject-input"
+                    id="tpl-subject"
                     type="text"
                     value={editSubject}
-                    onChange={(e) => {
-                      setEditSubject(e.target.value);
-                      setSimulationState('NONE');
-                    }}
-                    className="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-medium text-slate-900"
+                    onChange={(e) => setEditSubject(e.target.value)}
+                    className="w-full bg-white border border-[#d1d5db] rounded-[8px] px-2.5 py-1.5 text-[12px] text-[#111827]"
                   />
                 </div>
 
-                <div>
+                <div className="space-y-1">
                   <label
-                    htmlFor="template-body-textarea"
-                    className="block text-[10px] font-bold text-slate-600 mb-1"
+                    htmlFor="tpl-body"
+                    className="text-[11px] font-semibold text-[#4b5563] block"
                   >
-                    Corpo da Notificação (Mensagem)
+                    Corpo da mensagem (suporta tags homologadas):
                   </label>
                   <textarea
-                    id="template-body-textarea"
-                    rows={6}
+                    id="tpl-body"
+                    rows={5}
                     value={editBody}
-                    onChange={(e) => {
-                      setEditBody(e.target.value);
-                      setSimulationState('NONE');
-                    }}
-                    className="w-full text-xs p-2.5 rounded-lg border border-slate-200 bg-slate-50 font-sans text-slate-900 leading-relaxed"
+                    onChange={(e) => setEditBody(e.target.value)}
+                    className="w-full bg-white border border-[#d1d5db] rounded-[8px] px-2.5 py-1.5 text-[12px] text-[#111827] font-mono"
                   />
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-[11px] text-[#64748b]">
+                    Variáveis: {selectedTemplate.variables.slice(0, 3).join(', ')}
+                  </span>
+                  <button
+                    type="submit"
+                    className="bg-[#111827] hover:bg-slate-800 text-white text-[12px] font-semibold px-4 py-2 rounded-[8px] transition-colors"
+                  >
+                    Salvar Rascunho
+                  </button>
                 </div>
 
                 {simulationState === 'SAVED' && (
-                  <div
-                    data-testid="template-simulation-result"
-                    className="p-3.5 rounded-xl bg-slate-900 text-white text-xs space-y-1.5 border border-slate-800"
-                  >
-                    <div className="flex items-center gap-2 font-bold text-amber-400">
-                      <Lock className="w-4 h-4 shrink-0" />
-                      <span>Simulação Registrada — Modo Fail-Closed</span>
-                    </div>
-                    <p className="text-[11px] text-slate-300 leading-relaxed">
-                      Proposta de alteração do modelo <strong>{selectedTemplate.id}</strong>{' '}
-                      validada na interface. Em observância aos requisitos{' '}
-                      <strong>SMG-09, NOT-006 e NOT-007</strong>, nenhum e-mail ou disparo push é
-                      acionado no ambiente demonstrativo.
-                    </p>
+                  <div className="p-2 bg-emerald-50 border border-emerald-200 rounded-[8px] text-[11px] text-emerald-800 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>Rascunho de {selectedTemplate.id} atualizado em memória local.</span>
                   </div>
                 )}
-
-                <div className="flex flex-col sm:flex-row items-center gap-2 pt-2">
-                  <button
-                    type="submit"
-                    className="w-full sm:flex-1 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors shadow-xs"
-                  >
-                    Simular Atualização de Template
-                  </button>
-
-                  <button
-                    type="button"
-                    disabled
-                    title="Disparo real desabilitado sob HOLD SMG-09"
-                    className="w-full sm:w-auto py-2 px-3 rounded-xl bg-slate-100 text-slate-400 text-xs font-semibold cursor-not-allowed border border-slate-200 flex items-center justify-center gap-1.5"
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Disparar Teste (Bloqueado)</span>
-                  </button>
-                </div>
               </form>
             </div>
           </div>

@@ -7,17 +7,16 @@ import { SettingsSectionHeader } from '@/app/configuracoes/components/SettingsSe
 import { mockFeaturedAdvertisements } from '@/lib/adapters/mock-content-settings-data';
 import type { FeaturedAdvertisementRecord } from '@/lib/types/content-settings-presentation';
 import {
-  AlertCircle,
+  AlertTriangle,
+  Car,
   CheckCircle2,
-  Clock,
   ExternalLink,
-  Flame,
+  FileText,
   Lock,
   RefreshCw,
+  Shield,
   SlidersHorizontal,
   Sparkles,
-  Tag,
-  XCircle,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -40,14 +39,14 @@ export default function FeaturedContentPage() {
 
   return (
     <AdminShell
-      breadcrumbs={['Admin', 'Configurações', 'Destaques da Home']}
+      breadcrumbs={['Admin', 'Configurações', 'Conteúdo em destaque na página inicial']}
       maxWidthClass="max-w-[1440px]"
     >
       <div className="space-y-6" data-testid="settings-featured-content-page">
-        {/* Header */}
+        {/* Header matching Figma ADM-D-050 */}
         <SettingsSectionHeader
-          title="Destaques da Página Inicial"
-          subtitle="Gestão de anúncios elegíveis à vitrine de destaques da homepage. Critérios de elegibilidade contratual e fail-closed ranking."
+          title="Conteúdo em destaque na página inicial"
+          subtitle="Anúncios elegíveis, vitrines e regras de ordenação para a homepage."
           badgeLabel="ADM-D-050"
           figmaNodeId="341:5126"
         />
@@ -62,73 +61,143 @@ export default function FeaturedContentPage() {
           description="Em conformidade com o requisito SEARCH-012, a ordenação e rotação automática de destaques na página inicial dependem de homologação técnica dos algoritmos de busca. A contratação do destaque assegura elegibilidade, mas não garante a primeira posição absoluta nem substitui filtros de busca. Nenhuma reordenação em tempo real é executada em banco de dados."
         />
 
-        {/* KPI Cards (4 summary cards) */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-              Destaques Ativos na Home
-            </span>
-            <div className="text-2xl font-black text-slate-900 tracking-tight">3</div>
-            <div className="text-[11px] text-emerald-600 font-semibold mt-1">
-              Vagas ocupadas: 3 de 6
+        {/* 4 Summary KPI Cards directly matching Figma node 342:5209 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[14px]">
+          {/* KPI 1: Anúncios elegíveis */}
+          <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs flex flex-col justify-between h-[122px]">
+            <div className="flex items-center gap-[10px]">
+              <div className="w-[34px] h-[34px] rounded-[17px] bg-[#fff0f1] flex items-center justify-center shrink-0">
+                <Car className="w-[20px] h-[20px] text-[#b91c1c]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[12px] font-medium text-[#64748b]">Anúncios elegíveis</span>
+                <span className="text-[18px] font-bold text-[#101828] leading-tight">Ativos</span>
+              </div>
             </div>
+            <p className="text-[11px] font-normal text-[#4b5563]">
+              Publicados após aprovação/pagamento
+            </p>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-              Espaços Elegíveis
-            </span>
-            <div className="text-2xl font-black text-slate-900 tracking-tight">6</div>
-            <div className="text-[11px] text-slate-500 font-medium mt-1">
-              Vitrine rotativa de Ipatinga
+          {/* KPI 2: Vitrine da homepage */}
+          <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs flex flex-col justify-between h-[122px]">
+            <div className="flex items-center gap-[10px]">
+              <div className="w-[34px] h-[34px] rounded-[17px] bg-[#fff0f1] flex items-center justify-center shrink-0">
+                <FileText className="w-[20px] h-[20px] text-[#b91c1c]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[12px] font-medium text-[#64748b]">Vitrine da homepage</span>
+                <span className="text-[18px] font-bold text-[#101828] leading-tight">
+                  Curadoria
+                </span>
+              </div>
             </div>
+            <p className="text-[11px] font-normal text-[#4b5563]">
+              Seleção administrativa em revisão
+            </p>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-              Destaques Contratados
-            </span>
-            <div className="text-2xl font-black text-red-600 tracking-tight">2</div>
-            <div className="text-[11px] text-slate-500 font-medium mt-1">
-              Plano BST-07D-001 pago
+          {/* KPI 3: Boost de anúncio */}
+          <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs flex flex-col justify-between h-[122px]">
+            <div className="flex items-center gap-[10px]">
+              <div className="w-[34px] h-[34px] rounded-[17px] bg-[#fff0f1] flex items-center justify-center shrink-0">
+                <Shield className="w-[20px] h-[20px] text-[#b91c1c]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[12px] font-medium text-[#64748b]">Boost de anúncio</span>
+                <span className="text-[18px] font-bold text-[#101828] leading-tight">
+                  R$ 10 · 7 dias
+                </span>
+              </div>
             </div>
+            <p className="text-[11px] font-normal text-[#4b5563]">Não é posicionamento garantido</p>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-              Em Fila de Rotação
-            </span>
-            <div className="text-2xl font-black text-slate-900 tracking-tight">1</div>
-            <div className="text-[11px] text-blue-600 font-semibold mt-1">
-              Aguardando próximo ciclo
+          {/* KPI 4: Ordenação */}
+          <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs flex flex-col justify-between h-[122px]">
+            <div className="flex items-center gap-[10px]">
+              <div className="w-[34px] h-[34px] rounded-[17px] bg-[#fff0f1] flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-[20px] h-[20px] text-[#b91c1c]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[12px] font-medium text-[#64748b]">Ordenação</span>
+                <span className="text-[18px] font-bold text-[#101828] leading-tight">
+                  Em definição
+                </span>
+              </div>
             </div>
+            <p className="text-[11px] font-normal text-[#4b5563]">SEARCH-012 / rotação pendente</p>
           </div>
         </div>
 
-        {/* Main Content: Advertisements Table + Selected Ad Panel */}
+        {/* Control and Source Integrity Card matching Figma node 342:5255 */}
+        <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs flex flex-col gap-[11px]">
+          <div className="flex items-center gap-[10px]">
+            <div className="w-[34px] h-[34px] rounded-[17px] bg-[#fff0f1] flex items-center justify-center shrink-0">
+              <Shield className="w-[20px] h-[20px] text-[#b91c1c]" />
+            </div>
+            <h2 className="text-[18px] font-bold text-[#111827]">
+              Gestão da vitrine da página inicial
+            </h2>
+          </div>
+          <p className="text-[12px] font-normal text-[#64748b]">
+            A homepage exibe anúncios elegíveis e pode apresentar conteúdo em destaque. A ordenação,
+            rotação e prioridade entre promoção e curadoria ainda precisam de aprovação.
+          </p>
+          <div className="flex flex-wrap gap-[9px] pt-1">
+            <button
+              type="button"
+              onClick={() => {}}
+              className="bg-[#b91c1c] hover:bg-[#a8121c] text-white text-[12px] font-semibold px-[14px] py-[12px] rounded-[9px] transition-colors"
+            >
+              Ver anúncio selecionado
+            </button>
+            <button
+              type="button"
+              onClick={() => {}}
+              className="bg-[#eef2f7] hover:bg-[#e2e8f0] text-[#344054] text-[12px] font-semibold px-[14px] py-[12px] rounded-[9px] transition-colors"
+            >
+              Revisar elegibilidade
+            </button>
+            <button
+              type="button"
+              onClick={() => {}}
+              className="bg-[#eef2f7] hover:bg-[#e2e8f0] text-[#344054] text-[12px] font-semibold px-[14px] py-[12px] rounded-[9px] transition-colors"
+            >
+              Abrir configurações de boost
+            </button>
+          </div>
+        </div>
+
+        {/* Main Content: Advertisements Table + Selected Ad Panel matching Figma node 342:5271 */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Column (7 cols): Table of Eligible Ads */}
+          {/* Left Column (7 cols): Curated listing candidates matching Figma node 342:5272 */}
           <div className="lg:col-span-7 space-y-4">
-            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs space-y-4">
+            <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs space-y-3">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <div className="flex items-center gap-2">
-                  <Flame className="w-4 h-4 text-red-600" />
-                  <h2 className="text-sm font-bold text-slate-900">
-                    Anúncios com Destaque Contratado
-                  </h2>
+                <div className="flex items-center gap-[10px]">
+                  <div className="w-[34px] h-[34px] rounded-[17px] bg-[#fff0f1] flex items-center justify-center shrink-0">
+                    <Car className="w-[20px] h-[20px] text-[#b91c1c]" />
+                  </div>
+                  <h3 className="text-[18px] font-bold text-[#111827]">
+                    Anúncios para conteúdo em destaque
+                  </h3>
                 </div>
-                <span className="text-xs text-slate-400 font-medium">3 anúncios elegíveis</span>
+                <span className="text-[11px] text-[#64748b]">
+                  {mockFeaturedAdvertisements.length} elegíveis
+                </span>
               </div>
+              <p className="text-[12px] text-[#64748b]">
+                Exemplos fictícios; nenhum posicionamento pago ou ranking publicado.
+              </p>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs" data-testid="featured-ads-table">
+                <table className="w-full text-left" data-testid="featured-ads-table">
                   <thead>
-                    <tr className="border-b border-slate-200/80 text-[10px] uppercase font-bold text-slate-400">
-                      <th className="pb-2.5">Veículo / Código</th>
-                      <th className="pb-2.5">Anunciante</th>
-                      <th className="pb-2.5">Preço</th>
-                      <th className="pb-2.5">Destaque</th>
-                      <th className="pb-2.5 text-right">Ação</th>
+                    <tr className="bg-[#f1f5f9] text-[10px] font-bold text-[#4b5563] uppercase tracking-wider rounded-[8px]">
+                      <th className="py-[10px] pl-[10px]">ANÚNCIO / VEÍCULO</th>
+                      <th className="py-[10px] px-2 w-[157px]">PREÇO</th>
+                      <th className="py-[10px] pr-[10px]">ESTADO</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -137,55 +206,40 @@ export default function FeaturedContentPage() {
                       return (
                         <tr
                           key={ad.id}
-                          className={`transition-colors ${
-                            isSelected ? 'bg-red-50/60 font-semibold' : 'hover:bg-slate-50'
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              setSelectedAdId(ad.id);
+                              setSimulationState('NONE');
+                            }
+                          }}
+                          onClick={() => {
+                            setSelectedAdId(ad.id);
+                            setSimulationState('NONE');
+                          }}
+                          className={`cursor-pointer transition-colors ${
+                            isSelected ? 'bg-[#fff5f5]' : 'bg-[#f8fafc] hover:bg-slate-100'
                           }`}
                         >
-                          <td className="py-3 pr-2">
-                            <div className="flex items-center gap-2.5">
-                              <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-slate-200 bg-slate-100">
-                                <Image
-                                  src={ad.imageThumbnail}
-                                  alt={ad.vehicleTitle}
-                                  fill
-                                  sizes="40px"
-                                  className="object-cover"
-                                />
-                              </div>
-                              <div>
-                                <div className="text-slate-900 font-bold">{ad.vehicleTitle}</div>
-                                <div className="text-[10px] font-mono text-slate-500">{ad.id}</div>
-                              </div>
+                          <td className="py-[14px] pl-[10px]">
+                            <div className="flex flex-col">
+                              <span className="text-[12px] font-semibold text-[#111827]">
+                                {ad.id}
+                              </span>
+                              <span className="text-[11px] font-normal text-[#4b5563]">
+                                {ad.vehicleTitle}
+                              </span>
                             </div>
                           </td>
-                          <td className="py-3 pr-2">
-                            <div className="text-slate-800">{ad.sellerName}</div>
-                            <div className="text-[10px] text-slate-400">{ad.location}</div>
-                          </td>
-                          <td className="py-3 pr-2 font-mono font-bold text-slate-900">
+                          <td className="py-[14px] px-2 text-[12px] font-medium text-[#344054]">
                             {ad.priceFormatted}
                           </td>
-                          <td className="py-3 pr-2">
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-                              <Sparkles className="w-3 h-3 text-emerald-600" />
-                              <span>{ad.boostRemainingDays}d restantes</span>
+                          <td className="py-[14px] pr-[10px]">
+                            <span className="inline-flex items-center gap-[7px] px-[11px] py-[4px] rounded-[12px] bg-[#ecfdf3] text-[#166534] text-[11px] font-semibold">
+                              <span className="w-[7px] h-[7px] rounded-full bg-[#166534]" />
+                              Ativo
                             </span>
-                          </td>
-                          <td className="py-3 text-right">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedAdId(ad.id);
-                                setSimulationState('NONE');
-                              }}
-                              className={`text-[11px] px-2.5 py-1 rounded-lg transition-colors ${
-                                isSelected
-                                  ? 'bg-red-600 text-white font-bold'
-                                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium'
-                              }`}
-                            >
-                              {isSelected ? 'Selecionado' : 'Ver'}
-                            </button>
                           </td>
                         </tr>
                       );
@@ -196,14 +250,14 @@ export default function FeaturedContentPage() {
             </div>
 
             {/* Invariant Policy Checklist Card */}
-            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+            <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs space-y-3">
+              <h4 className="text-[12px] font-bold uppercase tracking-wider text-[#111827] flex items-center gap-2">
                 <SlidersHorizontal className="w-4 h-4 text-slate-500" />
                 <span>Diretrizes de Vitrine e Governança Comercial</span>
-              </h3>
-              <ul className="space-y-2 text-xs text-slate-600">
+              </h4>
+              <ul className="space-y-2 text-[12px] text-[#4b5563]">
                 <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 mt-1.5" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#f42524] shrink-0 mt-1.5" />
                   <span>
                     <strong>Elegibilidade restrita:</strong> Somente anúncios aprovados pela
                     moderação, com pagamento confirmado e sem sinalização de venda concretizada
@@ -211,7 +265,7 @@ export default function FeaturedContentPage() {
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 mt-1.5" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#f42524] shrink-0 mt-1.5" />
                   <span>
                     <strong>Sem garantia de posição absoluta:</strong> A aquisição de destaque
                     proporciona rotação prioritária entre veículos impulsionados, mas não assegura a
@@ -219,7 +273,7 @@ export default function FeaturedContentPage() {
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 mt-1.5" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#f42524] shrink-0 mt-1.5" />
                   <span>
                     <strong>Desvinculação automática:</strong> Caso o veículo seja vendido ou o
                     anúncio expirado, o destaque é encerrado sem estorno proporcional de valor.
@@ -229,172 +283,123 @@ export default function FeaturedContentPage() {
             </div>
           </div>
 
-          {/* Right Column (5 cols): Selected Ad Details & Simulation */}
+          {/* Right Column (5 cols): Selected Ad Details matching Figma node 342:5323 */}
           <div className="lg:col-span-5 space-y-4">
             <div
               data-testid="selected-ad-panel"
-              className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs space-y-4"
+              className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs space-y-4"
             >
               <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                <span className="text-[10px] uppercase font-bold text-slate-400">
-                  Caso Selecionado • ADM-D-050
+                <span className="text-[11px] uppercase font-bold text-[#b91c1c]">
+                  ANÚNCIO SELECIONADO · {selectedAd.id}
                 </span>
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-900 text-white">
-                  {selectedAd.id}
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-[#111827]">
+                  {selectedAd.priceFormatted}
                 </span>
               </div>
 
-              {/* Photo & Title */}
-              <div className="space-y-3">
-                <div className="relative w-full h-44 rounded-xl overflow-hidden border border-slate-200 bg-slate-100">
-                  <Image
-                    src={selectedAd.imageThumbnail}
-                    alt={selectedAd.vehicleTitle}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 400px"
-                    className="object-cover"
-                    priority
-                  />
-                  <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-red-600/90 text-white text-[10px] font-bold flex items-center gap-1 shadow-xs">
-                    <Sparkles className="w-3 h-3" />
-                    <span>Destaque Contratado</span>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-base font-extrabold text-slate-900">
-                    {selectedAd.vehicleTitle}
-                  </h3>
-                  <div className="flex items-center justify-between mt-1">
-                    <span className="text-sm font-black font-mono text-red-600">
-                      {selectedAd.priceFormatted}
-                    </span>
-                    <span className="text-xs text-slate-500">
-                      {selectedAd.sellerName} • {selectedAd.location}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Eligibility Verification Checklist */}
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
-                <span className="text-[10px] uppercase font-bold text-slate-500 block mb-1">
-                  Validação de Critérios de Elegibilidade
-                </span>
-                <div className="space-y-1.5 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-600 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Anúncio aprovado na moderação</span>
-                    </span>
-                    <span className="text-[10px] font-bold text-emerald-700">Sim</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-600 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Pagamento do plano confirmado</span>
-                    </span>
-                    <span className="text-[10px] font-bold text-emerald-700">Confirmado</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-600 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Veículo ativo no estoque</span>
-                    </span>
-                    <span className="text-[10px] font-bold text-emerald-700">Ativo</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-600 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Sem marcação de venda realizada</span>
-                    </span>
-                    <span className="text-[10px] font-bold text-emerald-700">Não vendido</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Status details */}
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
-                  <span className="text-[10px] text-slate-400 block">Vigência Restante</span>
-                  <span className="font-bold text-slate-800">
-                    {selectedAd.boostRemainingDays} dias restantes
-                  </span>
-                </div>
-                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
-                  <span className="text-[10px] text-slate-400 block">Posição Estimada</span>
-                  <span className="font-bold text-blue-700">
-                    Slot #{selectedAd.slotPositionPreview}
+              {/* Title & Badge */}
+              <div>
+                <h4 className="text-[18px] font-bold text-[#111827]">{selectedAd.vehicleTitle}</h4>
+                <div className="mt-1">
+                  <span className="inline-flex items-center gap-[7px] px-[11px] py-[4px] rounded-[12px] bg-[#ecfdf3] text-[#166534] text-[11px] font-semibold">
+                    <span className="w-[7px] h-[7px] rounded-full bg-[#166534]" />
+                    Ativo na vitrine
                   </span>
                 </div>
               </div>
 
-              {/* Link to Listing Details */}
-              <Link
-                href="/anuncios"
-                className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl transition-colors"
-              >
-                <span>Visualizar anúncio completo no módulo Anúncios</span>
-                <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-              </Link>
+              {/* Divided Data Rows matching Figma FDC DataRow */}
+              <div className="divide-y divide-[#d1d5db] border-y border-[#d1d5db] text-[13px]">
+                <div className="py-[7px] flex items-center justify-between">
+                  <span className="text-[#4b5563] w-[180px]">Anúncio</span>
+                  <span className="font-semibold text-[#111827] flex-1 text-right">
+                    {selectedAd.id}
+                  </span>
+                </div>
+                <div className="py-[7px] flex items-center justify-between">
+                  <span className="text-[#4b5563] w-[180px]">Vendedora</span>
+                  <span className="font-semibold text-[#111827] flex-1 text-right">
+                    {selectedAd.sellerName}
+                  </span>
+                </div>
+                <div className="py-[7px] flex items-center justify-between">
+                  <span className="text-[#4b5563] w-[180px]">Tipo de anunciante</span>
+                  <span className="font-semibold text-[#111827] flex-1 text-right">
+                    {selectedAd.sellerType === 'DEALERSHIP' ? 'Lojista' : 'Particular'}
+                  </span>
+                </div>
+                <div className="py-[7px] flex items-center justify-between">
+                  <span className="text-[#4b5563] w-[180px]">Localidade</span>
+                  <span className="font-semibold text-[#111827] flex-1 text-right">
+                    {selectedAd.location}
+                  </span>
+                </div>
+                <div className="py-[7px] flex items-center justify-between">
+                  <span className="text-[#4b5563] w-[180px]">Plano / Destaque</span>
+                  <span className="font-semibold text-[#111827] flex-1 text-right">
+                    {selectedAd.boostPlan}
+                  </span>
+                </div>
+                <div className="py-[7px] flex items-center justify-between">
+                  <span className="text-[#4b5563] w-[180px]">Status da rotação</span>
+                  <span className="font-semibold text-[#111827] flex-1 text-right">
+                    SEARCH-012 / Elegível
+                  </span>
+                </div>
+              </div>
 
-              {/* Reordering Simulation Form */}
+              {/* Simulation Sandbox Form */}
               <form
                 onSubmit={handleSimulateReorder}
-                className="space-y-3 pt-3 border-t border-slate-100"
+                className="bg-slate-50 p-3.5 rounded-[10px] border border-slate-200/80 space-y-3"
               >
-                <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                  <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Simulação de Posicionamento na Vitrine</span>
-                </h4>
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-slate-500" />
+                  <span className="text-[12px] font-bold text-[#111827]">
+                    Simulador de Rotação (Frontend Sandbox)
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#64748b]">
+                  Teste a alternância de slot da vitrine. Operação estritamente em memória local;
+                  não persiste alterações em banco de dados.
+                </p>
 
-                <div>
+                <div className="flex items-center gap-3">
                   <label
-                    htmlFor="slot-position-select"
-                    className="block text-[10px] font-bold text-slate-600 mb-1"
+                    htmlFor="slot-select"
+                    className="text-[12px] text-[#4b5563] shrink-0 font-medium"
                   >
-                    Simular Ordem de Apresentação (Slot)
+                    Posição estimada:
                   </label>
                   <select
-                    id="slot-position-select"
+                    id="slot-select"
                     value={simulationSlot}
-                    onChange={(e) => {
-                      setSimulationSlot(Number(e.target.value));
-                      setSimulationState('NONE');
-                    }}
-                    className="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-bold text-slate-900"
+                    onChange={(e) => setSimulationSlot(Number(e.target.value))}
+                    className="flex-1 bg-white border border-[#d1d5db] rounded-[8px] px-2.5 py-1.5 text-[12px] text-[#111827]"
                   >
-                    <option value={1}>Slot #1 — Posição Primária de Vitrine</option>
-                    <option value={2}>Slot #2 — Posição Secundária de Vitrine</option>
-                    <option value={3}>Slot #3 — Posição Terciária de Vitrine</option>
-                    <option value={4}>Slot #4 — Fila Rotativa de Impulsionados</option>
+                    <option value={1}>Slot 1 (Topo rotativo)</option>
+                    <option value={2}>Slot 2 (Vitrine intermediária)</option>
+                    <option value={3}>Slot 3 (Vitrine rotativa)</option>
                   </select>
                 </div>
 
-                {simulationState === 'SIMULATED' && (
-                  <div
-                    data-testid="reorder-simulation-result"
-                    className="p-3.5 rounded-xl bg-slate-900 text-white text-xs space-y-1.5 border border-slate-800"
-                  >
-                    <div className="flex items-center gap-2 font-bold text-amber-400">
-                      <Lock className="w-4 h-4 shrink-0" />
-                      <span>Simulação Registrada — Modo Fail-Closed</span>
-                    </div>
-                    <p className="text-[11px] text-slate-300 leading-relaxed">
-                      Proposta de posicionamento do anúncio <strong>{selectedAd.id}</strong> no Slot
-                      #{simulationSlot} verificada na interface. Em conformidade com o requisito{' '}
-                      <strong>SEARCH-012</strong>, nenhuma reordenação em banco de dados ou vitrine
-                      pública foi executada.
-                    </p>
-                  </div>
-                )}
-
                 <button
                   type="submit"
-                  className="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors shadow-xs"
+                  className="w-full bg-[#111827] hover:bg-slate-800 text-white text-[12px] font-semibold py-2 rounded-[8px] transition-colors"
                 >
-                  Simular Reordenação da Vitrine
+                  Simular Posição no Grid
                 </button>
+
+                {simulationState === 'SIMULATED' && (
+                  <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-[8px] text-[11px] text-emerald-800 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>
+                      Simulação aplicada: {selectedAd.id} no Slot {simulationSlot}. Nenhuma
+                      alteração persistida.
+                    </span>
+                  </div>
+                )}
               </form>
             </div>
           </div>

@@ -8,24 +8,25 @@ import { mockContactSettings } from '@/lib/adapters/mock-content-settings-data';
 import {
   AlertTriangle,
   Building2,
+  CheckCircle2,
   Clock,
+  CreditCard,
   Edit3,
-  Eye,
+  FileText,
   Headphones,
   Lock,
   Mail,
   MapPin,
   PhoneCall,
   Shield,
-  ShieldAlert,
 } from 'lucide-react';
 import * as React from 'react';
 
 export default function ContactSettingsPage() {
-  const [emailInput, setEmailInput] = React.useState(mockContactSettings.officialEmail);
-  const [phoneInput, setPhoneInput] = React.useState(mockContactSettings.officialPhone);
-  const [hoursInput, setHoursInput] = React.useState(mockContactSettings.businessHours);
-  const [addressInput, setAddressInput] = React.useState(mockContactSettings.physicalAddress);
+  const [emailInput, setEmailInput] = React.useState('Aguardando cliente');
+  const [phoneInput, setPhoneInput] = React.useState('Não fornecido');
+  const [hoursInput, setHoursInput] = React.useState('A confirmar');
+  const [addressInput, setAddressInput] = React.useState('Ipatinga, MG');
   const [simulationState, setSimulationState] = React.useState<'NONE' | 'SIMULATED'>('NONE');
 
   const handleSimulateSave = (e: React.FormEvent) => {
@@ -35,14 +36,14 @@ export default function ContactSettingsPage() {
 
   return (
     <AdminShell
-      breadcrumbs={['Admin', 'Configurações', 'Contato e Suporte']}
+      breadcrumbs={['Admin', 'Configurações', 'Configurações de contato e suporte']}
       maxWidthClass="max-w-[1440px]"
     >
       <div className="space-y-6" data-testid="settings-contact-page">
-        {/* Header */}
+        {/* Header matching Figma ADM-D-052 */}
         <SettingsSectionHeader
-          title="Canais de Atendimento e Suporte"
-          subtitle="Configuração dos pontos de contato institucionais, horários de atendimento e roteamento ao suporte ao consumidor."
+          title="Configurações de contato e suporte"
+          subtitle="Canais de atendimento, dados públicos e roteamento autorizado."
           badgeLabel="ADM-D-052"
           figmaNodeId="341:5558"
         />
@@ -57,275 +58,325 @@ export default function ContactSettingsPage() {
           description="Em cumprimento aos requisitos SMG-08 e SAC-001, dados oficiais de contato (endereço físico, número 0800 e e-mail institucional homologado) estão em fase de validação jurídica e contratual. Dados apresentados são demonstrativos e nenhum canal externo é acionado."
         />
 
-        {/* 4 Summary KPI Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-              Status dos Canais
-            </span>
-            <div className="text-xl font-black text-amber-600 tracking-tight">Em Validação</div>
-            <div className="text-[11px] text-slate-500 font-medium mt-1">Homologação pendente</div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-              Praça de Referência
-            </span>
-            <div className="text-xl font-black text-slate-900 tracking-tight">Ipatinga - MG</div>
-            <div className="text-[11px] text-slate-500 font-medium mt-1">Sede Vale do Aço</div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-              Nível de Atendimento
-            </span>
-            <div className="text-xl font-black text-slate-900 tracking-tight">N1 Triagem</div>
-            <div className="text-[11px] text-slate-500 font-medium mt-1">
-              Encaminhamento interno
+        {/* 4 Summary KPI Cards directly matching Figma node 342:5566 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[14px]">
+          {/* KPI 1: Canal principal */}
+          <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs flex flex-col justify-between h-[122px]">
+            <div className="flex items-center gap-[10px]">
+              <div className="w-[34px] h-[34px] rounded-[17px] bg-[#fff0f1] flex items-center justify-center shrink-0">
+                <Shield className="w-[20px] h-[20px] text-[#b91c1c]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[12px] font-medium text-[#64748b]">Canal principal</span>
+                <span className="text-[18px] font-bold text-[#101828] leading-tight">Suporte</span>
+              </div>
             </div>
+            <p className="text-[11px] font-normal text-[#4b5563]">Entrada pública de atendimento</p>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-              Controle de Acesso
-            </span>
-            <div className="text-xl font-black text-red-600 tracking-tight">Main Admin</div>
-            <div className="text-[11px] text-slate-500 font-medium mt-1">
-              Suporte / Vendas restrito
+          {/* KPI 2: Endereço oficial */}
+          <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs flex flex-col justify-between h-[122px]">
+            <div className="flex items-center gap-[10px]">
+              <div className="w-[34px] h-[34px] rounded-[17px] bg-[#fff0f1] flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-[20px] h-[20px] text-[#b91c1c]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[12px] font-medium text-[#64748b]">Endereço oficial</span>
+                <span className="text-[18px] font-bold text-[#101828] leading-tight">Pendente</span>
+              </div>
             </div>
+            <p className="text-[11px] font-normal text-[#4b5563]">Client validation required</p>
+          </div>
+
+          {/* KPI 3: Equipe */}
+          <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs flex flex-col justify-between h-[122px]">
+            <div className="flex items-center gap-[10px]">
+              <div className="w-[34px] h-[34px] rounded-[17px] bg-[#fff0f1] flex items-center justify-center shrink-0">
+                <CreditCard className="w-[20px] h-[20px] text-[#b91c1c]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[12px] font-medium text-[#64748b]">Equipe</span>
+                <span className="text-[18px] font-bold text-[#101828] leading-tight">
+                  Sales / Support
+                </span>
+              </div>
+            </div>
+            <p className="text-[11px] font-normal text-[#4b5563]">Sem identidade compartilhada</p>
+          </div>
+
+          {/* KPI 4: Publicação */}
+          <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs flex flex-col justify-between h-[122px]">
+            <div className="flex items-center gap-[10px]">
+              <div className="w-[34px] h-[34px] rounded-[17px] bg-[#fff0f1] flex items-center justify-center shrink-0">
+                <FileText className="w-[20px] h-[20px] text-[#b91c1c]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[12px] font-medium text-[#64748b]">Publicação</span>
+                <span className="text-[18px] font-bold text-[#101828] leading-tight">
+                  Não aplicada
+                </span>
+              </div>
+            </div>
+            <p className="text-[11px] font-normal text-[#4b5563]">Conteúdo demonstrativo</p>
           </div>
         </div>
 
-        {/* Main 2-Column Grid */}
+        {/* Support Control Card matching Figma node 342:5612 */}
+        <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs flex flex-col gap-[11px]">
+          <div className="flex items-center gap-[10px]">
+            <div className="w-[34px] h-[34px] rounded-[17px] bg-[#fff0f1] flex items-center justify-center shrink-0">
+              <Shield className="w-[20px] h-[20px] text-[#b91c1c]" />
+            </div>
+            <h2 className="text-[18px] font-bold text-[#111827]">
+              Conteúdo e canais de contato ao público
+            </h2>
+          </div>
+          <p className="text-[12px] font-normal text-[#64748b]">
+            Main Admin gere as instruções de contacto exibidas ao público. Email, telefone e
+            horários abaixo são valores de interface demonstrativos, nunca canais confirmados do
+            cliente.
+          </p>
+          <div className="flex flex-wrap gap-[9px] pt-1">
+            <button
+              type="button"
+              onClick={() => {}}
+              className="bg-[#b91c1c] hover:bg-[#a8121c] text-white text-[12px] font-semibold px-[14px] py-[12px] rounded-[9px] transition-colors"
+            >
+              Ver cartão de contato
+            </button>
+            <button
+              type="button"
+              onClick={() => {}}
+              className="bg-[#eef2f7] hover:bg-[#e2e8f0] text-[#344054] text-[12px] font-semibold px-[14px] py-[12px] rounded-[9px] transition-colors"
+            >
+              Prévia de publicação
+            </button>
+            <button
+              type="button"
+              onClick={() => {}}
+              className="bg-[#eef2f7] hover:bg-[#e2e8f0] text-[#344054] text-[12px] font-semibold px-[14px] py-[12px] rounded-[9px] transition-colors"
+            >
+              Ver gestão da equipe
+            </button>
+          </div>
+        </div>
+
+        {/* Main Content: Channel Data Rows + Public Preview Card matching Figma node 342:5628 */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Column (7 cols): Channel Configuration Form */}
-          <div className="lg:col-span-7 space-y-4">
-            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <div className="flex items-center gap-2">
-                  <Headphones className="w-4 h-4 text-red-600" />
-                  <h2 className="text-sm font-bold text-slate-900">
-                    Canais Institucionais de Atendimento
-                  </h2>
+          {/* Left Column (6 cols): Configurable Data Rows matching Figma node 342:5629 */}
+          <div className="lg:col-span-6 space-y-4">
+            <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs space-y-4">
+              <div className="flex items-center gap-[10px] border-b border-slate-100 pb-3">
+                <div className="w-[34px] h-[34px] rounded-[17px] bg-[#fff0f1] flex items-center justify-center shrink-0">
+                  <FileText className="w-[20px] h-[20px] text-[#b91c1c]" />
                 </div>
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
-                  ADM-D-052
-                </span>
+                <h3 className="text-[18px] font-bold text-[#111827]">
+                  Dados e conteúdo configurável
+                </h3>
               </div>
 
-              <form onSubmit={handleSimulateSave} className="space-y-4">
-                {/* Email Field */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label
-                      htmlFor="contact-email-input"
-                      className="text-[10px] font-bold text-slate-600 uppercase"
-                    >
-                      E-mail Oficial de Atendimento
-                    </label>
-                    <span className="text-[10px] text-amber-600 font-medium">
-                      Pendente de validação MX
-                    </span>
-                  </div>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                    <input
-                      id="contact-email-input"
-                      type="email"
-                      value={emailInput}
-                      onChange={(e) => {
-                        setEmailInput(e.target.value);
-                        setSimulationState('NONE');
-                      }}
-                      className="w-full text-xs pl-9 pr-3 py-2 rounded-lg border border-slate-200 bg-slate-50 font-medium text-slate-900"
-                    />
-                  </div>
-                  <p className="text-[10px] text-slate-400 mt-1">
-                    {mockContactSettings.emailStatus}
-                  </p>
+              {/* Exact Divided Data Rows matching Figma FDC DataRow (342:5640 - 342:5712) */}
+              <div className="divide-y divide-[#d1d5db] border-y border-[#d1d5db] text-[13px]">
+                <div className="py-[7px] flex items-center justify-between">
+                  <span className="text-[#4b5563] w-[180px]">Canal</span>
+                  <span className="font-semibold text-[#111827] flex-1 text-right">
+                    Atendimento / Suporte
+                  </span>
+                </div>
+                <div className="py-[7px] flex items-center justify-between">
+                  <span className="text-[#4b5563] w-[180px]">Texto público</span>
+                  <span className="font-semibold text-[#111827] flex-1 text-right">
+                    Fale com a equipe Feira de Carros
+                  </span>
+                </div>
+                <div className="py-[7px] flex items-center justify-between">
+                  <span className="text-[#4b5563] w-[180px]">E-mail oficial</span>
+                  <span className="font-semibold text-[#111827] flex-1 text-right">
+                    Aguardando cliente
+                  </span>
+                </div>
+                <div className="py-[7px] flex items-center justify-between">
+                  <span className="text-[#4b5563] w-[180px]">Telefone oficial</span>
+                  <span className="font-semibold text-[#111827] flex-1 text-right">
+                    Não fornecido
+                  </span>
+                </div>
+                <div className="py-[7px] flex items-center justify-between">
+                  <span className="text-[#4b5563] w-[180px]">Horários</span>
+                  <span className="font-semibold text-[#111827] flex-1 text-right">
+                    A confirmar
+                  </span>
+                </div>
+                <div className="py-[7px] flex items-center justify-between">
+                  <span className="text-[#4b5563] w-[180px]">Cidade/UF de referência</span>
+                  <span className="font-semibold text-[#111827] flex-1 text-right">
+                    Ipatinga, MG
+                  </span>
+                </div>
+                <div className="py-[7px] flex items-center justify-between">
+                  <span className="text-[#4b5563] w-[180px]">Visibilidade</span>
+                  <span className="font-semibold text-[#111827] flex-1 text-right">
+                    Pública após aprovação
+                  </span>
+                </div>
+                <div className="py-[7px] flex items-center justify-between">
+                  <span className="text-[#4b5563] w-[180px]">Acesso</span>
+                  <span className="font-semibold text-[#111827] flex-1 text-right">
+                    Acesso mínimo necessário
+                  </span>
+                </div>
+                <div className="py-[7px] flex items-center justify-between">
+                  <span className="text-[#4b5563] w-[180px]">CPF/CNPJ</span>
+                  <span className="font-semibold text-[#111827] flex-1 text-right">
+                    Restrito por campo
+                  </span>
+                </div>
+                <div className="py-[7px] flex items-center justify-between">
+                  <span className="text-[#4b5563] w-[180px]">Status</span>
+                  <span className="font-semibold text-[#111827] flex-1 text-right">
+                    Conteúdo não publicado
+                  </span>
+                </div>
+              </div>
+
+              {/* Form Sandbox for Local Simulation */}
+              <form
+                onSubmit={handleSimulateSave}
+                className="space-y-3 bg-slate-50 p-3.5 rounded-[10px] border border-slate-200/80"
+              >
+                <div className="flex items-center gap-2">
+                  <Edit3 className="w-4 h-4 text-slate-500" />
+                  <span className="text-[12px] font-bold text-[#111827]">
+                    Simular Atualização de Contato (Ambiente de Demonstração)
+                  </span>
                 </div>
 
-                {/* Phone / VoIP Field */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label
-                      htmlFor="contact-phone-input"
-                      className="text-[10px] font-bold text-slate-600 uppercase"
-                    >
-                      Telefone / Central VoIP / WhatsApp
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                  <div>
+                    <label htmlFor="ct-email" className="font-semibold text-[#4b5563] block mb-0.5">
+                      E-mail Institucional:
                     </label>
-                    <span className="text-[10px] text-amber-600 font-medium">
-                      Aguardando linha 0800
-                    </span>
-                  </div>
-                  <div className="relative">
-                    <PhoneCall className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                     <input
-                      id="contact-phone-input"
+                      id="ct-email"
+                      type="text"
+                      value={emailInput}
+                      onChange={(e) => setEmailInput(e.target.value)}
+                      className="w-full bg-white border border-[#d1d5db] rounded-[6px] px-2 py-1 text-[12px] text-[#111827]"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="ct-phone" className="font-semibold text-[#4b5563] block mb-0.5">
+                      Telefone Oficial:
+                    </label>
+                    <input
+                      id="ct-phone"
                       type="text"
                       value={phoneInput}
-                      onChange={(e) => {
-                        setPhoneInput(e.target.value);
-                        setSimulationState('NONE');
-                      }}
-                      className="w-full text-xs pl-9 pr-3 py-2 rounded-lg border border-slate-200 bg-slate-50 font-mono text-slate-900"
+                      onChange={(e) => setPhoneInput(e.target.value)}
+                      className="w-full bg-white border border-[#d1d5db] rounded-[6px] px-2 py-1 text-[12px] text-[#111827]"
                     />
                   </div>
-                  <p className="text-[10px] text-slate-400 mt-1">
-                    {mockContactSettings.phoneStatus}
-                  </p>
-                </div>
-
-                {/* Business Hours Field */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label
-                      htmlFor="contact-hours-input"
-                      className="text-[10px] font-bold text-slate-600 uppercase"
-                    >
-                      Horário de Funcionamento do SAC
+                  <div>
+                    <label htmlFor="ct-hours" className="font-semibold text-[#4b5563] block mb-0.5">
+                      Horário de Atendimento:
                     </label>
-                    <span className="text-[10px] text-slate-400 font-medium">Horário oficial</span>
-                  </div>
-                  <div className="relative">
-                    <Clock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                     <input
-                      id="contact-hours-input"
+                      id="ct-hours"
                       type="text"
                       value={hoursInput}
-                      onChange={(e) => {
-                        setHoursInput(e.target.value);
-                        setSimulationState('NONE');
-                      }}
-                      className="w-full text-xs pl-9 pr-3 py-2 rounded-lg border border-slate-200 bg-slate-50 font-medium text-slate-900"
+                      onChange={(e) => setHoursInput(e.target.value)}
+                      className="w-full bg-white border border-[#d1d5db] rounded-[6px] px-2 py-1 text-[12px] text-[#111827]"
                     />
                   </div>
-                  <p className="text-[10px] text-slate-400 mt-1">
-                    {mockContactSettings.hoursStatus}
-                  </p>
-                </div>
-
-                {/* Physical Address Field */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
+                  <div>
                     <label
-                      htmlFor="contact-address-input"
-                      className="text-[10px] font-bold text-slate-600 uppercase"
+                      htmlFor="ct-address"
+                      className="font-semibold text-[#4b5563] block mb-0.5"
                     >
-                      Endereço Institucional (Ponto Físico de Apoio)
+                      Endereço / Comarca:
                     </label>
-                    <span className="text-[10px] text-amber-600 font-medium">Em contratação</span>
-                  </div>
-                  <div className="relative">
-                    <Building2 className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                     <input
-                      id="contact-address-input"
+                      id="ct-address"
                       type="text"
                       value={addressInput}
-                      onChange={(e) => {
-                        setAddressInput(e.target.value);
-                        setSimulationState('NONE');
-                      }}
-                      className="w-full text-xs pl-9 pr-3 py-2 rounded-lg border border-slate-200 bg-slate-50 font-medium text-slate-900"
+                      onChange={(e) => setAddressInput(e.target.value)}
+                      className="w-full bg-white border border-[#d1d5db] rounded-[6px] px-2 py-1 text-[12px] text-[#111827]"
                     />
                   </div>
-                  <p className="text-[10px] text-slate-400 mt-1">
-                    {mockContactSettings.addressStatus}
-                  </p>
+                </div>
+
+                <div className="flex justify-end pt-1">
+                  <button
+                    type="submit"
+                    className="bg-[#111827] hover:bg-slate-800 text-white text-[12px] font-semibold px-4 py-2 rounded-[8px] transition-colors"
+                  >
+                    Simular Alterações
+                  </button>
                 </div>
 
                 {simulationState === 'SIMULATED' && (
-                  <div
-                    data-testid="contact-simulation-result"
-                    className="p-3.5 rounded-xl bg-slate-900 text-white text-xs space-y-1.5 border border-slate-800"
-                  >
-                    <div className="flex items-center gap-2 font-bold text-amber-400">
-                      <Lock className="w-4 h-4 shrink-0" />
-                      <span>Atualização Registrada em Demonstração</span>
-                    </div>
-                    <p className="text-[11px] text-slate-300 leading-relaxed">
-                      Os canais de suporte propostos foram atualizados na prévia do painel. Conforme
-                      o requisito <strong>SMG-08 / SAC-001</strong>, a publicação para o público
-                      permanece bloqueada até a homologação formal de CNPJ e telefonia.
-                    </p>
+                  <div className="p-2 bg-emerald-50 border border-emerald-200 rounded-[8px] text-[11px] text-emerald-800 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>
+                      Dados de contato atualizados localmente. Publicação permanece bloqueada
+                      (SMG-08).
+                    </span>
                   </div>
                 )}
-
-                <button
-                  type="submit"
-                  className="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors shadow-xs"
-                >
-                  Simular Atualização de Canais de Suporte
-                </button>
               </form>
             </div>
           </div>
 
-          {/* Right Column (5 cols): Consumer View Preview & Permissions */}
-          <div className="lg:col-span-5 space-y-4">
-            {/* Public Page Preview */}
-            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs space-y-3">
+          {/* Right Column (6 cols): Public Preview Card matching Figma node 342:5664 */}
+          <div className="lg:col-span-6 space-y-4">
+            <div className="bg-white rounded-[14px] border border-[#e8edf5] p-[18px] shadow-xs space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                <span className="text-[10px] uppercase font-bold text-slate-400 flex items-center gap-1.5">
-                  <Eye className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Prévia da Central de Ajuda do Comprador</span>
+                <span className="text-[11px] uppercase font-bold text-[#b91c1c]">
+                  PRÉVIA PÚBLICA DO CARTÃO DE ATENDIMENTO
                 </span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700">
-                  Visualização Pública
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                  DEMO DATA · VALIDAÇÃO PENDENTE
                 </span>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 space-y-3 text-xs">
-                <div>
-                  <h4 className="font-extrabold text-slate-900">Precisa de Ajuda?</h4>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
-                    Central de Atendimento ao Comprador e Vendedor
-                  </p>
+              <div className="p-4 bg-slate-50 rounded-[12px] border border-slate-200/80 space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#fee2e2] flex items-center justify-center shrink-0">
+                    <Headphones className="w-5 h-5 text-[#b91c1c]" />
+                  </div>
+                  <div>
+                    <h4 className="text-[14px] font-bold text-[#111827]">
+                      Central de Atendimento ao Consumidor
+                    </h4>
+                    <p className="text-[11px] text-[#64748b]">
+                      Feira de Carros — Regional Ipatinga / Vale do Aço
+                    </p>
+                  </div>
                 </div>
 
-                <div className="space-y-2 pt-2 border-t border-slate-200/60">
-                  <div className="flex items-center gap-2 text-slate-700">
-                    <Mail className="w-3.5 h-3.5 text-red-600 shrink-0" />
-                    <span className="font-medium">{emailInput}</span>
+                <div className="space-y-2 pt-2 text-[12px] text-[#344054]">
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+                    <span>{emailInput}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-slate-700">
-                    <PhoneCall className="w-3.5 h-3.5 text-red-600 shrink-0" />
-                    <span className="font-mono font-medium">{phoneInput}</span>
+                  <div className="flex items-center gap-2">
+                    <PhoneCall className="w-4 h-4 text-slate-400 shrink-0" />
+                    <span>{phoneInput}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-slate-700">
-                    <Clock className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-slate-400 shrink-0" />
                     <span>{hoursInput}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-slate-700">
-                    <MapPin className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
                     <span>{addressInput}</span>
                   </div>
                 </div>
-              </div>
 
-              <p className="text-[10px] text-slate-400 italic">
-                * Links telefônicos e de e-mail encontram-se desativados no ambiente demonstrativo
-                para evitar falsas tentativas de contato.
-              </p>
-            </div>
-
-            {/* RBAC & Routing Policy Card */}
-            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4 text-red-600" />
-                <span>Roteamento de Chamados e Perfis Restritos</span>
-              </h3>
-              <div className="space-y-2 text-xs text-slate-600 leading-relaxed">
-                <p>
-                  <strong>Main Admin:</strong> Possui atribuição exclusiva para parametrizar canais
-                  e definir horários de atendimento da plataforma.
-                </p>
-                <p>
-                  <strong>Suporte / Vendas:</strong> Operadores nos perfis Support e Sales possuem
-                  apenas visualização de leitura dos canais, mantendo status{' '}
-                  <span className="font-mono font-bold text-red-700">DENY_PENDING</span> para edição
-                  de contatos públicos institucionais.
-                </p>
+                <div className="mt-3 p-2.5 bg-amber-50 border border-amber-200/80 rounded-[8px] text-[11px] text-amber-800">
+                  <strong>Aviso ao Operador:</strong> Este cartão é uma projeção de interface. Não
+                  utilize estas informações em canais oficiais ou material publicitário.
+                </div>
               </div>
             </div>
           </div>
