@@ -293,29 +293,49 @@ export default function SellerListingsPage() {
 
                       {/* Dropdown Menu */}
                       {activeMenuId === item.id && (
-                        <div className="absolute right-0 mt-2 w-48 rounded-md bg-white py-1 shadow-lg border border-[#e2e7ee] z-30 text-left">
+                        <div className="absolute right-0 mt-2 w-52 rounded-md bg-white py-1 shadow-lg border border-[#e2e7ee] z-30 text-left">
                           <Link
                             href={`/vendedor/anuncios/${item.id}`}
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                             onClick={() => setActiveMenuId(null)}
                           >
-                            Visualizar anúncio
+                            Visualizar detalhes
                           </Link>
-                          <Link
-                            href={`/vendedor/anuncios/${item.id}/editar`}
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            onClick={() => setActiveMenuId(null)}
-                          >
-                            Editar anúncio
-                          </Link>
-                          {item.status === 'PUBLISHED' && (
+                          {item.status === 'CORRECTION_REQUESTED' && (
                             <Link
-                              href={`/vendedor/anuncios/${item.id}/impulsionar`}
-                              className="block px-4 py-2 text-sm text-[#b91c1c] font-medium hover:bg-red-50"
+                              href={`/vendedor/anuncios/${item.id}/corrigir`}
+                              className="block px-4 py-2 text-sm text-[#b91c1c] font-semibold hover:bg-red-50"
                               onClick={() => setActiveMenuId(null)}
                             >
-                              Impulsionar anúncio
+                              Corrigir anúncio
                             </Link>
+                          )}
+                          {item.status === 'REVISED_PENDING' && (
+                            <Link
+                              href={`/vendedor/anuncios/${item.id}/revisoes`}
+                              className="block px-4 py-2 text-sm text-[#1447e6] font-medium hover:bg-blue-50"
+                              onClick={() => setActiveMenuId(null)}
+                            >
+                              Ver revisões em análise
+                            </Link>
+                          )}
+                          {item.status === 'PUBLISHED' && (
+                            <>
+                              <Link
+                                href={`/vendedor/anuncios/${item.id}/editar`}
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                onClick={() => setActiveMenuId(null)}
+                              >
+                                Editar anúncio
+                              </Link>
+                              <Link
+                                href={`/vendedor/anuncios/${item.id}/impulsionar`}
+                                className="block px-4 py-2 text-sm text-[#b91c1c] font-medium hover:bg-red-50"
+                                onClick={() => setActiveMenuId(null)}
+                              >
+                                Impulsionar anúncio
+                              </Link>
+                            </>
                           )}
                           {item.status === 'PENDING_PAYMENT' && (
                             <Link
@@ -391,12 +411,28 @@ export default function SellerListingsPage() {
 
                     <div className="mt-2.5 pt-2 border-t border-[#e2e7ee] flex items-center justify-between">
                       <span className="text-[10px] text-[#5b6475]">{item.createdAtFormatted}</span>
-                      <Link
-                        href={`/vendedor/anuncios/${item.id}`}
-                        className="text-[11px] font-semibold text-[#b91c1c] hover:underline"
-                      >
-                        Consultar estado
-                      </Link>
+                      {item.status === 'CORRECTION_REQUESTED' ? (
+                        <Link
+                          href={`/vendedor/anuncios/${item.id}/corrigir`}
+                          className="text-[11px] font-semibold text-[#b91c1c] hover:underline"
+                        >
+                          Corrigir anúncio
+                        </Link>
+                      ) : item.status === 'REVISED_PENDING' ? (
+                        <Link
+                          href={`/vendedor/anuncios/${item.id}/revisoes`}
+                          className="text-[11px] font-semibold text-[#1447e6] hover:underline"
+                        >
+                          Ver revisões
+                        </Link>
+                      ) : (
+                        <Link
+                          href={`/vendedor/anuncios/${item.id}`}
+                          className="text-[11px] font-semibold text-[#b91c1c] hover:underline"
+                        >
+                          Consultar estado
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>
