@@ -17,7 +17,7 @@ export function AdminShell({
   breadcrumbs,
   location,
   userName,
-  maxWidthClass = 'max-w-[1440px]',
+  maxWidthClass = 'max-w-[1348px]',
 }: AdminShellProps) {
   return (
     <div className="min-h-screen flex bg-[#f8f9fa] text-slate-800 antialiased selection:bg-red-500/20 selection:text-red-900">
@@ -31,8 +31,10 @@ export function AdminShell({
           <AdminTopbar breadcrumbs={breadcrumbs} location={location} userName={userName} />
         </div>
 
-        {/* Scrollable Main Area */}
-        <main className={`flex-1 p-4 sm:p-6 lg:p-6 2xl:p-8 ${maxWidthClass} w-full mx-auto pb-8`}>
+        {/* Scrollable Main Area - Figma 1276px content + 36px margins on 1600px desktop */}
+        <main
+          className={`flex-1 p-4 sm:p-6 lg:px-[36px] lg:py-[28px] ${maxWidthClass} w-full mx-auto pb-10`}
+        >
           {children}
         </main>
       </div>

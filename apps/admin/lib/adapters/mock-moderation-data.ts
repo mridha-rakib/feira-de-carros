@@ -19,7 +19,7 @@ export const mockReports: ReportRecord[] = [
     id: 'RPT-DEMO-008',
     adId: 'FC-2026-0121',
     vehicleTitle: 'Toyota Corolla 2021',
-    vehicleImagePath: '/images/vehicles/demo/image.png',
+    vehicleImagePath: '/images/vehicles/demo/toyota-corolla-2021-b6.jpg',
     vehiclePriceBrl: 112900,
     sellerId: 'vale-auto-veiculos',
     sellerName: 'Vale Auto Veículos',
