@@ -2,6 +2,7 @@
 
 import { MOCK_SELLER_KPIS, MOCK_SELLER_LISTINGS } from '@/lib/adapters/mock-seller-data';
 import type { SellerListingItem, SellerListingStatus } from '@/lib/types/seller-presentation';
+import { filterAndSortSellerListings } from '@/lib/utils/seller-listing-filters';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
@@ -28,32 +29,9 @@ export default function SellerListingsPage() {
   const kpis = MOCK_SELLER_KPIS;
   const initialListings = MOCK_SELLER_LISTINGS;
 
-  // Filter & Sort Logic
+  // Filter & Sort Logic using shared production utility
   const filteredListings = useMemo(() => {
-    let result = [...initialListings];
-
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (item) =>
-          item.title.toLowerCase().includes(q) ||
-          item.brand.toLowerCase().includes(q) ||
-          item.model.toLowerCase().includes(q) ||
-          item.id.toLowerCase().includes(q),
-      );
-    }
-
-    if (statusFilter !== 'ALL') {
-      result = result.filter((item) => item.status === statusFilter);
-    }
-
-    if (sortBy === 'price_asc') {
-      result.sort((a, b) => a.priceCents - b.priceCents);
-    } else if (sortBy === 'price_desc') {
-      result.sort((a, b) => b.priceCents - a.priceCents);
-    }
-
-    return result;
+    return filterAndSortSellerListings(initialListings, searchQuery, statusFilter, sortBy);
   }, [initialListings, searchQuery, statusFilter, sortBy]);
 
   return (

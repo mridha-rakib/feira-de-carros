@@ -24,10 +24,15 @@ import { SellerNavbar } from '../../../components/SellerNavbar';
 import { SellerStepProgress } from '../../../components/SellerStepProgress';
 
 export default function SellerApplicationStatusPage() {
+  const isDevOrQA = process.env.NODE_ENV !== 'production';
   const [selectedStatus, setSelectedStatus] = useState<ApplicationStatus>('PENDING_REVIEW');
 
+  // In production, the application status is strictly backend-authoritative.
+  // Developer simulation is isolated to development/test environments and never confers backend permissions.
+  const effectiveStatus = isDevOrQA ? selectedStatus : MOCK_SELLER_APPLICATION.status;
+
   const application =
-    selectedStatus === 'CORRECTION_REQUESTED'
+    effectiveStatus === 'CORRECTION_REQUESTED'
       ? MOCK_SELLER_APPLICATION_CORRECTION
       : MOCK_SELLER_APPLICATION;
 
@@ -62,52 +67,54 @@ export default function SellerApplicationStatusPage() {
             </p>
           </div>
 
-          {/* Interactive State Simulator Pill (for Review & QA) */}
-          <div className="bg-white border border-[#dbe1e8] p-1.5 rounded-lg flex items-center gap-1.5 self-start shadow-xs text-xs">
-            <span className="text-[#5b6475] font-medium px-2 hidden sm:inline">
-              Simular Estado:
-            </span>
-            <button
-              type="button"
-              onClick={() => setSelectedStatus('PENDING_REVIEW')}
-              className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
-                selectedStatus === 'PENDING_REVIEW'
-                  ? 'bg-[#ba660a] text-white shadow-xs'
-                  : 'text-[#5b6475] hover:bg-gray-100'
-              }`}
-            >
-              Em análise
-            </button>
-            <button
-              type="button"
-              onClick={() => setSelectedStatus('CORRECTION_REQUESTED')}
-              className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
-                selectedStatus === 'CORRECTION_REQUESTED'
-                  ? 'bg-[#b91c1c] text-white shadow-xs'
-                  : 'text-[#5b6475] hover:bg-gray-100'
-              }`}
-            >
-              Correção solicitada
-            </button>
-            <button
-              type="button"
-              onClick={() => setSelectedStatus('APPROVED')}
-              className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
-                selectedStatus === 'APPROVED'
-                  ? 'bg-[#159055] text-white shadow-xs'
-                  : 'text-[#5b6475] hover:bg-gray-100'
-              }`}
-            >
-              Aprovado
-            </button>
-          </div>
+          {/* Interactive State Simulator Pill (Restricted to Dev & QA Environments) */}
+          {isDevOrQA && (
+            <div className="bg-white border border-[#dbe1e8] p-1.5 rounded-lg flex items-center gap-1.5 self-start shadow-xs text-xs">
+              <span className="text-[#5b6475] font-medium px-2 hidden sm:inline">
+                Simular Estado (QA):
+              </span>
+              <button
+                type="button"
+                onClick={() => setSelectedStatus('PENDING_REVIEW')}
+                className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
+                  effectiveStatus === 'PENDING_REVIEW'
+                    ? 'bg-[#ba660a] text-white shadow-xs'
+                    : 'text-[#5b6475] hover:bg-gray-100'
+                }`}
+              >
+                Em análise
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedStatus('CORRECTION_REQUESTED')}
+                className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
+                  effectiveStatus === 'CORRECTION_REQUESTED'
+                    ? 'bg-[#b91c1c] text-white shadow-xs'
+                    : 'text-[#5b6475] hover:bg-gray-100'
+                }`}
+              >
+                Correção solicitada
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedStatus('APPROVED')}
+                className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
+                  effectiveStatus === 'APPROVED'
+                    ? 'bg-[#159055] text-white shadow-xs'
+                    : 'text-[#5b6475] hover:bg-gray-100'
+                }`}
+              >
+                Aprovado
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Step Progress & Timeline */}
         <SellerStepProgress
-          currentStep={selectedStatus === 'CORRECTION_REQUESTED' ? 3 : 2}
+          currentStep={effectiveStatus === 'CORRECTION_REQUESTED' ? 3 : 2}
           showStepperLine
-          stepStatus={selectedStatus}
+          stepStatus={effectiveStatus}
         />
 
         {/* 2-Column Content Layout (930px left + 406px right on 1440px) */}
@@ -115,7 +122,7 @@ export default function SellerApplicationStatusPage() {
           {/* Left Column: Detail Card & Alert Banner (lg:col-span-8) */}
           <div className="lg:col-span-8 bg-white border border-[#dbe1e8] rounded-[12px] p-6 sm:p-8 shadow-sm">
             {/* Status Alert Banner */}
-            {selectedStatus === 'PENDING_REVIEW' && (
+            {effectiveStatus === 'PENDING_REVIEW' && (
               <div className="bg-[#fff2da] border border-[#f5d99d] rounded-[10px] p-5 sm:p-6 flex items-start gap-4 mb-8">
                 <div className="size-[35px] text-[#ba660a] shrink-0 mt-0.5">
                   <IconClock className="size-full" />
@@ -132,7 +139,7 @@ export default function SellerApplicationStatusPage() {
               </div>
             )}
 
-            {selectedStatus === 'CORRECTION_REQUESTED' && (
+            {effectiveStatus === 'CORRECTION_REQUESTED' && (
               <div className="bg-[#fff2da] border border-[#f2d799] rounded-[10px] p-5 sm:p-6 flex items-start gap-4 mb-8">
                 <div className="size-[35px] text-[#b91c1c] shrink-0 mt-0.5">
                   <IconEdit className="size-full" />
@@ -150,7 +157,7 @@ export default function SellerApplicationStatusPage() {
               </div>
             )}
 
-            {selectedStatus === 'APPROVED' && (
+            {effectiveStatus === 'APPROVED' && (
               <div className="bg-[#e8f8ef] border border-[#b2e5c8] rounded-[10px] p-5 sm:p-6 flex items-start gap-4 mb-8">
                 <div className="size-[35px] text-[#159055] shrink-0 mt-0.5">
                   <IconCheck className="size-full" />
@@ -228,7 +235,7 @@ export default function SellerApplicationStatusPage() {
             </div>
 
             {/* Contextual Action Button */}
-            {selectedStatus === 'CORRECTION_REQUESTED' && (
+            {effectiveStatus === 'CORRECTION_REQUESTED' && (
               <Link
                 href="/vendedor/solicitacao/corrigir"
                 className="mt-6 w-full border border-[#b91c1c] text-[#b91c1c] hover:bg-red-50 font-semibold h-[56px] rounded-[7px] flex items-center justify-center gap-3 transition-colors text-[16px] shadow-xs"
@@ -238,7 +245,7 @@ export default function SellerApplicationStatusPage() {
               </Link>
             )}
 
-            {selectedStatus === 'APPROVED' && (
+            {effectiveStatus === 'APPROVED' && (
               <Link
                 href="/vendedor/anuncios"
                 className="mt-6 w-full bg-[#159055] hover:bg-[#127a48] text-white font-semibold h-[56px] rounded-[7px] flex items-center justify-center gap-3 transition-colors text-[16px] shadow-xs"
@@ -248,7 +255,7 @@ export default function SellerApplicationStatusPage() {
               </Link>
             )}
 
-            {selectedStatus === 'PENDING_REVIEW' && (
+            {effectiveStatus === 'PENDING_REVIEW' && (
               <Link
                 href="/vendedor/solicitacao/corrigir"
                 className="mt-6 w-full border border-[#b91c1c] text-[#b91c1c] hover:bg-red-50 font-semibold h-[56px] rounded-[7px] flex items-center justify-center gap-3 transition-colors text-[16px]"
@@ -288,9 +295,9 @@ export default function SellerApplicationStatusPage() {
               <div className="flex items-start gap-4 relative z-10">
                 <div
                   className={`size-9 rounded-full flex items-center justify-center shrink-0 shadow-xs ${
-                    selectedStatus === 'PENDING_REVIEW'
+                    effectiveStatus === 'PENDING_REVIEW'
                       ? 'bg-[#ba660a] text-white'
-                      : selectedStatus === 'APPROVED'
+                      : effectiveStatus === 'APPROVED'
                         ? 'bg-[#159055] text-white'
                         : 'bg-[#b91c1c] text-white'
                   }`}
@@ -300,7 +307,7 @@ export default function SellerApplicationStatusPage() {
                 <div>
                   <h4
                     className={`text-base sm:text-[17px] font-semibold ${
-                      selectedStatus === 'PENDING_REVIEW' ? 'text-[#ba660a]' : 'text-[#111827]'
+                      effectiveStatus === 'PENDING_REVIEW' ? 'text-[#ba660a]' : 'text-[#111827]'
                     }`}
                   >
                     Revisão em andamento
@@ -315,9 +322,9 @@ export default function SellerApplicationStatusPage() {
               <div className="flex items-start gap-4 relative z-10">
                 <div
                   className={`size-9 rounded-full flex items-center justify-center shrink-0 shadow-xs ${
-                    selectedStatus === 'APPROVED'
+                    effectiveStatus === 'APPROVED'
                       ? 'bg-[#159055] text-white'
-                      : selectedStatus === 'CORRECTION_REQUESTED'
+                      : effectiveStatus === 'CORRECTION_REQUESTED'
                         ? 'bg-[#b91c1c] text-white'
                         : 'bg-[#f4f7fa] border border-[#dbe1e8] text-[#5b6475]'
                   }`}
