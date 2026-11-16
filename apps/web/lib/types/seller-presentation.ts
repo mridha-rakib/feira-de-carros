@@ -111,3 +111,54 @@ export interface SellerDashboardKpis {
   underReviewCount: number;
   pendingPaymentCount: number;
 }
+
+export type PaymentMethod = 'PIX' | 'CREDIT_CARD';
+
+export type OrderStatus = 'PENDING' | 'PAID' | 'FAILED' | 'EXPIRED' | 'CANCELLED';
+
+export interface SellerOrder {
+  id: string; // e.g. "PED-2026-0812"
+  listingId: string;
+  listingTitle: string;
+  listingSubtitle: string;
+  listingImageUrl: string;
+  orderType: 'PLAN' | 'RENEWAL' | 'BOOST';
+  planId?: 'basic' | 'extended';
+  planName: string;
+  durationDays: number;
+  amountCents: number;
+  amountFormatted: string;
+  paymentMethod: PaymentMethod;
+  status: OrderStatus;
+  statusLabel: string;
+  createdAt: string;
+  createdAtFormatted: string;
+  expiresAtFormatted?: string;
+  isMockData: boolean;
+}
+
+export interface PaymentHistoryItem {
+  id: string; // charge code e.g. "WEB-02876"
+  orderId: string;
+  listingId: string;
+  listingTitle: string;
+  listingImageUrl: string;
+  planOrBoostName: string;
+  amountCents: number;
+  amountFormatted: string;
+  paymentMethod: PaymentMethod;
+  paymentMethodLabel: string;
+  status: 'PAID' | 'PENDING' | 'EXPIRED' | 'CANCELLED';
+  statusLabel: string;
+  dateFormatted: string;
+  expiresAtFormatted: string;
+  isMockData: boolean;
+}
+
+export interface PaymentKpiMetrics {
+  pendingCount: number;
+  confirmedCount: number;
+  totalPaidCents: number;
+  totalPaidFormatted: string;
+  activePlansCount: number;
+}
