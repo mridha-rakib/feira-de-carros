@@ -1,0 +1,84 @@
+{
+  "project": "Feira de Carros",
+  "source_archive": "FINAL LOGO 2026 FILES.zip",
+  "description": "Web-app-only curated transparent PNG official logo variants. Unmodified original PNG bytes plus derived icon files.",
+  "suggested_app_paths": ["apps/admin/public/brand/2026/", "apps/web/public/brand/2026/"],
+  "selection_rule": "Confirm with latest approved Figma and actual light/dark background before enabling a variant. Do not change unrelated design tokens.",
+  "variants": [
+    {
+      "file": "brand/2026/logo-on-light.png",
+      "source": "Logo 1.png",
+      "purpose": "Light headers, white backgrounds",
+      "width": 1832,
+      "height": 370,
+      "sha256": "30eb3d3f57b7323242c300516e64db0aa1044a62cf3ef10192650520fb8026e9"
+    },
+    {
+      "file": "brand/2026/logo-on-dark.png",
+      "source": "Logo 2.png",
+      "purpose": "Admin sidebar and dark backgrounds",
+      "width": 1832,
+      "height": 370,
+      "sha256": "3b1e4c96a9352abde591e728bf7d4e90b029e9a2a132b0a0fca63743c531c277"
+    },
+    {
+      "file": "brand/2026/logo-stacked-on-light.png",
+      "source": "Logo 3.png",
+      "purpose": "Vertical lockup on light backgrounds",
+      "width": 1478,
+      "height": 700,
+      "sha256": "a1cb958879e0c9e42718f8ef5dc8f413007a14eaefaafa4a008967651a08b9a9"
+    },
+    {
+      "file": "brand/2026/logo-stacked-on-dark.png",
+      "source": "Logo 4.png",
+      "purpose": "Vertical lockup on dark backgrounds",
+      "width": 1478,
+      "height": 700,
+      "sha256": "1ad3ed0ed802b651b9cae13a24c993dc0c9ccbb8447d226f89707093a09d9ec5"
+    },
+    {
+      "file": "brand/2026/logo-mono-white.png",
+      "source": "Logo 5.png",
+      "purpose": "Monochrome logo on dark backgrounds",
+      "width": 1832,
+      "height": 370,
+      "sha256": "33bde5544a47977e9c1fc07d01e6ac43ca3254bdbe6014cf4a7aa0f8574ebb39"
+    },
+    {
+      "file": "brand/2026/logo-mono-black.png",
+      "source": "Logo 6.png",
+      "purpose": "Monochrome logo on light backgrounds",
+      "width": 1832,
+      "height": 370,
+      "sha256": "f94ec1743ad6952d6a6badf79cffbad9eba3394e3e07f99f39006032aed9013a"
+    },
+    {
+      "file": "brand/2026/brand-icon-red.png",
+      "source": "Ícone 1.png",
+      "purpose": "Primary browser icon/favicon source",
+      "width": 474,
+      "height": 474,
+      "sha256": "8ee1930b89644ac48926648bf7d32aefca6d1abdbe4cd27511f0ba04575e36cd"
+    },
+    {
+      "file": "brand/2026/brand-icon-white.png",
+      "source": "Ícone 2.png",
+      "purpose": "White badge icon on dark",
+      "width": 474,
+      "height": 474,
+      "sha256": "ee0b3803c282f50d4af108e3d7bc860e24d59f61e193ba5145149b9f6a584e00"
+    },
+    {
+      "file": "brand/2026/brand-icon-black.png",
+      "source": "Ícone 3.png",
+      "purpose": "Dark badge icon on light",
+      "width": 474,
+      "height": 474,
+      "sha256": "36fd9a816d07e12f402aca07823f3c5737a4c0e2022d54979cddf8bb72c701e4"
+    }
+  ],
+  "note_colors": "Official JPEG palette prints red HTML #EB0C13 but RGB R233 G12 B19 (#E90C13); verify final Figma token, do not silently rewrite colors.",
+  "font_policy": "Fonts from source archive deliberately omitted. Verify license independently before any font bundling.",
+  "source_png_transparency": "All PNGs preserve transparent background and source pixels."
+}

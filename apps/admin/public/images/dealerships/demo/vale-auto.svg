@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <rect width="120" height="120" rx="20" fill="#0B111E"/>
+  <circle cx="60" cy="55" r="32" fill="#F42524" opacity="0.15"/>
+  <path d="M40 75 L60 38 L80 75 L70 75 L60 52 L50 75 Z" fill="#F42524"/>
+  <text x="60" y="98" fill="#F8FAFC" font-size="10" font-weight="bold" font-family="system-ui, sans-serif" text-anchor="middle" letter-spacing="1">VALE AUTO</text>
+</svg>

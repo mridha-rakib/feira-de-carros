@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B111E"/>
+      <stop offset="50%" stop-color="#151D2F"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="hatchGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F42524" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#E11D48" stop-opacity="0.95"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <line x1="80" y1="460" x2="720" y2="460" stroke="#334155" stroke-width="1.5" stroke-dasharray="6 6"/>
+  <ellipse cx="400" cy="470" rx="270" ry="24" fill="#F42524" opacity="0.12"/>
+
+  <!-- Hatchback Silhouette (Compact two-box profile, sloping rear tailgate) -->
+  <g transform="translate(165, 205)">
+    <!-- Hatchback Body -->
+    <path d="M 20,215 
+             L 20,165 
+             C 25,135 60,95 110,80 
+             L 245,78 
+             C 285,78 320,105 345,140 
+             L 420,155 
+             C 445,160 455,180 455,200 
+             L 455,215 
+             C 455,225 445,230 435,230 
+             L 395,230 
+             C 395,198 365,175 330,175 
+             C 295,175 265,198 265,230 
+             L 165,230 
+             C 165,198 135,175 100,175 
+             C 65,175 35,198 35,230 
+             L 15,230 
+             C 8,230 0,225 0,215 Z" 
+          fill="url(#hatchGrad)"/>
+
+    <!-- Windows (Hatchback profile) -->
+    <path d="M 105,92 L 195,88 L 195,140 L 70,140 Z" fill="#0B111E" opacity="0.75"/>
+    <path d="M 205,88 L 260,86 L 320,135 L 320,140 L 205,140 Z" fill="#0B111E" opacity="0.75"/>
+
+    <!-- Wheels -->
+    <circle cx="100" cy="230" r="39" fill="#0F172A" stroke="#475569" stroke-width="6"/>
+    <circle cx="100" cy="230" r="20" fill="#334155" stroke="#F42524" stroke-width="3"/>
+    <circle cx="330" cy="230" r="39" fill="#0F172A" stroke="#475569" stroke-width="6"/>
+    <circle cx="330" cy="230" r="20" fill="#334155" stroke="#F42524" stroke-width="3"/>
+  </g>
+
+  <!-- Typography & Badges -->
+  <rect x="250" y="70" width="300" height="34" rx="17" fill="#F42524" opacity="0.15"/>
+  <rect x="250" y="70" width="300" height="34" rx="17" fill="none" stroke="#F42524" stroke-width="1.5"/>
+  <text x="400" y="92" text-anchor="middle" fill="#FCA5A5" font-family="system-ui, sans-serif" font-size="12" font-weight="800" letter-spacing="1.5">CATEGORIA: HATCHBACK</text>
+
+  <text x="400" y="525" text-anchor="middle" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="18" font-weight="900" letter-spacing="2">FEIRA DE CARROS • VEÍCULO DEMO</text>
+  <text x="400" y="550" text-anchor="middle" fill="#94A3B8" font-family="system-ui, sans-serif" font-size="12" font-weight="500">Ativo ilustrativo de demonstração • Aguardando sessão fotográfica</text>
+</svg>

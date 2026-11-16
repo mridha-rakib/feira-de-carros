@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B111E"/>
+      <stop offset="50%" stop-color="#151D2F"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="suvGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F42524" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#E11D48" stop-opacity="0.95"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <line x1="80" y1="460" x2="720" y2="460" stroke="#334155" stroke-width="1.5" stroke-dasharray="6 6"/>
+  <ellipse cx="400" cy="470" rx="280" ry="24" fill="#F42524" opacity="0.12"/>
+
+  <!-- SUV Silhouette (High stance, roof rack, upright rear) -->
+  <g transform="translate(160, 190)">
+    <!-- Roof Rails -->
+    <line x1="100" y1="58" x2="270" y2="58" stroke="#94A3B8" stroke-width="4" stroke-linecap="round"/>
+    <line x1="120" y1="58" x2="120" y2="68" stroke="#94A3B8" stroke-width="3"/>
+    <line x1="250" y1="58" x2="250" y2="68" stroke="#94A3B8" stroke-width="3"/>
+
+    <!-- SUV Body -->
+    <path d="M 30,225 
+             L 30,130 
+             C 30,110 40,85 70,72 
+             L 280,68 
+             C 310,68 340,90 365,125 
+             L 420,145 
+             C 445,155 460,175 460,195 
+             L 460,225 
+             C 460,235 450,240 440,240 
+             L 400,240 
+             C 400,205 370,180 335,180 
+             C 300,180 270,205 270,240 
+             L 170,240 
+             C 170,205 140,180 105,180 
+             C 70,180 40,205 40,240 
+             L 20,240 
+             C 10,240 0,233 0,225 
+             L 0,205 Z" 
+          fill="url(#suvGrad)"/>
+
+    <!-- Windows (Upright SUV Greenhouse) -->
+    <path d="M 65,85 L 170,80 L 170,135 L 55,135 Z" fill="#0B111E" opacity="0.75"/>
+    <path d="M 185,80 L 265,75 L 265,135 L 185,135 Z" fill="#0B111E" opacity="0.75"/>
+    <path d="M 280,75 L 340,125 L 340,135 L 280,135 Z" fill="#0B111E" opacity="0.75"/>
+
+    <!-- Wheels (Larger SUV Wheels) -->
+    <circle cx="105" cy="240" r="46" fill="#0F172A" stroke="#475569" stroke-width="7"/>
+    <circle cx="105" cy="240" r="24" fill="#334155" stroke="#F42524" stroke-width="3"/>
+    <circle cx="335" cy="240" r="46" fill="#0F172A" stroke="#475569" stroke-width="7"/>
+    <circle cx="335" cy="240" r="24" fill="#334155" stroke="#F42524" stroke-width="3"/>
+  </g>
+
+  <!-- Typography & Badges -->
+  <rect x="250" y="70" width="300" height="34" rx="17" fill="#F42524" opacity="0.15"/>
+  <rect x="250" y="70" width="300" height="34" rx="17" fill="none" stroke="#F42524" stroke-width="1.5"/>
+  <text x="400" y="92" text-anchor="middle" fill="#FCA5A5" font-family="system-ui, sans-serif" font-size="12" font-weight="800" letter-spacing="1.5">CATEGORIA: SUV / CROSSOVER</text>
+
+  <text x="400" y="525" text-anchor="middle" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="18" font-weight="900" letter-spacing="2">FEIRA DE CARROS • VEÍCULO DEMO</text>
+  <text x="400" y="550" text-anchor="middle" fill="#94A3B8" font-family="system-ui, sans-serif" font-size="12" font-weight="500">Ativo ilustrativo de demonstração • Aguardando sessão fotográfica</text>
+</svg>

@@ -1,4 +1,13 @@
-import { Badge, Button, Card, CardContent, CardFooter, CardHeader, CardTitle } from '@feira/ui';
+import {
+  Badge,
+  BrandLogo,
+  Button,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@feira/ui';
 import Link from 'next/link';
 
 export default function HomePage() {
@@ -8,10 +17,14 @@ export default function HomePage() {
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center space-x-2">
-              <span className="text-xl font-bold tracking-tight text-primary">
-                Feira<span className="text-amber-500">DeCarros</span>
-              </span>
+            <Link href="/" className="flex items-center">
+              <BrandLogo
+                variant="on-light"
+                priority
+                width={178}
+                height={36}
+                className="h-8 w-auto"
+              />
             </Link>
             <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
               <Link href="/search" className="transition-colors hover:text-foreground">
@@ -233,7 +246,15 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="mt-auto border-t py-8 bg-slate-50 text-muted-foreground text-sm">
         <div className="container flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p>© 2026 Feira de Carros Marketplace. Todos os direitos reservados.</p>
+          <div className="flex items-center gap-3">
+            <BrandLogo
+              variant="mono-black"
+              width={130}
+              height={26}
+              className="h-5 w-auto opacity-75"
+            />
+            <span>© 2026 Feira de Carros Marketplace. Todos os direitos reservados.</span>
+          </div>
           <div className="flex gap-6">
             <Link href="/terms" className="hover:text-foreground">
               Termos de Uso

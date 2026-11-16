@@ -4,21 +4,27 @@ import {
   type LoginRequest,
   type UserProfile,
 } from '@feira/api-client';
+import { isProductionEnvironment } from '../security/environment';
 import type { AuthPort } from './auth-port';
 
+/**
+ * Mock Authentication Adapter isolated exclusively to development, local testing, and CI smoke tests.
+ * Strictly blocked in production environments to prevent privilege escalation and fake authentication.
+ */
 export class MockAuthAdapter implements AuthPort {
-  private currentUser: UserProfile | null = {
-    id: 'usr-admin-001',
-    email: 'admin@feiradecarros.com.br',
-    name: 'Administrador Central',
-    role: 'main_admin',
-    accountStatus: 'ACTIVE',
-    createdAt: '2026-10-01T08:00:00Z',
-    updatedAt: '2026-10-31T10:00:00Z',
-  };
+  private currentUser: UserProfile | null = null;
 
   async login(request: LoginRequest): Promise<AuthSessionSummary> {
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    // Audit Finding F-01 & Security Mandate: Fail-closed production gating
+    if (isProductionEnvironment()) {
+      throw new ApiError(
+        403,
+        'A autenticação simulada (mock) está estritamente desabilitada em produção. O acesso requer backend real autenticado.',
+        { code: 'MOCK_AUTH_DISABLED_IN_PRODUCTION' },
+      );
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
     if (!request.email || !request.password) {
       throw new ApiError(422, 'E-mail e senha são obrigatórios', {
@@ -29,10 +35,14 @@ export class MockAuthAdapter implements AuthPort {
     }
 
     if (request.password === 'wrong-password' || request.password === 'errada') {
-      throw new ApiError(401, 'Credenciais inválidas. Verifique seu e-mail e senha.', {
-        code: 'INVALID_CREDENTIALS',
-        request_id: 'req-err-401',
-      });
+      throw new ApiError(
+        401,
+        'Credenciais inválidas. Verifique seu e-mail e senha institucional.',
+        {
+          code: 'INVALID_CREDENTIALS',
+          request_id: 'req-err-401',
+        },
+      );
     }
 
     if (
@@ -41,7 +51,7 @@ export class MockAuthAdapter implements AuthPort {
     ) {
       throw new ApiError(
         403,
-        'Acesso negado. Esta conta não possui perfil administrativo autorizado.',
+        'Acesso negado. Sua conta não possui permissão para acessar o painel de administração.',
         {
           code: 'ACCESS_DENIED',
           request_id: 'req-err-403',
@@ -49,7 +59,7 @@ export class MockAuthAdapter implements AuthPort {
       );
     }
 
-    // Set cookie for browser session simulation
+    // Set cookie for browser session simulation in local dev
     if (typeof document !== 'undefined') {
       document.cookie =
         'fdc_admin_session=mock_admin_token_active; path=/; max-age=43200; SameSite=Strict';
@@ -58,7 +68,7 @@ export class MockAuthAdapter implements AuthPort {
     this.currentUser = {
       id: 'usr-admin-001',
       email: request.email,
-      name: 'Administrador Central',
+      name: 'Admin principal',
       role: 'main_admin',
       accountStatus: 'ACTIVE',
       createdAt: '2026-10-01T08:00:00Z',

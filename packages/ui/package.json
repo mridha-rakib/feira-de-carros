@@ -33,6 +33,7 @@
     "@feira/typescript-config": "workspace:*",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
+    "next": "^15.1.7",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.5.2",
     "react": "^19.0.0",

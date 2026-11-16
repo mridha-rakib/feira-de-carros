@@ -1,0 +1,138 @@
+'use client';
+
+import { BrandLogo } from '@feira/ui';
+import {
+  Car,
+  CreditCard,
+  LayoutDashboard,
+  MessageSquareWarning,
+  Settings,
+  ShieldCheck,
+  UserCheck,
+  Users,
+} from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import type * as React from 'react';
+
+interface NavItem {
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  active?: boolean;
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { label: 'Painel geral', href: '/', icon: LayoutDashboard },
+  { label: 'Usuários', href: '/usuarios', icon: Users },
+  { label: 'Aprovação de vendedores', href: '/vendedores', icon: ShieldCheck },
+  { label: 'Anúncios', href: '/anuncios', icon: Car },
+  { label: 'Pagamentos', href: '/pagamentos', icon: CreditCard },
+  { label: 'Mensagens e denúncias', href: '/moderacao', icon: MessageSquareWarning },
+  { label: 'Equipe e permissões', href: '/equipe', icon: UserCheck },
+  { label: 'Configurações', href: '/configuracoes', icon: Settings },
+];
+
+export function AdminSidebar() {
+  const pathname = usePathname();
+
+  return (
+    <aside
+      className="hidden lg:flex flex-col w-[252px] shrink-0 min-h-screen bg-[#111827] text-slate-200 border-r border-slate-800/80 p-5 select-none"
+      aria-label="Navegação administrativa desktop"
+    >
+      {/* Brand Header */}
+      <div className="flex items-center gap-2 mb-8 px-2">
+        <Link href="/" className="flex items-center gap-2">
+          <BrandLogo variant="on-dark" priority width={168} height={34} className="h-8 w-auto" />
+        </Link>
+      </div>
+
+      {/* Workspace Section Header */}
+      <div className="mb-3 px-2">
+        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+          Workspace Principal
+        </span>
+      </div>
+
+      {/* Navigation Links */}
+      <nav className="flex-1 space-y-1">
+        {NAV_ITEMS.map((item) => {
+          const isFinanceRoute =
+            pathname.startsWith('/pagamentos') ||
+            pathname.startsWith('/reembolsos') ||
+            pathname.startsWith('/contestacoes') ||
+            pathname.startsWith('/relatorios');
+          const isUsersRoute =
+            pathname.startsWith('/usuarios') ||
+            pathname.startsWith('/exclusao-contas') ||
+            pathname.startsWith('/correcoes-clientes');
+          const isModerationRoute =
+            pathname.startsWith('/moderacao') || pathname.startsWith('/consultas-intermediadas');
+          const isTeamRoute = pathname.startsWith('/equipe');
+          const isActive =
+            item.href === '/'
+              ? pathname === '/'
+              : item.href === '/pagamentos'
+                ? isFinanceRoute
+                : item.href === '/usuarios'
+                  ? isUsersRoute
+                  : item.href === '/moderacao'
+                    ? isModerationRoute
+                    : item.href === '/equipe'
+                      ? isTeamRoute
+                      : pathname.startsWith(item.href);
+          const Icon = item.icon;
+
+          return (
+            <Link
+              key={item.label}
+              href={item.href}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors relative ${
+                isActive
+                  ? 'bg-[#1f2937] text-white shadow-xs font-semibold'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+              }`}
+            >
+              {isActive && (
+                <div
+                  className="absolute left-0 top-1/2 -translate-y-1/2 bg-[#f42524] h-[22px] w-[3px] rounded-r-[3px]"
+                  aria-hidden="true"
+                />
+              )}
+              <div
+                className={`w-6 h-6 rounded flex items-center justify-center shrink-0 ${
+                  isActive ? 'text-[#fca5a5]' : 'text-slate-400'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+              </div>
+              <span className="truncate">{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Role Access Callout Card (Figma ADM-D-002) */}
+      <div className="mt-auto pt-6 space-y-4">
+        <div className="p-3.5 rounded-xl bg-[#1f2937] border border-[#374151] text-left">
+          <div className="flex items-center gap-1.5 mb-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#f42524]" />
+            <span className="text-[10px] font-bold text-[#fca5a5] uppercase tracking-wider">
+              Acesso • Main Admin
+            </span>
+          </div>
+          <p className="text-xs text-[#cbd5e1] leading-relaxed">
+            Revisões e pagamentos somente com autorização.
+          </p>
+        </div>
+
+        {/* Product / Version Note */}
+        <div className="px-2 pt-2 border-t border-slate-800/60 text-left">
+          <p className="text-xs font-semibold text-slate-400">Feira de Carros</p>
+          <p className="text-[11px] text-slate-500">Painel administrativo • v0.1</p>
+        </div>
+      </div>
+    </aside>
+  );
+}
