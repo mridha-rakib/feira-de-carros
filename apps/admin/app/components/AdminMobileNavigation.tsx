@@ -38,7 +38,7 @@ export function AdminMobileNavigation() {
               href={tab.href}
               className={`flex-1 flex flex-col items-center justify-center h-[60px] rounded-[12px] transition-all gap-[5px] py-[5px] ${
                 isActive
-                  ? 'bg-[#fff1f2] text-[#b91c1c] font-semibold'
+                  ? 'bg-[#fff1f2] text-[#b91c1c] text-red-600 font-semibold'
                   : 'text-[#64748b] hover:text-[#111827] font-medium'
               }`}
             >

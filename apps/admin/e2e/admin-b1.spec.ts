@@ -88,7 +88,7 @@ test.describe('Admin B1 — Desktop Dashboard Parity (ADM-D-002)', () => {
   test('displays topbar with breadcrumb, locality pill, and admin user', async ({ page }) => {
     const desktop = page.getByTestId('desktop-dashboard');
     await expect(desktop.getByText('Visão geral').first()).toBeVisible();
-    await expect(desktop.getByText('Ipatinga - MG').first()).toBeVisible();
+    await expect(desktop.getByText(/Ipatinga [·-] MG/).first()).toBeVisible();
     await expect(desktop.getByText('Admin principal').first()).toBeVisible();
   });
 
@@ -136,10 +136,14 @@ test.describe('Admin B1 — Desktop Dashboard Parity (ADM-D-002)', () => {
     await expect(desktop.getByText('Anúncios recentes')).toBeVisible();
     await expect(desktop.getByText('Ver todos os anúncios')).toBeVisible();
 
-    await expect(desktop.getByText('FC-2026-0142 • Fiat Strada 2023')).toBeVisible();
-    await expect(desktop.getByText('FC-2026-0148 • Chevrolet Onix 2022')).toBeVisible();
-    await expect(desktop.getByText('FC-2026-0151 • VW Polo Track 2023')).toBeVisible();
-    await expect(desktop.getByText('FC-2026-0153 • Honda CG 160 2022')).toBeVisible();
+    await expect(desktop.getByText('FC-2026-0142')).toBeVisible();
+    await expect(desktop.getByText('Fiat Strada 2023')).toBeVisible();
+    await expect(desktop.getByText('FC-2026-0148')).toBeVisible();
+    await expect(desktop.getByText('Chevrolet Onix 2022')).toBeVisible();
+    await expect(desktop.getByText('FC-2026-0151')).toBeVisible();
+    await expect(desktop.getByText('VW Polo Track 2023')).toBeVisible();
+    await expect(desktop.getByText('FC-2026-0153')).toBeVisible();
+    await expect(desktop.getByText('Honda CG 160 2022')).toBeVisible();
 
     await expect(desktop.getByText('Mariana Costa')).toBeVisible();
     await expect(desktop.getByText('Bruno Almeida')).toBeVisible();

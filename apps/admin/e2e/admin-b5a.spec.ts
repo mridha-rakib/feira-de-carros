@@ -295,7 +295,7 @@ test.describe('Admin B5A — Reports & Moderation Management (ADM-D-032, 033, 03
       await expect(card22).toBeVisible();
       await expect(card22.getByText('REP-DEMO-0022')).toBeVisible();
       await expect(card22.getByText('Conta comercial · Ipatinga')).toBeVisible();
-      await expect(card22.getByText('Pendente')).toBeVisible();
+      await expect(card22.getByText('Pendente', { exact: true })).toBeVisible();
 
       // 6. Mobile bottom navigation is rendered
       await expect(page.getByLabel('Navegação móvel principal')).toBeVisible();

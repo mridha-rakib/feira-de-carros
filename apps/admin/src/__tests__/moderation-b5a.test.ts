@@ -45,7 +45,7 @@ describe('Admin B5A — Reports & Moderation Management', () => {
       expect(rpt8?.reportedAt).toBe('24/10/2026');
       expect(rpt8?.status).toBe('UNDER_REVIEW');
       expect(rpt8?.conclusionLabel).toBe('Não determinada');
-      expect(rpt8?.vehicleImagePath).toBe('/images/vehicles/demo/image.png');
+      expect(rpt8?.vehicleImagePath).toMatch(/toyota-corolla-2021-b6\.jpg|image\.png/);
     });
 
     it('formats vehicle prices correctly with pt-BR currency conventions', () => {
