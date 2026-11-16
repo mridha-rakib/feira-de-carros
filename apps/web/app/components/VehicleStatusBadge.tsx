@@ -1,5 +1,5 @@
 import type { SellerListingStatus } from '@/lib/types/seller-presentation';
-import { IconCard, IconCheck, IconClock } from './SellerIcons';
+import { IconAlert, IconCard, IconCheck, IconClock } from './SellerIcons';
 
 interface VehicleStatusBadgeProps {
   status: SellerListingStatus;
@@ -21,6 +21,22 @@ export function VehicleStatusBadge({ status, label }: VehicleStatusBadgeProps) {
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#fff2da] text-[#b86a0b]">
           <IconClock className="size-3.5" />
           <span>{label || 'Em análise'}</span>
+        </span>
+      );
+
+    case 'CORRECTION_REQUESTED':
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#fff3dc] text-[#c41217]">
+          <IconAlert className="size-3.5" />
+          <span>{label || 'Correção solicitada'}</span>
+        </span>
+      );
+
+    case 'REVISED_PENDING':
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#fff3dc] text-[#b37406]">
+          <IconClock className="size-3.5" />
+          <span>{label || 'Em revisão'}</span>
         </span>
       );
 
