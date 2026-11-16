@@ -2,14 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { chromium } from '@playwright/test';
 
-const SCREENSHOT_DIR = path.resolve('apps/web/public/screenshots/s1');
-const BRAIN_DIR =
-  'C:\\Users\\rakib_bro\\.gemini\\antigravity\\brain\\86701703-265b-499b-b383-7e58303b94c8\\screenshots';
+// Portable output directory outside of public website assets
+const OUTPUT_DIR = process.env.QA_SCREENSHOT_DIR
+  ? path.resolve(process.env.QA_SCREENSHOT_DIR)
+  : path.resolve('apps/web/screenshots/s1');
 
-for (const dir of [SCREENSHOT_DIR, BRAIN_DIR]) {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
+if (!fs.existsSync(OUTPUT_DIR)) {
+  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 }
 
 const VIEWPORTS = {
@@ -31,7 +30,7 @@ const SCREENS = [
 ];
 
 async function capture() {
-  console.log('Launching browser for Visual QA...');
+  console.log(`Starting Visual QA Capture. Output Directory: ${OUTPUT_DIR}`);
   const browser = await chromium.launch({
     channel: 'msedge',
     headless: true,
@@ -46,13 +45,9 @@ async function capture() {
       console.log(`Capturing ${screen.id} at ${vpName} (${vpSize.width}x${vpSize.height})...`);
       await page.goto(url, { waitUntil: 'networkidle' });
 
-      // Save screenshot
       const filename = `${screen.id}_${vpName}.png`;
-      const localPath = path.join(SCREENSHOT_DIR, filename);
-      const brainPath = path.join(BRAIN_DIR, filename);
-
-      await page.screenshot({ path: localPath, fullPage: true });
-      fs.copyFileSync(localPath, brainPath);
+      const targetPath = path.join(OUTPUT_DIR, filename);
+      await page.screenshot({ path: targetPath, fullPage: true });
     }
   }
 
@@ -75,16 +70,13 @@ async function capture() {
       await page.waitForTimeout(300);
 
       const filename = `web_018_status_${state}_${vpName}.png`;
-      const localPath = path.join(SCREENSHOT_DIR, filename);
-      const brainPath = path.join(BRAIN_DIR, filename);
-
-      await page.screenshot({ path: localPath, fullPage: true });
-      fs.copyFileSync(localPath, brainPath);
+      const targetPath = path.join(OUTPUT_DIR, filename);
+      await page.screenshot({ path: targetPath, fullPage: true });
     }
   }
 
   await browser.close();
-  console.log('Visual QA capture complete! All screenshots saved.');
+  console.log('Visual QA capture complete! All screenshots saved cleanly.');
 }
 
 capture().catch((err) => {

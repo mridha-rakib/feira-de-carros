@@ -1,13 +1,15 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
 /**
- * Public onboarding entrypoints permitted for guest visitors without a pre-existing session.
- * As per SRS v0.5 AUTH-008/016/019/027, guest users may initiate seller eligibility application.
+ * Public onboarding and customer authentication entrypoints permitted for guest visitors without a pre-existing session.
+ * As per SRS v0.5 AUTH-001/008/016/019/027, guest users may initiate seller eligibility application or access login.
  */
-const PUBLIC_ONBOARDING_PATHS = new Set([
+const PUBLIC_ENTRYPOINTS = new Set([
   '/seller/sell',
   '/seller/application',
   '/vendedor/solicitacao',
+  '/entrar',
+  '/login',
 ]);
 
 /**
@@ -21,10 +23,13 @@ const PROTECTED_PREFIXES = ['/buyer', '/seller', '/dealer', '/vendedor'];
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 1. Preserve public seller onboarding entrypoints
-  const isPublicOnboarding =
-    PUBLIC_ONBOARDING_PATHS.has(pathname) || pathname === '/vendedor/solicitacao/';
-  if (isPublicOnboarding) {
+  // 1. Preserve public seller onboarding and authentication entrypoints
+  const isPublicEntrypoint =
+    PUBLIC_ENTRYPOINTS.has(pathname) ||
+    pathname === '/vendedor/solicitacao/' ||
+    pathname.startsWith('/entrar/') ||
+    pathname.startsWith('/login/');
+  if (isPublicEntrypoint) {
     return NextResponse.next();
   }
 
@@ -36,10 +41,10 @@ export function middleware(request: NextRequest) {
     const sessionCookie = request.cookies.get('fdc_web_session');
 
     // Visual QA and local dev/test environments may inspect UI flows without a live backend session.
-    // In production, unauthenticated requests fail closed and redirect to login.
+    // In production, unauthenticated requests fail closed and redirect to canonical customer login (/entrar).
     // Notice: ?demo=true query parameter bypass is strictly prohibited in production.
     if (!sessionCookie?.value && isProduction) {
-      const loginUrl = new URL('/login', request.url);
+      const loginUrl = new URL('/entrar', request.url);
       loginUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(loginUrl);
     }

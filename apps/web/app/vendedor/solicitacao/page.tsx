@@ -1,6 +1,7 @@
 'use client';
 
 import { MOCK_APPLICANT_DATA } from '@/lib/adapters/mock-seller-data';
+import { validateSellerApplicationForm } from '@/lib/utils/seller-validation';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { SellerBreadcrumb } from '../../components/SellerBreadcrumb';
@@ -32,8 +33,26 @@ export default function SellerApplicationPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!termsAccepted) {
-      setErrorMsg('É necessário concordar com os Termos de Uso e Privacidade.');
+
+    const validation = validateSellerApplicationForm({
+      fullName: applicant.fullName,
+      cpf: applicant.cpfMasked,
+      email: applicant.email,
+      phone: applicant.phone,
+      cep: '35160001',
+      address: applicant.address || 'Av. Castelo Branco, 500',
+      city: applicant.city,
+      state: applicant.state,
+      termsAccepted,
+      lgpdConsent: termsAccepted,
+    });
+
+    if (!validation.isValid) {
+      setErrorMsg(
+        validation.errors.termsAccepted ||
+          validation.errors.lgpdConsent ||
+          'É necessário preencher os campos e concordar com os Termos de Uso e Privacidade.',
+      );
       return;
     }
     setErrorMsg('');
