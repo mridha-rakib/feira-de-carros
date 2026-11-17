@@ -128,8 +128,16 @@ export default function PaymentHistoryPage() {
                 Acompanhe o status, renove planos e consulte os comprovantes dos seus anúncios.
               </p>
             </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f1f5f9] text-[#475569] text-xs font-semibold self-start sm:self-auto">
-              <span>{payments.length} registros</span>
+            <div className="flex items-center gap-3 self-start sm:self-auto">
+              <Link
+                href="/vendedor/reembolsos"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] bg-white border border-[#d6dfe9] hover:bg-[#f8fafc] text-[#101827] text-xs font-semibold transition-colors shadow-2xs"
+              >
+                <span>Consultar reembolsos</span>
+              </Link>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f1f5f9] text-[#475569] text-xs font-semibold">
+                <span>{payments.length} registros</span>
+              </div>
             </div>
           </div>
 
@@ -264,13 +272,24 @@ export default function PaymentHistoryPage() {
 
                       {/* Ações */}
                       <td className="py-4 px-4 text-right">
-                        <Link
-                          href={`/vendedor/pedidos/${item.orderId}/status`}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[8px] bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#101827] text-xs font-semibold transition-colors"
-                        >
-                          <IconEye className="size-3.5 text-[#64748b]" />
-                          <span>Ver</span>
-                        </Link>
+                        <div className="flex items-center justify-end gap-2">
+                          {item.status === 'PAID' && (
+                            <Link
+                              href={`/vendedor/pedidos/${item.orderId}/reembolso`}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[8px] bg-white border border-[#d6dfe9] hover:bg-[#f8fafc] text-[#64748b] hover:text-[#101827] text-xs font-semibold transition-colors shadow-2xs"
+                              title="Solicitar reembolso"
+                            >
+                              <span>Reembolso</span>
+                            </Link>
+                          )}
+                          <Link
+                            href={`/vendedor/pedidos/${item.orderId}/status`}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[8px] bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#101827] text-xs font-semibold transition-colors"
+                          >
+                            <IconEye className="size-3.5 text-[#64748b]" />
+                            <span>Ver</span>
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   ))}
