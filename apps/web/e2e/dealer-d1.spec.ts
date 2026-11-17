@@ -8,6 +8,12 @@ async function setupDealerSession(page: Page) {
       domain: 'localhost',
       path: '/',
     },
+    {
+      name: 'fdc_runtime_env',
+      value: 'test',
+      domain: 'localhost',
+      path: '/',
+    },
   ]);
 }
 

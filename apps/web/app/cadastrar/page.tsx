@@ -5,7 +5,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { isEmailRegisteredGlobally } from '../../lib/adapters/shared-auth-registry';
+import {
+  isEmailRegisteredGlobally,
+  normalizeEmail,
+  registerDemoAccount,
+} from '../../lib/adapters/shared-auth-registry';
+import { isProductionEnvironment } from '../../lib/security/environment';
 import { useBuyerStore } from '../../stores/use-buyer-store';
 import { MarketplaceFooter } from '../components/MarketplaceFooter';
 import { MarketplaceHeader } from '../components/MarketplaceHeader';
@@ -98,15 +103,17 @@ export default function BuyerRegistrationPage() {
       return;
     }
 
-    if (!email.trim() || !email.includes('@')) {
+    const cleanEmail = normalizeEmail(email);
+
+    if (!cleanEmail || !cleanEmail.includes('@')) {
       setErrorMessage('Informe um e-mail válido.');
       return;
     }
 
     if (
       simulateDuplicateEmail ||
-      email.trim().toLowerCase() === 'existente@exemplo.com' ||
-      isEmailRegisteredGlobally(email.trim())
+      cleanEmail === 'existente@exemplo.com' ||
+      isEmailRegisteredGlobally(cleanEmail)
     ) {
       setErrorMessage(
         'Este endereço de e-mail já possui cadastro na plataforma. Uma conta já existe com este endereço (faça login ou utilize outro e-mail).',
@@ -134,12 +141,30 @@ export default function BuyerRegistrationPage() {
     setIsLoading(true);
 
     setTimeout(() => {
-      if (typeof document !== 'undefined') {
+      // Register account in shared demo accounts registry enforcing Option 2
+      const regResult = registerDemoAccount({
+        email: cleanEmail,
+        fullName: `${firstName.trim()} ${lastName.trim()}`,
+        role: 'member',
+        status: 'active',
+        birthDate,
+      });
+
+      if (!regResult.success) {
+        setIsLoading(false);
+        setErrorMessage(
+          regResult.error ||
+            'Este endereço de e-mail já possui cadastro na plataforma. Uma conta já existe com este endereço.',
+        );
+        return;
+      }
+
+      if (typeof document !== 'undefined' && !isProductionEnvironment()) {
         document.cookie = 'fdc_web_session=demo_buyer_session; path=/; SameSite=Lax';
       }
       setIsLoading(false);
       setIsSuccess(true);
-      loginSimulation(email.trim(), `${firstName.trim()} ${lastName.trim()}`);
+      loginSimulation(cleanEmail, `${firstName.trim()} ${lastName.trim()}`);
     }, 700);
   };
 

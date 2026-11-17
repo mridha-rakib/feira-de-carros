@@ -6,9 +6,14 @@
  * 2. GLOBAL EMAIL UNIQUENESS (Option 2): One email address may belong to only one account
  *    across the entire platform (Buyer, Seller, or Dealership).
  *
- * Normalizes email identities consistently before uniqueness checks.
- * Manages deterministic demo accounts for testing and simulation without persisting raw secrets.
+ * Security Invariants:
+ * - Passwords and raw secrets are never persisted in browser storage.
+ * - In production mode without a live backend (/v1/auth/login), demo auth fails closed.
+ * - Unknown emails are rejected (no auto-generated demo identities).
+ * - Redirect URLs are sanitized against open redirect, backslash, and protocol-relative attacks.
  */
+
+import { isProductionEnvironment } from '../security/environment';
 
 export type AccountRole =
   | 'member' // Buyer
@@ -44,11 +49,18 @@ export interface AuthAccount {
 }
 
 /**
+ * Standard deterministic passwords permitted for seed demo fixture accounts in dev/test mode.
+ * Real production authentication relies exclusively on backend POST /v1/auth/login.
+ */
+export const DEMO_FIXTURE_PASSWORD = 'Senha@123';
+const VALID_DEMO_PASSWORDS = new Set(['Senha@123', '123456']);
+
+/**
  * Normalizes an email address consistently across all flows.
  * Lowercases and trims whitespace.
  */
 export function normalizeEmail(email: string): string {
-  if (!email) return '';
+  if (!email || typeof email !== 'string') return '';
   return email.trim().toLowerCase();
 }
 
@@ -89,7 +101,19 @@ export const INITIAL_DEMO_ACCOUNTS: AuthAccount[] = [
     birthDate: '1992-08-20',
     createdAt: '2026-10-15T12:00:00Z',
   },
-  // 3. BUYER (Suspended)
+  // 3. BUYER (Apple demo)
+  {
+    id: 'acc-buyer-apple',
+    email: 'comprador.apple@exemplo.com',
+    normalizedEmail: 'comprador.apple@exemplo.com',
+    fullName: 'Comprador Apple Demo',
+    role: 'member',
+    status: 'active',
+    phone: '(31) 98888-6666',
+    birthDate: '1991-03-12',
+    createdAt: '2026-10-15T12:00:00Z',
+  },
+  // 4. BUYER (Suspended)
   {
     id: 'acc-buyer-suspended',
     email: 'comprador.suspenso@exemplo.com',
@@ -153,7 +177,7 @@ export const INITIAL_DEMO_ACCOUNTS: AuthAccount[] = [
     role: 'dealer',
     status: 'active',
     phone: '(31) 3822-4000',
-    documentNumber: '11.222.333/0001-81',
+    documentNumber: '11.***.***/0001-81',
     dealershipId: 'dealer-lider-seminovos',
     dealershipName: 'Líder Veículos e Seminovos Ltda',
     tradeName: 'Líder Seminovos',
@@ -168,7 +192,7 @@ export const INITIAL_DEMO_ACCOUNTS: AuthAccount[] = [
     role: 'dealer',
     status: 'pending_approval',
     phone: '(31) 3824-5500',
-    documentNumber: '22.333.444/0001-92',
+    documentNumber: '22.***.***/0001-81',
     dealershipId: 'dealer-autovale-multimarcas',
     dealershipName: 'Autovale Comércio de Veículos Ltda',
     tradeName: 'Autovale Multimarcas',
@@ -183,7 +207,7 @@ export const INITIAL_DEMO_ACCOUNTS: AuthAccount[] = [
     role: 'dealer',
     status: 'correction_required',
     phone: '(31) 3821-6600',
-    documentNumber: '33.444.555/0001-03',
+    documentNumber: '33.***.***/0001-03',
     dealershipId: 'dealer-novaera-veiculos',
     dealershipName: 'Nova Era Automóveis Eireli',
     tradeName: 'Nova Era Veículos',
@@ -200,7 +224,7 @@ export const INITIAL_DEMO_ACCOUNTS: AuthAccount[] = [
     role: 'dealer',
     status: 'suspended',
     phone: '(31) 3820-9999',
-    documentNumber: '44.555.666/0001-14',
+    documentNumber: '44.***.***/0001-14',
     dealershipId: 'dealer-valemotors-bloqueada',
     dealershipName: 'Vale Motors Bloqueada Ltda',
     tradeName: 'Vale Motors',
@@ -208,32 +232,32 @@ export const INITIAL_DEMO_ACCOUNTS: AuthAccount[] = [
     rejectionReason: 'Conta suspensa por violação das políticas comerciais.',
   },
 
-  // 11. STAFF: MAIN ADMIN
+  // 11. STAFF: Main Admin (for /admin boundary verification)
   {
     id: 'acc-staff-admin',
     email: 'admin@feiradecarros.com.br',
     normalizedEmail: 'admin@feiradecarros.com.br',
-    fullName: 'Administrador Geral',
+    fullName: 'Administrador do Sistema',
     role: 'main_admin',
     status: 'active',
     createdAt: '2026-01-01T00:00:00Z',
   },
-  // 12. STAFF: SALES
+  // 12. STAFF: Sales
   {
     id: 'acc-staff-sales',
     email: 'vendas@feiradecarros.com.br',
     normalizedEmail: 'vendas@feiradecarros.com.br',
-    fullName: 'Equipe Comercial Vendas',
+    fullName: 'Operador Comercial',
     role: 'sales',
     status: 'active',
     createdAt: '2026-01-01T00:00:00Z',
   },
-  // 13. STAFF: SUPPORT
+  // 13. STAFF: Support
   {
     id: 'acc-staff-support',
     email: 'suporte@feiradecarros.com.br',
     normalizedEmail: 'suporte@feiradecarros.com.br',
-    fullName: 'Equipe Suporte e Moderação',
+    fullName: 'Atendente de Suporte',
     role: 'support',
     status: 'active',
     createdAt: '2026-01-01T00:00:00Z',
@@ -245,32 +269,55 @@ const STORAGE_KEY_REGISTRY = 'feira_shared_accounts_registry';
 /**
  * In-memory fallback and local-storage synchronization for demo accounts.
  */
-function getAccountsRegistry(): AuthAccount[] {
+let inMemoryAccounts: AuthAccount[] | null = null;
+
+export function getAccountsRegistry(): AuthAccount[] {
   if (typeof window === 'undefined') {
-    return INITIAL_DEMO_ACCOUNTS;
+    if (!inMemoryAccounts) {
+      inMemoryAccounts = [...INITIAL_DEMO_ACCOUNTS];
+    }
+    return inMemoryAccounts;
   }
   try {
     const raw = localStorage.getItem(STORAGE_KEY_REGISTRY);
     if (!raw) {
       localStorage.setItem(STORAGE_KEY_REGISTRY, JSON.stringify(INITIAL_DEMO_ACCOUNTS));
-      return INITIAL_DEMO_ACCOUNTS;
+      return [...INITIAL_DEMO_ACCOUNTS];
     }
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
       return parsed;
     }
-    return INITIAL_DEMO_ACCOUNTS;
+    return [...INITIAL_DEMO_ACCOUNTS];
   } catch {
-    return INITIAL_DEMO_ACCOUNTS;
+    return [...INITIAL_DEMO_ACCOUNTS];
   }
 }
 
-function saveAccountsRegistry(accounts: AuthAccount[]): void {
-  if (typeof window === 'undefined') return;
+export function saveAccountsRegistry(accounts: AuthAccount[]): void {
+  if (typeof window === 'undefined') {
+    inMemoryAccounts = [...accounts];
+    return;
+  }
   try {
     localStorage.setItem(STORAGE_KEY_REGISTRY, JSON.stringify(accounts));
   } catch (err) {
     console.error('Failed to persist accounts registry:', err);
+  }
+}
+
+/**
+ * Resets the demo registry back to default initial fixtures.
+ * Useful for test isolation.
+ */
+export function resetAccountsRegistry(): void {
+  inMemoryAccounts = [...INITIAL_DEMO_ACCOUNTS];
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(STORAGE_KEY_REGISTRY, JSON.stringify(INITIAL_DEMO_ACCOUNTS));
+    } catch {
+      // ignore
+    }
   }
 }
 
@@ -296,37 +343,65 @@ export function findAccountByEmail(email: string): AuthAccount | undefined {
 }
 
 /**
+ * In-flight registrations to prevent concurrent duplicate submissions.
+ */
+const inFlightRegistrations = new Set<string>();
+
+/**
  * Registers a new demo account while enforcing GLOBAL EMAIL UNIQUENESS.
  * Returns { success: true, account } on success, or { success: false, error } on duplicate.
  */
 export function registerDemoAccount(
   params: Omit<AuthAccount, 'id' | 'createdAt' | 'normalizedEmail'>,
-): { success: boolean; account?: AuthAccount; error?: string } {
+): { success: boolean; account?: AuthAccount; error?: string; errorCode?: string } {
   const normalized = normalizeEmail(params.email);
   if (!normalized || !isValidEmail(normalized)) {
-    return { success: false, error: 'Endereço de e-mail inválido.' };
-  }
-
-  // GLOBAL EMAIL UNIQUENESS ENFORCEMENT
-  if (isEmailRegisteredGlobally(normalized)) {
     return {
       success: false,
-      error: 'Este e-mail já está cadastrado na plataforma. Uma conta já existe com este endereço.',
+      error: 'Endereço de e-mail inválido.',
+      errorCode: 'INVALID_EMAIL',
     };
   }
 
-  const newAccount: AuthAccount = {
-    ...params,
-    id: `acc-${params.role}-${Date.now().toString(36)}`,
-    normalizedEmail: normalized,
-    createdAt: new Date().toISOString(),
-  };
+  // Concurrency / rapid double-submission guard
+  if (inFlightRegistrations.has(normalized)) {
+    return {
+      success: false,
+      error:
+        'Uma solicitação de cadastro para este e-mail já está sendo processada. Por favor, aguarde.',
+      errorCode: 'CONCURRENT_CONFLICT',
+    };
+  }
 
-  const accounts = getAccountsRegistry();
-  accounts.push(newAccount);
-  saveAccountsRegistry(accounts);
+  inFlightRegistrations.add(normalized);
 
-  return { success: true, account: newAccount };
+  try {
+    // GLOBAL EMAIL UNIQUENESS ENFORCEMENT (Option 2)
+    if (isEmailRegisteredGlobally(normalized)) {
+      return {
+        success: false,
+        error:
+          'Este e-mail já está cadastrado na plataforma. Uma conta já existe com este endereço (faça login ou utilize outro e-mail).',
+        errorCode: 'EMAIL_ALREADY_REGISTERED',
+      };
+    }
+
+    const newAccount: AuthAccount = {
+      ...params,
+      id: `acc-${params.role}-${Date.now().toString(36)}`,
+      email: normalized,
+      normalizedEmail: normalized,
+      createdAt: new Date().toISOString(),
+    };
+
+    const accounts = getAccountsRegistry();
+    accounts.push(newAccount);
+    saveAccountsRegistry(accounts);
+
+    return { success: true, account: newAccount };
+  } finally {
+    inFlightRegistrations.delete(normalized);
+  }
 }
 
 /**
@@ -353,7 +428,34 @@ export function updateDemoAccount(
 }
 
 /**
- * Resolves the safe post-login destination URL based on account role and status.
+ * Validates whether a requested redirect path is safe against open redirect attacks,
+ * backslash tricks, protocol-relative URLs, control characters, or auth-delimiter injection.
+ */
+export function isSafeRedirect(path: string | null | undefined): boolean {
+  if (!path || typeof path !== 'string') return false;
+  const trimmed = path.trim();
+
+  // Must begin with single forward slash
+  if (!trimmed.startsWith('/') || trimmed.startsWith('//') || trimmed.includes('\\')) {
+    return false;
+  }
+
+  // No control characters
+  if (/[\r\n\t\0]/.test(trimmed)) {
+    return false;
+  }
+
+  // No @ delimiter (could be used for userinfo trick in some parsers)
+  if (trimmed.includes('@')) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Resolves the safe post-login destination URL based on account role, status, and target path.
+ * Enforces strict role boundaries and prevents cross-role privilege escalation.
  */
 export function getRoleDestination(
   role: AccountRole,
@@ -369,21 +471,18 @@ export function getRoleDestination(
     };
   }
 
-  // Sanitized redirect check
-  const safeRedirect =
-    requestedRedirect?.startsWith('/') &&
-    !requestedRedirect.startsWith('//') &&
-    !requestedRedirect.includes('\\')
-      ? requestedRedirect
-      : null;
+  const safeRedirect = isSafeRedirect(requestedRedirect) ? requestedRedirect : null;
 
   switch (role) {
     case 'member': {
-      // Buyer role
+      // Buyer role: strictly buyer destinations (/conta, /favoritos, /mensagens, /veiculos, etc.)
+      // Cross-role redirect protection: cannot redirect into seller, dealer, or admin portals
       if (
         safeRedirect &&
         !safeRedirect.startsWith('/vendedor') &&
+        !safeRedirect.startsWith('/seller') &&
         !safeRedirect.startsWith('/concessionaria') &&
+        !safeRedirect.startsWith('/dealer') &&
         !safeRedirect.startsWith('/admin')
       ) {
         return { destination: safeRedirect, isBlocked: false };
@@ -399,7 +498,12 @@ export function getRoleDestination(
       if (status === 'correction_required') {
         return { destination: '/vendedor/solicitacao/corrigir', isBlocked: false };
       }
-      if (safeRedirect?.startsWith('/vendedor')) {
+      if (
+        safeRedirect &&
+        (safeRedirect.startsWith('/vendedor') || safeRedirect.startsWith('/seller')) &&
+        !safeRedirect.startsWith('/concessionaria') &&
+        !safeRedirect.startsWith('/admin')
+      ) {
         return { destination: safeRedirect, isBlocked: false };
       }
       return { destination: '/vendedor/anuncios', isBlocked: false };
@@ -413,7 +517,12 @@ export function getRoleDestination(
       if (status === 'correction_required') {
         return { destination: '/concessionaria/solicitacao/corrigir', isBlocked: false };
       }
-      if (safeRedirect?.startsWith('/concessionaria')) {
+      if (
+        safeRedirect &&
+        (safeRedirect.startsWith('/concessionaria') || safeRedirect.startsWith('/dealer')) &&
+        !safeRedirect.startsWith('/vendedor') &&
+        !safeRedirect.startsWith('/admin')
+      ) {
         return { destination: safeRedirect, isBlocked: false };
       }
       return { destination: '/concessionaria/anuncios', isBlocked: false };
@@ -422,11 +531,12 @@ export function getRoleDestination(
     case 'main_admin':
     case 'sales':
     case 'support': {
+      // Staff accounts must not authenticate through public customer portal
       return {
         destination: '/admin/login',
         isBlocked: true,
         blockMessage:
-          'Contas da equipe administrativa (Main Admin, Vendas, Suporte) devem realizar login exclusivamente pelo portal administrativo em /admin/login.',
+          'Contas da equipe administrativa (Administrador, Vendas, Suporte) devem realizar login exclusivamente pelo portal administrativo em /admin/login.',
       };
     }
 
@@ -436,12 +546,18 @@ export function getRoleDestination(
 }
 
 /**
- * Authenticates credentials against the deterministic demo registry.
+ * Authenticates credentials against the deterministic demo registry in dev/test environments.
  * Emulates POST /v1/auth/login behavior.
+ *
+ * Security Invariants:
+ * 1. Fails closed in production without live backend (/v1/auth/login).
+ * 2. Unknown emails are rejected (no auto-generated dummy buyer identities).
+ * 3. Invalid passwords are strictly rejected.
+ * 4. Passwords and credentials are never persisted in browser storage.
  */
 export function authenticateDemoLogin(
   email: string,
-  _password?: string,
+  password?: string,
   requestedRedirect?: string | null,
 ): {
   success: boolean;
@@ -449,30 +565,56 @@ export function authenticateDemoLogin(
   destination?: string;
   error?: string;
 } {
-  const normalized = normalizeEmail(email);
-  if (!normalized) {
-    return { success: false, error: 'Por favor, informe seu e-mail.' };
+  // Fail closed in production if backend is not integrated
+  if (isProductionEnvironment()) {
+    return {
+      success: false,
+      error:
+        'Autenticação em produção indisponível sem conexão com o backend (/v1/auth/login). O modo demonstrativo está desativado.',
+    };
   }
 
+  const normalized = normalizeEmail(email);
+  if (!normalized || !isValidEmail(normalized)) {
+    return { success: false, error: 'Por favor, informe um endereço de e-mail válido.' };
+  }
+
+  // Look up account in registry
   const account = findAccountByEmail(normalized);
 
-  // If email is not in seed list, provide a friendly demo fallback as a registered buyer
+  // Unknown email must NOT automatically authenticate (reject unknown emails)
   if (!account) {
-    // In demo environment, unknown emails default to new buyer preview unless requested otherwise
-    const fallbackBuyer: AuthAccount = {
-      id: `acc-guest-${Date.now().toString(36)}`,
-      email: normalized,
-      normalizedEmail: normalized,
-      fullName: 'Usuário Convidado (Demo)',
-      role: 'member',
-      status: 'active',
-      createdAt: new Date().toISOString(),
-    };
-    const dest = getRoleDestination('member', 'active', requestedRedirect);
     return {
-      success: true,
-      account: fallbackBuyer,
-      destination: dest.destination,
+      success: false,
+      error: 'E-mail ou senha incorretos. Conta não encontrada.',
+    };
+  }
+
+  // Password verification: must not be empty and must match recognized demo fixture credentials
+  if (!password || typeof password !== 'string' || !VALID_DEMO_PASSWORDS.has(password)) {
+    return {
+      success: false,
+      error: 'E-mail ou senha incorretos. Verifique suas credenciais.',
+    };
+  }
+
+  // Staff accounts entering customer login are blocked
+  if (['main_admin', 'sales', 'support'].includes(account.role)) {
+    return {
+      success: false,
+      account,
+      error:
+        'Contas da equipe administrativa (Administrador, Vendas, Suporte) devem realizar login exclusivamente pelo portal administrativo em /admin/login.',
+    };
+  }
+
+  // Suspended account check
+  if (account.status === 'suspended') {
+    return {
+      success: false,
+      account,
+      error:
+        'Esta conta encontra-se suspensa para análise de segurança. Entre em contato com o suporte institucional.',
     };
   }
 

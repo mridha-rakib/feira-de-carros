@@ -172,6 +172,13 @@ export default function DealershipRegistrationPage() {
   };
 
   const handleFinalSubmit = () => {
+    if (isSubmitting) return;
+
+    if (!validateStep1() || !validateStep2() || !validateStep3()) {
+      setIsReviewModalOpen(false);
+      return;
+    }
+
     if (!draft.termsAccepted) {
       setErrorMessage(
         'Você deve concordar com os Termos de Uso e Política de Privacidade para enviar.',
@@ -183,19 +190,31 @@ export default function DealershipRegistrationPage() {
     setErrorMessage('');
 
     setTimeout(() => {
-      // 1. Submit application in dealership store
-      const app = submitApplication();
+      const cleanEmail = normalizeEmail(draft.email);
+      const cleanCnpjDigits = draft.cnpj.replace(/\D/g, '');
 
-      // 2. Register account in shared demo accounts registry
-      registerDemoAccount({
-        email: app.email,
-        fullName: app.fullName,
+      // 1. Transaction Order: Register shared account FIRST!
+      const regResult = registerDemoAccount({
+        email: cleanEmail,
+        fullName: `${draft.firstName.trim()} ${draft.lastName.trim()}`.trim(),
         role: 'dealer',
         status: 'pending_approval',
-        phone: app.phone,
-        documentNumber: app.cnpjMasked,
-        dealershipName: app.dealershipName,
+        phone: draft.phone,
+        documentNumber: maskCnpjForDisplay(cleanCnpjDigits),
+        dealershipName: draft.dealershipName,
       });
+
+      if (!regResult.success) {
+        setIsSubmitting(false);
+        setErrorMessage(
+          regResult.error ||
+            'Não foi possível registrar a conta da concessionária. O e-mail informado já está em uso na plataforma.',
+        );
+        return;
+      }
+
+      // 2. Only after account registration succeeds, commit the dealership application state
+      submitApplication();
 
       setIsSubmitting(false);
       setIsReviewModalOpen(false);

@@ -8,8 +8,10 @@ import { Suspense, useState } from 'react';
 import {
   authenticateDemoLogin,
   findAccountByEmail,
+  isSafeRedirect,
   normalizeEmail,
 } from '../../lib/adapters/shared-auth-registry';
+import { isProductionEnvironment } from '../../lib/security/environment';
 import { useBuyerStore } from '../../stores/use-buyer-store';
 import { useDealerStore } from '../../stores/use-dealer-store';
 import { MarketplaceFooter } from '../components/MarketplaceFooter';
@@ -27,14 +29,7 @@ import {
 function getSafeRedirect(rawRedirect: string | null): string {
   if (!rawRedirect) return '/conta';
   const trimmed = rawRedirect.trim();
-  // Safe relative paths only (starts with a single slash, no protocol relative "//", no backslash, no control characters)
-  if (
-    trimmed.startsWith('/') &&
-    !trimmed.startsWith('//') &&
-    !trimmed.includes('\\') &&
-    !trimmed.includes('\r') &&
-    !trimmed.includes('\n')
-  ) {
+  if (isSafeRedirect(trimmed)) {
     return trimmed;
   }
   return '/conta';
@@ -95,19 +90,20 @@ function LoginFormContent() {
       const account = authResult.account;
       const targetDestination = authResult.destination || '/conta';
 
-      if (account?.role === 'dealer') {
-        if (typeof document !== 'undefined') {
+      // Set demo session cookie for local dev/testing environments only; never in production
+      if (typeof document !== 'undefined' && !isProductionEnvironment()) {
+        if (account?.role === 'dealer') {
           document.cookie = 'fdc_web_session=demo_dealer_session; path=/; SameSite=Lax';
-        }
-        useDealerStore.getState().loginSimulation(cleanEmail, account);
-      } else if (account?.role === 'seller') {
-        if (typeof document !== 'undefined') {
+        } else if (account?.role === 'seller') {
           document.cookie = 'fdc_web_session=demo_seller_session; path=/; SameSite=Lax';
-        }
-      } else {
-        if (typeof document !== 'undefined') {
+        } else {
           document.cookie = 'fdc_web_session=demo_buyer_session; path=/; SameSite=Lax';
         }
+      }
+
+      if (account?.role === 'dealer') {
+        useDealerStore.getState().loginSimulation(cleanEmail, account);
+      } else if (account?.role === 'member') {
         loginSimulation(cleanEmail);
       }
 

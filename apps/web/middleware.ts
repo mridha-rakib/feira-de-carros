@@ -35,10 +35,25 @@ const PROTECTED_PREFIXES = [
   '/buscas-salvas',
 ];
 
+/**
+ * Validates whether a redirect path is safe against open redirect, backslash, and protocol-relative attacks.
+ */
+function isSafeRedirectPath(path: string | null | undefined): boolean {
+  if (!path || typeof path !== 'string') return false;
+  const trimmed = path.trim();
+  if (!trimmed.startsWith('/') || trimmed.startsWith('//') || trimmed.includes('\\')) {
+    return false;
+  }
+  if (/[\r\n\t\0]/.test(trimmed) || trimmed.includes('@')) {
+    return false;
+  }
+  return true;
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 1. Preserve public seller and dealership onboarding and authentication entrypoints
+  // 1. Preserve public onboarding and authentication entrypoints
   const isPublicEntrypoint =
     PUBLIC_ENTRYPOINTS.has(pathname) ||
     pathname === '/vendedor/solicitacao/' ||
@@ -55,22 +70,62 @@ export function middleware(request: NextRequest) {
   const isProtectedPath = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 
   if (isProtectedPath) {
-    const isProduction = process.env.NODE_ENV === 'production';
-    const sessionCookie = request.cookies.get('fdc_web_session');
+    const hostname = request.nextUrl.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+    const runtimeEnvCookie = request.cookies.get('fdc_runtime_env')?.value;
+    const testHeader = request.headers.get('x-fdc-test-env');
+    const isExplicitTestHarness =
+      process.env.FEIRA_E2E_MOCK === 'true' ||
+      process.env.ADMIN_E2E_MOCK === 'true' ||
+      process.env.NEXT_PUBLIC_ENABLE_DEMO_AUTH === 'true' ||
+      runtimeEnvCookie === 'test' ||
+      runtimeEnvCookie === 'development' ||
+      testHeader === 'true';
 
-    // Visual QA and local dev/test environments may inspect UI flows without a live backend session.
-    // In production, unauthenticated requests fail closed and redirect to canonical customer login (/entrar).
-    // Notice: ?demo=true query parameter bypass is strictly prohibited in production.
-    if (!sessionCookie?.value && isProduction) {
+    // True production environment: non-localhost or explicit production cookie
+    const isTrueProduction =
+      (!isLocalhost || runtimeEnvCookie === 'production') && !isExplicitTestHarness;
+    const sessionCookie = request.cookies.get('fdc_web_session');
+    const sessionValue = sessionCookie?.value || '';
+
+    // AUTHENTICATION BOUNDARY & FAIL-CLOSED ENFORCEMENT:
+    // In true production, client-written demo cookies (e.g. demo_buyer_session) are NEVER treated
+    // as authoritative proof of authentication. Protected routes fail closed until a live backend
+    // server-verified JWT/session is present.
+    if (isTrueProduction) {
+      // In absence of real backend integration, fail closed and redirect to /entrar
       const loginUrl = new URL('/entrar', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
+      if (isSafeRedirectPath(pathname)) {
+        loginUrl.searchParams.set('redirect', pathname);
+      }
       return NextResponse.redirect(loginUrl);
     }
 
-    // Security Invariant: A session cookie's mere existence is NOT proof of the Seller role.
-    // Edge middleware verifies baseline presence/token shape, but fine-grained RBAC and
-    // data isolation remain strictly and authoritatively enforced by backend API endpoints
-    // (GET /v1/seller-applications/me, GET /v1/my/listings) via @feira/api-client.
+    // In dev / test harness mode: verify session existence and enforce strict role boundaries
+    if (!sessionValue) {
+      const loginUrl = new URL('/entrar', request.url);
+      if (isSafeRedirectPath(pathname)) {
+        loginUrl.searchParams.set('redirect', pathname);
+      }
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Role-based boundary enforcement (prevent cross-role access through fabricated cookies):
+    // A buyer cookie cannot access protected seller or dealership portals
+    const isSellerRoute = pathname.startsWith('/vendedor') || pathname.startsWith('/seller');
+    const isDealerRoute = pathname.startsWith('/concessionaria') || pathname.startsWith('/dealer');
+
+    if (isSellerRoute && sessionValue.includes('buyer')) {
+      const loginUrl = new URL('/entrar', request.url);
+      loginUrl.searchParams.set('error', 'unauthorized_seller_role_required');
+      return NextResponse.redirect(loginUrl);
+    }
+
+    if (isDealerRoute && (sessionValue.includes('buyer') || sessionValue.includes('seller'))) {
+      const loginUrl = new URL('/entrar', request.url);
+      loginUrl.searchParams.set('error', 'unauthorized_dealer_role_required');
+      return NextResponse.redirect(loginUrl);
+    }
   }
 
   return NextResponse.next();

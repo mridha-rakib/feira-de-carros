@@ -6,6 +6,7 @@ import {
   findAccountByEmail,
   normalizeEmail,
 } from '../lib/adapters/shared-auth-registry';
+import { isProductionEnvironment } from '../lib/security/environment';
 import { maskCnpjForDisplay } from '../lib/utils/cnpj-validator';
 
 export interface DealershipApplicationData {
@@ -26,8 +27,8 @@ export interface DealershipApplicationData {
   // 2. Dados da revenda
   dealershipName: string;
   tradeName?: string;
-  cnpj: string; // Plaintext CNPJ strictly for internal review
-  cnpjMasked: string; // Masked CNPJ for safe display
+  cnpj: string; // Plaintext CNPJ strictly ephemeral in memory
+  cnpjMasked: string; // Masked CNPJ for safe display and persistence
 
   // 3. Contato e endereço
   phone: string;
@@ -41,7 +42,7 @@ export interface DealershipApplicationData {
 }
 
 export interface DealershipDraftData {
-  // Step 1: Dados da conta / responsável
+  // Step 1: Dados da conta / responsável (sensitive fields: ephemeral only)
   firstName: string;
   lastName: string;
   birthDate: string;
@@ -51,7 +52,7 @@ export interface DealershipDraftData {
 
   // Step 2: Dados da revenda
   dealershipName: string;
-  cnpj: string;
+  cnpj: string; // Plaintext CNPJ: ephemeral only
 
   // Step 3: Contato e endereço
   phone: string;
@@ -93,7 +94,7 @@ export const DEFAULT_DEMO_DEALER_APPLICATION: DealershipApplicationData = {
   email: 'contato@liderveiculos.com.br',
   dealershipName: 'Líder Veículos e Seminovos Ltda',
   tradeName: 'Líder Seminovos',
-  cnpj: '11222333000181',
+  cnpj: '', // Stripped for security
   cnpjMasked: '11.***.***/0001-81',
   phone: '(31) 3822-4000',
   address: 'Av. Pedro Linhares Gomes, 4500, Horto',
@@ -104,7 +105,7 @@ export const DEFAULT_DEMO_DEALER_APPLICATION: DealershipApplicationData = {
 };
 
 interface DealerStoreState {
-  // Session & Authentication
+  // Session & Authentication (Ephemeral in memory)
   isAuthenticated: boolean;
   sessionToken: string | null;
   account: AuthAccount | null;
@@ -186,15 +187,15 @@ export const useDealerStore = create<DealerStoreState>()(
 
         const demoSessionToken = `fdc_dealer_${Date.now().toString(36)}`;
 
-        // Set session cookie for Next.js middleware in browser environment
-        if (typeof document !== 'undefined') {
+        // In dev/test, set cookie for local middleware simulation; never in production
+        if (typeof document !== 'undefined' && !isProductionEnvironment()) {
           document.cookie = `fdc_web_session=${demoSessionToken}; path=/; SameSite=Lax`;
         }
 
         set({
           application: newApplication,
-          isAuthenticated: true,
-          sessionToken: demoSessionToken,
+          isAuthenticated: !isProductionEnvironment(),
+          sessionToken: isProductionEnvironment() ? null : demoSessionToken,
           account: {
             id: `acc-dealer-${Date.now().toString(36)}`,
             email: mergedDraft.email,
@@ -206,6 +207,12 @@ export const useDealerStore = create<DealerStoreState>()(
             documentNumber: maskCnpjForDisplay(cleanCnpjDigits),
             dealershipName: mergedDraft.dealershipName,
             createdAt: now.toISOString(),
+          },
+          // Clear sensitive password fields in draft once submitted
+          draft: {
+            ...mergedDraft,
+            password: '',
+            confirmPassword: '',
           },
           activeStep: 4,
         });
@@ -251,6 +258,11 @@ export const useDealerStore = create<DealerStoreState>()(
       },
 
       loginSimulation: (email, targetAccount) => {
+        if (isProductionEnvironment()) {
+          // Fail closed in production: demo login simulation is prohibited
+          return false;
+        }
+
         const normalized = normalizeEmail(email);
         const account = targetAccount || findAccountByEmail(normalized);
 
@@ -299,6 +311,8 @@ export const useDealerStore = create<DealerStoreState>()(
           isAuthenticated: false,
           sessionToken: null,
           account: null,
+          draft: INITIAL_DEALER_DRAFT,
+          activeStep: 1,
         });
       },
     }),
@@ -314,12 +328,35 @@ export const useDealerStore = create<DealerStoreState>()(
           removeItem: () => {},
         };
       }),
+      // SEC-003 & PRIVACY INVARIANT:
+      // Strip passwords, session tokens, and plaintext CNPJs from persistent storage.
       partialize: (state) => ({
-        isAuthenticated: state.isAuthenticated,
-        sessionToken: state.sessionToken,
-        account: state.account,
-        application: state.application,
-        draft: state.draft,
+        isAuthenticated: false, // In memory only; requires server validation
+        sessionToken: null, // Never persist raw session tokens
+        account: state.account
+          ? {
+              id: state.account.id,
+              email: state.account.email,
+              normalizedEmail: state.account.normalizedEmail,
+              fullName: state.account.fullName,
+              role: state.account.role,
+              status: state.account.status,
+              dealershipName: state.account.dealershipName,
+              documentNumber: state.account.documentNumber, // Already masked
+              phone: state.account.phone,
+              createdAt: state.account.createdAt,
+            }
+          : null,
+        application: {
+          ...state.application,
+          cnpj: '', // Never persist plaintext CNPJ in localStorage
+        },
+        draft: {
+          ...state.draft,
+          password: '', // Never persist password
+          confirmPassword: '', // Never persist password confirmation
+          cnpj: '', // Never persist plaintext CNPJ in draft storage
+        },
         activeStep: state.activeStep,
       }),
     },

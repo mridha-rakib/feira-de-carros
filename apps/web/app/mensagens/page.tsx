@@ -732,6 +732,7 @@ function MessagesContent() {
                     <button
                       type="submit"
                       disabled={!inputMessage.trim()}
+                      aria-label="Enviar"
                       className="h-[42px] px-5 bg-[#e0151f] hover:bg-[#b91c1c] disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold text-[13px] rounded-[8px] flex items-center gap-1.5 transition-colors shadow-xs"
                     >
                       <span className="hidden sm:inline">Enviar</span>

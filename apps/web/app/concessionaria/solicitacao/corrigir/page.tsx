@@ -34,7 +34,7 @@ export default function DealershipCorrectionPage() {
   const { application, resubmitCorrection } = useDealerStore();
 
   const [dealershipName, setDealershipName] = useState(application.dealershipName || '');
-  const [cnpj, setCnpj] = useState(application.cnpj || '');
+  const [cnpj, setCnpj] = useState(application.cnpj || application.cnpjMasked || '');
   const [phone, setPhone] = useState(application.phone || '');
   const [address, setAddress] = useState(application.address || '');
   const [city, setCity] = useState(application.city || 'Ipatinga');
@@ -69,7 +69,10 @@ export default function DealershipCorrectionPage() {
       return;
     }
 
-    if (!isValidCnpj(cnpj)) {
+    const isUnchangedMasked =
+      cnpj.includes('*') && Boolean(application.cnpjMasked) && cnpj === application.cnpjMasked;
+
+    if (!isUnchangedMasked && !isValidCnpj(cnpj)) {
       setErrorMessage('CNPJ inválido. Verifique os dígitos verificadores da Receita Federal.');
       return;
     }
@@ -88,12 +91,16 @@ export default function DealershipCorrectionPage() {
 
     try {
       // 1. Update dealer store
-      const cleanDigits = cnpj.replace(/\D/g, '');
+      const cleanDigits = isUnchangedMasked ? application.cnpj || '' : cnpj.replace(/\D/g, '');
+      const cleanMasked = isUnchangedMasked
+        ? application.cnpjMasked || maskCnpjForDisplay(cleanDigits)
+        : maskCnpjForDisplay(cleanDigits);
+
       resubmitCorrection({
         dealershipName: dealershipName.trim(),
         tradeName: dealershipName.trim(),
         cnpj: cleanDigits,
-        cnpjMasked: maskCnpjForDisplay(cleanDigits),
+        cnpjMasked: cleanMasked,
         phone: phone.trim(),
         address: address.trim(),
         city: city.trim(),

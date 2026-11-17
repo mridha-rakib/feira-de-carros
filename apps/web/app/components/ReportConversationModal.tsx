@@ -84,7 +84,7 @@ export function ReportConversationModal({
         if (e.key === 'Escape') handleClose();
       }}
     >
-      <div className="bg-white rounded-[16px] max-w-[520px] w-full p-6 shadow-2xl border border-[#e2e7ee] relative overflow-hidden">
+      <div className="bg-white rounded-[16px] max-w-[520px] w-full p-6 shadow-2xl border border-[#e2e7ee] relative max-h-[90vh] overflow-y-auto">
         <button
           type="button"
           onClick={handleClose}

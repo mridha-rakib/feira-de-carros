@@ -18,6 +18,23 @@ const viewports = [
 ];
 
 test.describe('Visual Screenshots for Dealership Batch D1', () => {
+  test.beforeEach(async ({ context }) => {
+    await context.addCookies([
+      {
+        name: 'fdc_web_session',
+        value: 'demo_dealer_session',
+        domain: 'localhost',
+        path: '/',
+      },
+      {
+        name: 'fdc_runtime_env',
+        value: 'test',
+        domain: 'localhost',
+        path: '/',
+      },
+    ]);
+  });
+
   for (const vp of viewports) {
     test(`Capture Batch D1 screens at ${vp.name} (${vp.width}x${vp.height})`, async ({ page }) => {
       await page.setViewportSize({ width: vp.width, height: vp.height });

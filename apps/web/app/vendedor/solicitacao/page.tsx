@@ -1,6 +1,12 @@
 'use client';
 
 import { MOCK_APPLICANT_DATA } from '@/lib/adapters/mock-seller-data';
+import {
+  isEmailRegisteredGlobally,
+  normalizeEmail,
+  registerDemoAccount,
+} from '@/lib/adapters/shared-auth-registry';
+import { isProductionEnvironment } from '@/lib/security/environment';
 import { validateSellerApplicationForm } from '@/lib/utils/seller-validation';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -33,6 +39,7 @@ export default function SellerApplicationPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
     const validation = validateSellerApplicationForm({
       fullName: applicant.fullName,
@@ -55,11 +62,42 @@ export default function SellerApplicationPage() {
       );
       return;
     }
+
+    const cleanEmail = normalizeEmail(applicant.email);
+    if (isEmailRegisteredGlobally(cleanEmail)) {
+      setErrorMsg(
+        'Este e-mail já está cadastrado na plataforma. Uma conta já existe com este endereço (faça login ou utilize outro e-mail).',
+      );
+      return;
+    }
+
     setErrorMsg('');
     setIsSubmitting(true);
 
-    // Simulate API call to POST /v1/seller-applications
+    // Simulate API call to POST /v1/seller-applications and register in shared auth registry
     setTimeout(() => {
+      const regResult = registerDemoAccount({
+        email: cleanEmail,
+        fullName: applicant.fullName,
+        role: 'seller',
+        status: 'pending_approval',
+        phone: applicant.phone,
+        documentNumber: applicant.cpfMasked,
+      });
+
+      if (!regResult.success) {
+        setIsSubmitting(false);
+        setErrorMsg(
+          regResult.error ||
+            'Não foi possível registrar a conta de vendedor. O e-mail informado já está em uso na plataforma.',
+        );
+        return;
+      }
+
+      if (typeof document !== 'undefined' && !isProductionEnvironment()) {
+        document.cookie = 'fdc_web_session=demo_seller_session; path=/; SameSite=Lax';
+      }
+
       setIsSubmitting(false);
       setSubmitted(true);
       setTimeout(() => {

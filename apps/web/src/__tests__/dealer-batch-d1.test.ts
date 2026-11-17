@@ -5,12 +5,15 @@ import {
   submitDealershipApplication,
 } from '../../lib/adapters/dealer-application-adapter';
 import {
+  DEMO_FIXTURE_PASSWORD,
   authenticateDemoLogin,
   findAccountByEmail,
   getRoleDestination,
   isEmailRegisteredGlobally,
+  isSafeRedirect,
   normalizeEmail,
   registerDemoAccount,
+  resetAccountsRegistry,
 } from '../../lib/adapters/shared-auth-registry';
 import {
   formatBrazilianPhone,
@@ -24,8 +27,9 @@ import { useDealerStore } from '../../stores/use-dealer-store';
 
 describe('Dealership Frontend Batch D1 — Registration, Lifecycle & Shared Auth', () => {
   beforeEach(() => {
-    // Reset Zustand store state before each test
+    // Reset Zustand store state and shared accounts registry before each test
     useDealerStore.getState().resetDraft();
+    resetAccountsRegistry();
   });
 
   // 1. Dealership account registration
@@ -424,5 +428,233 @@ describe('Dealership Frontend Batch D1 — Registration, Lifecycle & Shared Auth
     expect(isValidBrazilianPhone(rawLandline)).toBe(true);
     expect(isValidBrazilianPhone(rawMobile)).toBe(true);
     expect(isValidBrazilianPhone('123')).toBe(false);
+  });
+
+  // 18. Demo Authentication Security & Password Verification
+  it('Scenario 18: Enforces strict credential verification for demo authentication', () => {
+    // 1. Unknown email must NOT authenticate and must NOT create a dummy buyer
+    const unknownRes = authenticateDemoLogin('desconhecido.inexistente@exemplo.com.br', '123456');
+    expect(unknownRes.success).toBe(false);
+    expect(unknownRes.error).toContain('Conta não encontrada');
+    expect(findAccountByEmail('desconhecido.inexistente@exemplo.com.br')).toBeUndefined();
+
+    // 2. Empty or invalid email format
+    const emptyEmailRes = authenticateDemoLogin('', '123456');
+    expect(emptyEmailRes.success).toBe(false);
+
+    // 3. Known account with invalid password
+    const wrongPassRes = authenticateDemoLogin('comprador@exemplo.com.br', 'senha_incorreta');
+    expect(wrongPassRes.success).toBe(false);
+    expect(wrongPassRes.error).toContain('Verifique suas credenciais');
+
+    // 4. Known account with empty password
+    const emptyPassRes = authenticateDemoLogin('comprador@exemplo.com.br', '');
+    expect(emptyPassRes.success).toBe(false);
+
+    // 5. Valid credentials for known account
+    const validRes = authenticateDemoLogin('comprador@exemplo.com.br', '123456');
+    expect(validRes.success).toBe(true);
+    expect(validRes.account?.email).toBe('comprador@exemplo.com.br');
+    expect(validRes.destination).toBe('/conta');
+
+    // Standard fixture password also works
+    const standardPassRes = authenticateDemoLogin(
+      'comprador@exemplo.com.br',
+      DEMO_FIXTURE_PASSWORD,
+    );
+    expect(standardPassRes.success).toBe(true);
+  });
+
+  // 19. Option 2 Global Email Uniqueness (10 Required Cases)
+  it('Scenario 19: Enforces Option 2 Global Email Uniqueness across all 10 required cases', () => {
+    // Case 1: Buyer email cannot register another Buyer
+    const case1 = registerDemoAccount({
+      email: 'comprador@exemplo.com.br',
+      fullName: 'Outro Comprador',
+      role: 'member',
+      status: 'active',
+    });
+    expect(case1.success).toBe(false);
+    expect(case1.errorCode).toBe('EMAIL_ALREADY_REGISTERED');
+
+    // Case 2: Buyer email cannot register Seller
+    const case2 = registerDemoAccount({
+      email: 'comprador@exemplo.com.br',
+      fullName: 'Comprador Tentando Vender',
+      role: 'seller',
+      status: 'pending_approval',
+    });
+    expect(case2.success).toBe(false);
+    expect(case2.errorCode).toBe('EMAIL_ALREADY_REGISTERED');
+
+    // Case 3: Buyer email cannot register Dealer
+    const case3 = registerDemoAccount({
+      email: 'comprador@exemplo.com.br',
+      fullName: 'Comprador Tentando Concessionaria',
+      role: 'dealer',
+      status: 'pending_approval',
+    });
+    expect(case3.success).toBe(false);
+    expect(case3.errorCode).toBe('EMAIL_ALREADY_REGISTERED');
+
+    // Case 4: Seller email cannot register Buyer
+    const case4 = registerDemoAccount({
+      email: 'vendedor@exemplo.com.br',
+      fullName: 'Vendedor Tentando Comprar',
+      role: 'member',
+      status: 'active',
+    });
+    expect(case4.success).toBe(false);
+    expect(case4.errorCode).toBe('EMAIL_ALREADY_REGISTERED');
+
+    // Case 5: Seller email cannot register Dealer
+    const case5 = registerDemoAccount({
+      email: 'vendedor@exemplo.com.br',
+      fullName: 'Vendedor Tentando Concessionaria',
+      role: 'dealer',
+      status: 'pending_approval',
+    });
+    expect(case5.success).toBe(false);
+    expect(case5.errorCode).toBe('EMAIL_ALREADY_REGISTERED');
+
+    // Case 6: Dealer email cannot register Buyer
+    const case6 = registerDemoAccount({
+      email: 'contato@liderveiculos.com.br',
+      fullName: 'Dealer Tentando Comprar',
+      role: 'member',
+      status: 'active',
+    });
+    expect(case6.success).toBe(false);
+    expect(case6.errorCode).toBe('EMAIL_ALREADY_REGISTERED');
+
+    // Case 7: Dealer email cannot register Seller
+    const case7 = registerDemoAccount({
+      email: 'contato@liderveiculos.com.br',
+      fullName: 'Dealer Tentando Vendedor',
+      role: 'seller',
+      status: 'pending_approval',
+    });
+    expect(case7.success).toBe(false);
+    expect(case7.errorCode).toBe('EMAIL_ALREADY_REGISTERED');
+
+    // Case 8: Case-insensitive duplicate detection
+    const case8 = registerDemoAccount({
+      email: 'COMPRADOR@EXEMPLO.COM.BR',
+      fullName: 'Comprador Maiusculo',
+      role: 'member',
+      status: 'active',
+    });
+    expect(case8.success).toBe(false);
+    expect(case8.errorCode).toBe('EMAIL_ALREADY_REGISTERED');
+
+    // Case 9: Whitespace normalization
+    const case9 = registerDemoAccount({
+      email: '   comprador@exemplo.com.br   ',
+      fullName: 'Comprador Espacado',
+      role: 'member',
+      status: 'active',
+    });
+    expect(case9.success).toBe(false);
+    expect(case9.errorCode).toBe('EMAIL_ALREADY_REGISTERED');
+
+    // Case 10: Successful registration of unique email & subsequent duplicate resistance
+    const uniqueEmail = `novo.usuario.${Date.now()}@exemplo.com`;
+    const regSuccess = registerDemoAccount({
+      email: uniqueEmail,
+      fullName: 'Usuario Unico Teste',
+      role: 'member',
+      status: 'active',
+    });
+    expect(regSuccess.success).toBe(true);
+
+    // Immediate re-registration fails
+    const reReg = registerDemoAccount({
+      email: uniqueEmail,
+      fullName: 'Tentativa Imediata Duplicada',
+      role: 'dealer',
+      status: 'pending_approval',
+    });
+    expect(reReg.success).toBe(false);
+    expect(reReg.errorCode).toBe('EMAIL_ALREADY_REGISTERED');
+  });
+
+  // 20. Sensitive Data Protection & Store Sanitization
+  it('Scenario 20: Ensures sensitive passwords, session secrets, and plaintext CNPJ are stripped from persistent storage', () => {
+    const store = useDealerStore.getState();
+
+    store.updateDraft({
+      firstName: 'Carlos',
+      lastName: 'Eduardo',
+      birthDate: '10/10/1985',
+      email: 'carlos@automoveis.com.br',
+      password: 'SuperSecretPassword@2026',
+      confirmPassword: 'SuperSecretPassword@2026',
+      dealershipName: 'Carlos Automóveis Ltda',
+      cnpj: '11.222.333/0001-81',
+      phone: '(31) 98765-4321',
+      address: 'Rua das Flores, 50',
+    });
+
+    // In ephemeral memory, draft has the fields
+    expect(useDealerStore.getState().draft.password).toBe('SuperSecretPassword@2026');
+    expect(useDealerStore.getState().draft.cnpj).toBe('11.222.333/0001-81');
+
+    // Submit application
+    store.submitApplication();
+
+    // Sensitive passwords in draft are wiped immediately after submission
+    expect(useDealerStore.getState().draft.password).toBe('');
+    expect(useDealerStore.getState().draft.confirmPassword).toBe('');
+
+    // Verification of partialize behavior (what gets written to localStorage)
+    const rawOptions = (
+      useDealerStore as unknown as {
+        persist: { getOptions: () => { partialize: (state: unknown) => unknown } };
+      }
+    ).persist.getOptions();
+    const persistedData = rawOptions.partialize(useDealerStore.getState()) as {
+      isAuthenticated: boolean;
+      sessionToken: string | null;
+      draft: { password?: string; confirmPassword?: string; cnpj?: string };
+      application: { cnpj?: string };
+    };
+
+    expect(persistedData.isAuthenticated).toBe(false);
+    expect(persistedData.sessionToken).toBeNull();
+    expect(persistedData.draft.password).toBe('');
+    expect(persistedData.draft.confirmPassword).toBe('');
+    expect(persistedData.draft.cnpj).toBe('');
+    expect(persistedData.application.cnpj).toBe('');
+  });
+
+  // 21. Dealership Registration Transaction Order
+  it('Scenario 21: Enforces that account registration is confirmed before committing application state', () => {
+    // If a collision occurs (e.g. email already exists), registration returns failure
+    const collisionAttempt = registerDemoAccount({
+      email: 'contato@liderveiculos.com.br', // Already in use by seed dealer
+      fullName: 'Tentativa Conflito',
+      role: 'dealer',
+      status: 'pending_approval',
+    });
+
+    expect(collisionAttempt.success).toBe(false);
+    expect(collisionAttempt.errorCode).toBe('EMAIL_ALREADY_REGISTERED');
+  });
+
+  // 22. Strict Redirect Sanitization
+  it('Scenario 22: Enforces strict redirect sanitization rejecting bypasses', () => {
+    expect(isSafeRedirect('/conta')).toBe(true);
+    expect(isSafeRedirect('/veiculos/123')).toBe(true);
+    expect(isSafeRedirect('/concessionaria/solicitacao/status')).toBe(true);
+
+    // Malicious or bypass attempts
+    expect(isSafeRedirect('//evil.com')).toBe(false);
+    expect(isSafeRedirect('/\\evil.com')).toBe(false);
+    expect(isSafeRedirect('/foo@evil.com')).toBe(false);
+    expect(isSafeRedirect('/path\r\nevil.com')).toBe(false);
+    expect(isSafeRedirect('javascript:alert(1)')).toBe(false);
+    expect(isSafeRedirect('https://google.com')).toBe(false);
+    expect(isSafeRedirect(null)).toBe(false);
+    expect(isSafeRedirect('')).toBe(false);
   });
 });

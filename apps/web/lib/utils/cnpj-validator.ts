@@ -93,14 +93,6 @@ export function isValidCnpj(cnpj: string): boolean {
  * Validates a Brazilian date of birth string (DD/MM/AAAA or YYYY-MM-DD)
  * and verifies that the applicant is at least 18 years of age.
  */
-export function isAtLeast18YearsOld(dateString: string): boolean {
-  const res = validateAgeEligibility(dateString);
-  return res.isValid && res.isAdult;
-}
-
-/**
- * Validates date of birth format and detailed age calculation.
- */
 export function validateAgeEligibility(dateString: string): {
   isValid: boolean;
   isAdult: boolean;
@@ -177,6 +169,13 @@ export function validateAgeEligibility(dateString: string): {
   }
 
   return { isValid: true, isAdult: true, age, formattedIso };
+}
+
+/**
+ * Convenience helper returning boolean for legal majority check (18+).
+ */
+export function isAtLeast18YearsOld(dateString: string): boolean {
+  return validateAgeEligibility(dateString).isAdult;
 }
 
 /**
