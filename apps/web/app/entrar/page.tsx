@@ -5,7 +5,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
+import {
+  authenticateDemoLogin,
+  findAccountByEmail,
+  normalizeEmail,
+} from '../../lib/adapters/shared-auth-registry';
 import { useBuyerStore } from '../../stores/use-buyer-store';
+import { useDealerStore } from '../../stores/use-dealer-store';
 import { MarketplaceFooter } from '../components/MarketplaceFooter';
 import { MarketplaceHeader } from '../components/MarketplaceHeader';
 import {
@@ -54,7 +60,8 @@ function LoginFormContent() {
     e.preventDefault();
     setErrorMessage('');
 
-    if (!email.trim() || !email.includes('@')) {
+    const cleanEmail = email.trim();
+    if (!cleanEmail || !cleanEmail.includes('@')) {
       setErrorMessage('Por favor, informe um endereço de e-mail válido.');
       return;
     }
@@ -73,15 +80,40 @@ function LoginFormContent() {
 
     setIsLoading(true);
 
-    // Frontend simulation of buyer login
     setTimeout(() => {
-      if (typeof document !== 'undefined') {
-        document.cookie = 'fdc_web_session=demo_buyer_session; path=/; SameSite=Lax';
+      const authResult = authenticateDemoLogin(cleanEmail, password, redirectTarget);
+
+      if (!authResult.success) {
+        setIsLoading(false);
+        setErrorMessage(
+          authResult.error ||
+            'Não foi possível concluir o login. Verifique seus dados e tente novamente.',
+        );
+        return;
       }
-      loginSimulation(email.trim());
+
+      const account = authResult.account;
+      const targetDestination = authResult.destination || '/conta';
+
+      if (account?.role === 'dealer') {
+        if (typeof document !== 'undefined') {
+          document.cookie = 'fdc_web_session=demo_dealer_session; path=/; SameSite=Lax';
+        }
+        useDealerStore.getState().loginSimulation(cleanEmail, account);
+      } else if (account?.role === 'seller') {
+        if (typeof document !== 'undefined') {
+          document.cookie = 'fdc_web_session=demo_seller_session; path=/; SameSite=Lax';
+        }
+      } else {
+        if (typeof document !== 'undefined') {
+          document.cookie = 'fdc_web_session=demo_buyer_session; path=/; SameSite=Lax';
+        }
+        loginSimulation(cleanEmail);
+      }
+
       setIsLoading(false);
-      router.push(redirectTarget);
-    }, 600);
+      router.push(targetDestination);
+    }, 500);
   };
 
   return (
@@ -235,6 +267,81 @@ function LoginFormContent() {
                   <span className="font-black text-[14px]"></span>
                   <span>Continuar com Apple</span>
                 </button>
+              </div>
+
+              {/* Persona Fast-Fills for Testing & Evaluation (Phase 2 Shared Login Alignment) */}
+              <div className="mt-6 p-3.5 bg-[#f5f8fc] border border-[#d8e2ee] rounded-[10px]">
+                <p className="text-[11px] font-bold text-[#14223b] uppercase tracking-wider mb-2 text-center">
+                  Contas de Demonstração por Perfil (AUTH-022)
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[10px]">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmail('comprador@exemplo.com.br');
+                      setPassword('123456');
+                    }}
+                    className="p-1.5 bg-white border border-[#cad5e2] hover:bg-[#ebf2fb] rounded-[6px] text-left transition-colors font-medium text-[#1e293b]"
+                  >
+                    <span className="block font-bold text-[#2563eb]">Comprador</span>
+                    <span>comprador@...</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmail('vendedor@exemplo.com.br');
+                      setPassword('123456');
+                    }}
+                    className="p-1.5 bg-white border border-[#cad5e2] hover:bg-[#ebf2fb] rounded-[6px] text-left transition-colors font-medium text-[#1e293b]"
+                  >
+                    <span className="block font-bold text-[#d97706]">Vendedor</span>
+                    <span>vendedor@...</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmail('contato@liderveiculos.com.br');
+                      setPassword('123456');
+                    }}
+                    className="p-1.5 bg-white border border-[#cad5e2] hover:bg-[#ebf2fb] rounded-[6px] text-left transition-colors font-medium text-[#1e293b]"
+                  >
+                    <span className="block font-bold text-[#059669]">Dealer (Ativo)</span>
+                    <span>contato@lider...</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmail('dealer.pendente@exemplo.com');
+                      setPassword('123456');
+                    }}
+                    className="p-1.5 bg-white border border-[#cad5e2] hover:bg-[#ebf2fb] rounded-[6px] text-left transition-colors font-medium text-[#1e293b]"
+                  >
+                    <span className="block font-bold text-[#6366f1]">Dealer (Pendente)</span>
+                    <span>dealer.pendente@...</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmail('dealer.corrigir@exemplo.com');
+                      setPassword('123456');
+                    }}
+                    className="p-1.5 bg-white border border-[#cad5e2] hover:bg-[#ebf2fb] rounded-[6px] text-left transition-colors font-medium text-[#1e293b]"
+                  >
+                    <span className="block font-bold text-[#ea580c]">Dealer (Corrigir)</span>
+                    <span>dealer.corrigir@...</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmail('admin@feiradecarros.com.br');
+                      setPassword('123456');
+                    }}
+                    className="p-1.5 bg-white border border-[#cad5e2] hover:bg-[#fee2e2] rounded-[6px] text-left transition-colors font-medium text-[#991b1b]"
+                  >
+                    <span className="block font-bold text-[#dc2626]">Staff Admin</span>
+                    <span>admin@feira...</span>
+                  </button>
+                </div>
               </div>
 
               {/* Navigation Links matching Figma 1279:1137 */}

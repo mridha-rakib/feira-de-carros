@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { isEmailRegisteredGlobally } from '../../lib/adapters/shared-auth-registry';
 import { useBuyerStore } from '../../stores/use-buyer-store';
 import { MarketplaceFooter } from '../components/MarketplaceFooter';
 import { MarketplaceHeader } from '../components/MarketplaceHeader';
@@ -102,9 +103,13 @@ export default function BuyerRegistrationPage() {
       return;
     }
 
-    if (simulateDuplicateEmail || email.trim().toLowerCase() === 'existente@exemplo.com') {
+    if (
+      simulateDuplicateEmail ||
+      email.trim().toLowerCase() === 'existente@exemplo.com' ||
+      isEmailRegisteredGlobally(email.trim())
+    ) {
       setErrorMessage(
-        'Este endereço de e-mail já possui cadastro na plataforma. Faça login ou recupere sua senha.',
+        'Este endereço de e-mail já possui cadastro na plataforma. Uma conta já existe com este endereço (faça login ou utilize outro e-mail).',
       );
       return;
     }

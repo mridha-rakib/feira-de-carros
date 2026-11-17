@@ -8,6 +8,8 @@ const PUBLIC_ENTRYPOINTS = new Set([
   '/seller/sell',
   '/seller/application',
   '/vendedor/solicitacao',
+  '/dealer/application',
+  '/concessionaria/solicitacao',
   '/entrar',
   '/login',
   '/cadastrar',
@@ -28,6 +30,7 @@ const PROTECTED_PREFIXES = [
   '/seller',
   '/dealer',
   '/vendedor',
+  '/concessionaria',
   '/conta',
   '/buscas-salvas',
 ];
@@ -35,10 +38,11 @@ const PROTECTED_PREFIXES = [
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 1. Preserve public seller onboarding and authentication entrypoints
+  // 1. Preserve public seller and dealership onboarding and authentication entrypoints
   const isPublicEntrypoint =
     PUBLIC_ENTRYPOINTS.has(pathname) ||
     pathname === '/vendedor/solicitacao/' ||
+    pathname === '/concessionaria/solicitacao/' ||
     pathname.startsWith('/entrar/') ||
     pathname.startsWith('/login/') ||
     pathname.startsWith('/cadastrar/') ||
@@ -78,6 +82,8 @@ export const config = {
     '/seller/:path*',
     '/dealer/:path*',
     '/vendedor/:path*',
+    '/concessionaria/:path*',
     '/conta/:path*',
+    '/buscas-salvas/:path*',
   ],
 };
