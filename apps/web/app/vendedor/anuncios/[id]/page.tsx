@@ -222,16 +222,22 @@ export default function SellerListingDetailPage() {
                     <span>Ver revisões</span>
                   </Link>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setToastMessage('Redirecionando para as opções de destaque do anúncio...');
-                    }}
-                    className="h-12 px-5 bg-white hover:bg-gray-50 text-[#101828] font-semibold rounded-[7px] flex items-center justify-center gap-2 text-sm border border-[#d7dfea] transition-colors"
-                  >
-                    <IconStar className="size-4 text-[#b86b0a]" />
-                    <span>Destacar anúncio</span>
-                  </button>
+                  <>
+                    <Link
+                      href={`/vendedor/anuncios/${listing.id}/impulsionar`}
+                      className="h-12 px-5 bg-white hover:bg-gray-50 text-[#101828] font-semibold rounded-[7px] flex items-center justify-center gap-2 text-sm border border-[#d7dfea] transition-colors"
+                    >
+                      <IconStar className="size-4 text-[#b86b0a]" />
+                      <span>Destacar anúncio</span>
+                    </Link>
+                    <Link
+                      href={`/vendedor/anuncios/${listing.id}/renovar`}
+                      className="h-12 px-5 bg-white hover:bg-gray-50 text-[#101828] font-semibold rounded-[7px] flex items-center justify-center gap-2 text-sm border border-[#d7dfea] transition-colors"
+                    >
+                      <IconCalendar className="size-4 text-[#0066cc]" />
+                      <span>Renovar</span>
+                    </Link>
+                  </>
                 )}
 
                 {listing.status !== 'SOLD' && (

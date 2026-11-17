@@ -262,17 +262,19 @@ export function getSellerDetailedListings(): SellerListingDetail[] {
 }
 
 export function getSellerListingById(id: string): SellerListingDetail | undefined {
+  if (!id) return undefined;
   // Normalize comparisons (handle case-insensitive and prefix variations e.g. web-028 -> FDC-2026-0142)
   const normalizedId = id.trim().toUpperCase();
-  return (
-    currentListings.find(
-      (item) =>
-        item.id.toUpperCase() === normalizedId ||
-        (normalizedId.includes('CORRIGIR') && item.status === 'CORRECTION_REQUESTED') ||
-        (normalizedId === '1' && item.id === 'FDC-2026-0142') ||
-        (normalizedId === '2' && item.id === 'FC-2026-0151') ||
-        (normalizedId === '3' && item.id === 'FDC-2026-0189'),
-    ) || currentListings[0]
+  return currentListings.find(
+    (item) =>
+      item.id.toUpperCase() === normalizedId ||
+      (normalizedId.includes('CORRIGIR') && item.status === 'CORRECTION_REQUESTED') ||
+      (normalizedId === '1' && item.id === 'FDC-2026-0142') ||
+      (normalizedId === '2' && item.id === 'FC-2026-0151') ||
+      (normalizedId === '3' && item.id === 'FDC-2026-0189') ||
+      (normalizedId === 'DEMO' && item.id === 'FDC-2026-0142') ||
+      (normalizedId === 'WEB-028' && item.id === 'FDC-2026-0142') ||
+      (normalizedId === 'WEB-027' && item.id === 'FC-2026-0151'),
   );
 }
 

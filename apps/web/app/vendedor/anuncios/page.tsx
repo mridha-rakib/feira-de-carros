@@ -335,15 +335,22 @@ export default function SellerListingsPage() {
                               >
                                 Impulsionar anúncio
                               </Link>
+                              <Link
+                                href={`/vendedor/anuncios/${item.id}/renovar`}
+                                className="block px-4 py-2 text-sm text-[#0066cc] font-medium hover:bg-blue-50"
+                                onClick={() => setActiveMenuId(null)}
+                              >
+                                Renovar anúncio
+                              </Link>
                             </>
                           )}
                           {item.status === 'PENDING_PAYMENT' && (
                             <Link
-                              href={`/vendedor/pedidos/${item.id}/pix`}
+                              href={`/vendedor/anuncios/${item.id}/plano`}
                               className="block px-4 py-2 text-sm text-amber-700 font-medium hover:bg-amber-50"
                               onClick={() => setActiveMenuId(null)}
                             >
-                              Efetuar pagamento
+                              Escolher plano / Pagar
                             </Link>
                           )}
                         </div>
@@ -424,6 +431,13 @@ export default function SellerListingsPage() {
                           className="text-[11px] font-semibold text-[#1447e6] hover:underline"
                         >
                           Ver revisões
+                        </Link>
+                      ) : item.status === 'PENDING_PAYMENT' ? (
+                        <Link
+                          href={`/vendedor/anuncios/${item.id}/plano`}
+                          className="text-[11px] font-semibold text-amber-700 hover:underline"
+                        >
+                          Pagar plano
                         </Link>
                       ) : (
                         <Link
