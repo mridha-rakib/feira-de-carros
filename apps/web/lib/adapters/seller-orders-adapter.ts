@@ -10,6 +10,7 @@ import type {
   PaymentMethod,
   SellerOrder,
 } from '../types/seller-presentation';
+import { getSellerListingById } from './seller-listings-adapter';
 
 /**
  * Deterministic In-Memory Adapter for Seller Orders and Payment History.
@@ -222,12 +223,14 @@ export function createOrGetOrderForListing(
     return existing;
   }
 
+  const listing = getSellerListingById(listingId);
+
   const newOrder: SellerOrder = {
     id: `PED-2026-${Math.floor(1000 + Math.random() * 9000)}`,
     listingId,
-    listingTitle: 'Fiat Strada Endurance 2023',
-    listingSubtitle: 'Picape • Flex • Manual',
-    listingImageUrl: '/images/vehicles/demo/fiat-strada-2023.jpg',
+    listingTitle: listing?.title || 'Anúncio Feira de Carros',
+    listingSubtitle: listing?.subtitle || 'Veículo anunciado',
+    listingImageUrl: listing?.imageUrl || '/images/vehicles/demo/fiat-strada-2023.jpg',
     orderType,
     planId,
     planName: plan.name,

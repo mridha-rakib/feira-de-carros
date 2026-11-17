@@ -38,11 +38,12 @@ describe('Seller Frontend Batch S5 — Final Screens Test Suite', () => {
       }
     });
 
-    it('returns fallback analytics for an un-seeded listing ID', () => {
-      const fallback = getListingAnalytics('NONEXISTENT-999');
-      expect(fallback).toBeDefined();
-      expect(fallback?.dailyMetrics.length).toBe(7);
-      expect(fallback?.totalDetailViews).toBeGreaterThanOrEqual(0);
+    it('strictly returns undefined for an unknown listing ID (enforcing data isolation)', () => {
+      const unknown = getListingAnalytics('NONEXISTENT-999');
+      expect(unknown).toBeUndefined();
+
+      const anotherUnknown = getListingAnalytics('OTHER-USER-VEHICLE-1234');
+      expect(anotherUnknown).toBeUndefined();
     });
 
     it('returns undefined for empty listing ID', () => {

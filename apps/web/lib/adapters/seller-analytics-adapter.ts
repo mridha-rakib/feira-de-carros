@@ -125,9 +125,73 @@ const MOCK_ANALYTICS: Record<string, ListingAnalyticsData> = {
     ],
     isMockData: true,
   },
+  'FDC-2026-0142': {
+    listingId: 'FDC-2026-0142',
+    listingTitle: 'Volkswagen Polo Track 2023',
+    listingSubtitle: 'Volkswagen · Hatch · Flex | 45.200 km',
+    listingImageUrl: '/images/vehicles/demo/vw-polo-2023.jpg',
+    periodLabel: 'Últimos 7 dias (demo)',
+    totalImpressions: 1284,
+    totalDetailViews: 256,
+    totalContactsStarted: 12,
+    dailyMetrics: [
+      {
+        date: '2026-10-21',
+        dayLabel: '21 out',
+        impressions: 160,
+        detailViews: 30,
+        contactsStarted: 1,
+      },
+      {
+        date: '2026-10-22',
+        dayLabel: '22 out',
+        impressions: 190,
+        detailViews: 40,
+        contactsStarted: 2,
+      },
+      {
+        date: '2026-10-23',
+        dayLabel: '23 out',
+        impressions: 150,
+        detailViews: 25,
+        contactsStarted: 1,
+      },
+      {
+        date: '2026-10-24',
+        dayLabel: '24 out',
+        impressions: 240,
+        detailViews: 50,
+        contactsStarted: 3,
+      },
+      {
+        date: '2026-10-25',
+        dayLabel: '25 out',
+        impressions: 180,
+        detailViews: 35,
+        contactsStarted: 2,
+      },
+      {
+        date: '2026-10-26',
+        dayLabel: '26 out',
+        impressions: 210,
+        detailViews: 42,
+        contactsStarted: 2,
+      },
+      {
+        date: '2026-10-27',
+        dayLabel: '27 out',
+        impressions: 154,
+        detailViews: 34,
+        contactsStarted: 1,
+      },
+    ],
+    isMockData: true,
+  },
 };
 
 export function getListingAnalytics(listingId: string): ListingAnalyticsData | undefined {
   if (!listingId) return undefined;
-  return MOCK_ANALYTICS[listingId] || MOCK_ANALYTICS['FC-2026-0151'];
+  // Strict data-isolation: Never fallback to another listing's metrics.
+  // Unknown or unauthorized listing IDs strictly return undefined.
+  return MOCK_ANALYTICS[listingId];
 }
