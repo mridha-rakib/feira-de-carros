@@ -18,7 +18,7 @@ const PUBLIC_ENTRYPOINTS = new Set([
  * interact with private applicant data (/v1/seller-applications/me) and require authentication.
  * Seller listings and management (/vendedor/anuncios) strictly require the Seller role.
  */
-const PROTECTED_PREFIXES = ['/buyer', '/seller', '/dealer', '/vendedor'];
+const PROTECTED_PREFIXES = ['/buyer', '/seller', '/dealer', '/vendedor', '/conta'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -59,5 +59,11 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/buyer/:path*', '/seller/:path*', '/dealer/:path*', '/vendedor/:path*'],
+  matcher: [
+    '/buyer/:path*',
+    '/seller/:path*',
+    '/dealer/:path*',
+    '/vendedor/:path*',
+    '/conta/:path*',
+  ],
 };

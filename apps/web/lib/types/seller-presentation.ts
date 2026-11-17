@@ -162,3 +162,96 @@ export interface PaymentKpiMetrics {
   totalPaidFormatted: string;
   activePlansCount: number;
 }
+
+export interface DailyAnalyticsMetric {
+  date: string;
+  dayLabel: string; // e.g. "21 out", "22 out"
+  impressions: number;
+  detailViews: number;
+  contactsStarted: number;
+}
+
+export interface ListingAnalyticsData {
+  listingId: string;
+  listingTitle: string;
+  listingSubtitle: string;
+  listingImageUrl: string;
+  periodLabel: string;
+  totalImpressions: number;
+  totalDetailViews: number;
+  totalContactsStarted: number;
+  dailyMetrics: DailyAnalyticsMetric[];
+  isMockData: boolean;
+}
+
+export interface ChatMessage {
+  id: string;
+  sender: 'buyer' | 'seller';
+  senderName: string;
+  text: string;
+  time: string;
+  photos?: string[];
+}
+
+export interface Conversation {
+  id: string;
+  buyerId: string;
+  buyerName: string;
+  buyerInitials: string;
+  buyerAvatar?: string;
+  vehicleId: string;
+  vehicleTitle: string;
+  vehicleSubtitle: string;
+  vehiclePriceFormatted: string;
+  vehicleLocation: string;
+  vehicleImageUrl: string;
+  lastMessage: string;
+  lastMessageTime: string;
+  unreadCount: number;
+  status: 'active' | 'archived' | 'reported' | 'blocked' | 'hidden';
+  reportReason?: string;
+  messages: ChatMessage[];
+  isMockData: boolean;
+}
+
+export type RefundStatus = 'REQUESTED' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED';
+
+export interface RefundRequest {
+  id: string;
+  orderId: string;
+  listingId: string;
+  listingTitle: string;
+  listingImageUrl: string;
+  amountCents: number;
+  amountFormatted: string;
+  paymentMethod: string;
+  applicantName: string;
+  reason: string;
+  details: string;
+  status: RefundStatus;
+  statusLabel: string;
+  requestedAtFormatted: string;
+  reviewedAtFormatted?: string;
+  decisionNote?: string;
+  isMockData: boolean;
+}
+
+export interface UserProfileData {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  city: string;
+  state: string;
+  cpfMasked: string;
+  roleLabel: string;
+  emailVerified: boolean;
+  phoneVerified: boolean;
+  notifications: {
+    emailMarketing: boolean;
+    whatsappAlerts: boolean;
+    newMessages: boolean;
+    statusUpdates: boolean;
+  };
+  isMockData: boolean;
+}

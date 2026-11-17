@@ -240,15 +240,22 @@ export default function SellerListingDetailPage() {
                   </>
                 )}
 
+                <Link
+                  href={`/vendedor/anuncios/${listing.id}/estatisticas`}
+                  className="h-12 px-5 bg-white hover:bg-gray-50 text-[#101828] font-semibold rounded-[7px] flex items-center justify-center gap-2 text-sm border border-[#d7dfea] transition-colors"
+                >
+                  <IconTrendingUp className="size-4 text-[#0369a1]" />
+                  <span>Ver estatísticas</span>
+                </Link>
+
                 {listing.status !== 'SOLD' && (
-                  <button
-                    type="button"
-                    onClick={() => setShowSoldModal(true)}
+                  <Link
+                    href={`/vendedor/anuncios/${listing.id}/vendido`}
                     className="h-12 px-5 bg-white hover:bg-gray-50 text-[#101828] font-semibold rounded-[7px] flex items-center justify-center gap-2 text-sm border border-[#d7dfea] transition-colors"
                   >
                     <IconCheck className="size-4" />
                     <span>Marcar como vendido</span>
-                  </button>
+                  </Link>
                 )}
               </div>
             </div>

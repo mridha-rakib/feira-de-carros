@@ -208,6 +208,7 @@ describe('Seller Frontend Batch S1 — Production Functional Tests', () => {
         'http://localhost:3000/vendedor/solicitacao/status',
         'http://localhost:3000/vendedor/solicitacao/corrigir',
         'http://localhost:3000/buyer/perfil',
+        'http://localhost:3000/conta/configuracoes',
       ];
 
       for (const url of protectedPaths) {
