@@ -4,6 +4,7 @@ import { MarketplaceFooter } from '@/app/components/MarketplaceFooter';
 import { MarketplaceHeader } from '@/app/components/MarketplaceHeader';
 import {
   IconCamera,
+  IconClock,
   IconEye,
   IconPlus,
   IconSearch,
@@ -21,9 +22,9 @@ import {
   type DealerVehiclePlan,
   type DealerVehicleStatus,
   MOCK_DEALER_INVENTORY_METRICS,
-  MOCK_DEALER_VEHICLES,
   filterAndSortDealerVehicles,
 } from '@/lib/adapters/mock-dealer-inventory';
+import { useDealerInventoryStore } from '@/stores/use-dealer-inventory-store';
 import { useDealerStore } from '@/stores/use-dealer-store';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -31,15 +32,14 @@ import React, { useMemo, useState } from 'react';
 
 export default function DealershipInventoryPage() {
   const { application, account } = useDealerStore();
+  const { vehicles, togglePause, renewVehicle } = useDealerInventoryStore();
 
-  // Local state for vehicles to allow interactive pause/activate/renew toggling
-  const [vehicles, setVehicles] = useState<DealerVehicleListing[]>(MOCK_DEALER_VEHICLES);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | DealerVehicleStatus>('all');
   const [planFilter, setPlanFilter] = useState<'all' | DealerVehiclePlan>('all');
   const [sortBy, setSortBy] = useState<DealerSortOption>('latest');
 
-  // Modal states
+  // Modal states for view / renew preview
   const [modalType, setModalType] = useState<DealerModalType>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<DealerVehicleListing | null>(null);
 
@@ -54,55 +54,30 @@ export default function DealershipInventoryPage() {
     const inReviewCount = vehicles.filter((v) => v.status === 'in_review').length;
     const expiringCount = vehicles.filter((v) => v.status === 'expiring').length;
     const pausedCount = vehicles.filter((v) => v.status === 'paused').length;
+    const soldCount = vehicles.filter((v) => v.status === 'sold').length;
+
+    // Calculate aggregated views dynamically
+    const totalViewsCalculated = vehicles.reduce((sum, v) => sum + (v.viewsCount || 0), 0);
 
     return {
       ...MOCK_DEALER_INVENTORY_METRICS,
+      totalViews: Math.max(totalViewsCalculated, MOCK_DEALER_INVENTORY_METRICS.totalViews),
       totalVehicles: vehicles.length,
       activeVehicles: activeCount,
       inReviewVehicles: inReviewCount,
       expiringVehicles: expiringCount,
       pausedVehicles: pausedCount,
+      soldVehicles: soldCount,
     };
   }, [vehicles]);
-
-  // Handlers for interactive actions
-  const handleTogglePause = (vehicleId: string) => {
-    setVehicles((prev) =>
-      prev.map((v) => {
-        if (v.id === vehicleId) {
-          const isCurrentlyActive = v.status === 'active';
-          return {
-            ...v,
-            status: isCurrentlyActive ? 'paused' : 'active',
-            statusLabel: isCurrentlyActive ? 'Pausado' : 'Ativo',
-            expiresAtLabel: isCurrentlyActive ? 'Pausado' : v.expiresAt,
-          };
-        }
-        return v;
-      }),
-    );
-  };
-
-  const handleConfirmRenew = (vehicleId: string) => {
-    setVehicles((prev) =>
-      prev.map((v) => {
-        if (v.id === vehicleId) {
-          return {
-            ...v,
-            status: 'active',
-            statusLabel: 'Ativo',
-            expiresAt: '18/12/2026',
-            expiresAtLabel: '18/12/2026',
-          };
-        }
-        return v;
-      }),
-    );
-  };
 
   const handleOpenModal = (type: DealerModalType, vehicle: DealerVehicleListing | null = null) => {
     setSelectedVehicle(vehicle);
     setModalType(type);
+  };
+
+  const handleConfirmRenew = (vehicleId: string) => {
+    renewVehicle(vehicleId);
   };
 
   const handleClearFilters = () => {
@@ -136,7 +111,7 @@ export default function DealershipInventoryPage() {
           <span className="font-semibold text-[#17243f]">Estoque</span>
         </div>
 
-        {/* Page Header Heading with Title, Dealership Badge & New Listing CTA */}
+        {/* Page Header Heading with Title, Dealership Badge & Working New Listing CTA */}
         <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex flex-wrap items-center gap-3">
@@ -153,15 +128,14 @@ export default function DealershipInventoryPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => handleOpenModal('d3_boundary')}
+            <Link
+              href="/concessionaria/anuncios/novo"
               data-testid="btn-new-listing"
               className="bg-[#b91c1c] hover:bg-[#991b1b] text-white font-semibold text-[14px] h-[46px] px-5 rounded-[8px] flex items-center gap-2 transition-colors shadow-xs"
             >
               <IconPlus className="size-4" />
               <span>Novo anúncio</span>
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -199,6 +173,7 @@ export default function DealershipInventoryPage() {
                   <option value="in_review">Em análise</option>
                   <option value="expiring">Expirando</option>
                   <option value="paused">Pausado</option>
+                  <option value="sold">Vendido</option>
                 </select>
               </div>
 
@@ -272,7 +247,7 @@ export default function DealershipInventoryPage() {
                   <th scope="col" className="py-3.5 px-4 min-w-[130px]">
                     Visualizações
                   </th>
-                  <th scope="col" className="py-3.5 pr-6 pl-4 text-right min-w-[170px]">
+                  <th scope="col" className="py-3.5 pr-6 pl-4 text-right min-w-[200px]">
                     Ações
                   </th>
                 </tr>
@@ -283,6 +258,8 @@ export default function DealershipInventoryPage() {
                     const isActive = vehicle.status === 'active';
                     const isExpiring = vehicle.status === 'expiring';
                     const isPaused = vehicle.status === 'paused';
+                    const isSold = vehicle.status === 'sold';
+                    const hasRevision = Boolean(vehicle.pendingRevision);
 
                     return (
                       <tr
@@ -357,6 +334,11 @@ export default function DealershipInventoryPage() {
                               Pausado
                             </span>
                           )}
+                          {vehicle.status === 'sold' && (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#f1f5f9] text-[#475569] border border-[#cbd5e1]">
+                              Vendido
+                            </span>
+                          )}
                         </td>
 
                         {/* Column 4: Plano */}
@@ -385,7 +367,7 @@ export default function DealershipInventoryPage() {
                             className={`text-[12px] font-medium ${
                               isExpiring
                                 ? 'text-[#d97706] font-semibold'
-                                : vehicle.status === 'in_review' || isPaused
+                                : vehicle.status === 'in_review' || isPaused || isSold
                                   ? 'text-[#8a99ad]'
                                   : 'text-[#17243f]'
                             }`}
@@ -404,8 +386,8 @@ export default function DealershipInventoryPage() {
 
                         {/* Column 7: Ações */}
                         <td className="py-4 pr-6 pl-4 text-right">
-                          <div className="flex items-center justify-end gap-1.5">
-                            {/* Contextual Action: Renovar (if expiring), Pausar (if active), Ativar (if paused) */}
+                          <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                            {/* Renovar action for expiring */}
                             {isExpiring && (
                               <button
                                 type="button"
@@ -417,10 +399,11 @@ export default function DealershipInventoryPage() {
                               </button>
                             )}
 
+                            {/* Pause / Activate Toggle */}
                             {isActive && (
                               <button
                                 type="button"
-                                onClick={() => handleTogglePause(vehicle.id)}
+                                onClick={() => togglePause(vehicle.id)}
                                 data-testid={`btn-pause-${vehicle.id}`}
                                 className="px-2.5 py-1.5 bg-gray-100 hover:bg-gray-200 text-[#475569] text-[11px] font-medium rounded-[6px] transition-colors"
                               >
@@ -431,7 +414,7 @@ export default function DealershipInventoryPage() {
                             {isPaused && (
                               <button
                                 type="button"
-                                onClick={() => handleTogglePause(vehicle.id)}
+                                onClick={() => togglePause(vehicle.id)}
                                 data-testid={`btn-activate-${vehicle.id}`}
                                 className="px-2.5 py-1.5 bg-[#e5f7ed] hover:bg-[#cbf2dc] text-[#14865a] text-[11px] font-semibold rounded-[6px] transition-colors"
                               >
@@ -439,17 +422,39 @@ export default function DealershipInventoryPage() {
                               </button>
                             )}
 
-                            {/* Edit Button */}
-                            <button
-                              type="button"
-                              onClick={() => handleOpenModal('edit', vehicle)}
+                            {/* Revision Comparison Link if pending revision */}
+                            {hasRevision && (
+                              <Link
+                                href={`/concessionaria/anuncios/${vehicle.id}/revisoes`}
+                                data-testid={`btn-revisions-${vehicle.id}`}
+                                className="px-2.5 py-1.5 bg-[#eff6ff] hover:bg-[#dbeafe] text-[#2563eb] text-[11px] font-semibold rounded-[6px] transition-colors"
+                              >
+                                Revisão
+                              </Link>
+                            )}
+
+                            {/* Direct Edit Route Link */}
+                            <Link
+                              href={`/concessionaria/anuncios/${vehicle.id}/editar`}
                               data-testid={`btn-edit-${vehicle.id}`}
                               className="px-2.5 py-1.5 bg-white border border-[#dee6f1] hover:bg-[#f8fafc] text-[#17243f] text-[11px] font-medium rounded-[6px] transition-colors"
                             >
                               Editar
-                            </button>
+                            </Link>
 
-                            {/* View Vehicle Button */}
+                            {/* Mark as Sold Link */}
+                            {!isSold && (
+                              <Link
+                                href={`/concessionaria/anuncios/${vehicle.id}/vendido`}
+                                data-testid={`btn-sold-${vehicle.id}`}
+                                title="Marcar como vendido"
+                                className="px-2 py-1.5 text-gray-500 hover:text-[#b91c1c] text-[11px] font-medium transition-colors"
+                              >
+                                Vendido
+                              </Link>
+                            )}
+
+                            {/* View Modal Trigger */}
                             <button
                               type="button"
                               onClick={() => handleOpenModal('view', vehicle)}
@@ -501,6 +506,8 @@ export default function DealershipInventoryPage() {
                 const isActive = vehicle.status === 'active';
                 const isExpiring = vehicle.status === 'expiring';
                 const isPaused = vehicle.status === 'paused';
+                const isSold = vehicle.status === 'sold';
+                const hasRevision = Boolean(vehicle.pendingRevision);
 
                 return (
                   <div
@@ -567,6 +574,11 @@ export default function DealershipInventoryPage() {
                             Pausado
                           </span>
                         )}
+                        {vehicle.status === 'sold' && (
+                          <span className="px-2 py-0.5 rounded-full font-semibold bg-[#f1f5f9] text-[#475569]">
+                            Vendido
+                          </span>
+                        )}
 
                         <span className="text-[#64748b]">{vehicle.planLabel}</span>
                       </div>
@@ -578,7 +590,7 @@ export default function DealershipInventoryPage() {
                     </div>
 
                     {/* Bottom Row: Actions */}
-                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#f1f5f9]">
+                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#f1f5f9] flex-wrap">
                       {isExpiring && (
                         <button
                           type="button"
@@ -592,7 +604,7 @@ export default function DealershipInventoryPage() {
                       {isActive && (
                         <button
                           type="button"
-                          onClick={() => handleTogglePause(vehicle.id)}
+                          onClick={() => togglePause(vehicle.id)}
                           className="flex-1 py-2 bg-gray-100 hover:bg-gray-200 text-[#475569] text-[12px] font-medium rounded-[6px] text-center"
                         >
                           Pausar
@@ -602,27 +614,44 @@ export default function DealershipInventoryPage() {
                       {isPaused && (
                         <button
                           type="button"
-                          onClick={() => handleTogglePause(vehicle.id)}
+                          onClick={() => togglePause(vehicle.id)}
                           className="flex-1 py-2 bg-[#e5f7ed] hover:bg-[#cbf2dc] text-[#14865a] text-[12px] font-semibold rounded-[6px] text-center"
                         >
                           Ativar
                         </button>
                       )}
 
-                      <button
-                        type="button"
-                        onClick={() => handleOpenModal('edit', vehicle)}
+                      {hasRevision && (
+                        <Link
+                          href={`/concessionaria/anuncios/${vehicle.id}/revisoes`}
+                          className="flex-1 py-2 bg-[#eff6ff] text-[#2563eb] text-[12px] font-semibold rounded-[6px] text-center"
+                        >
+                          Revisão
+                        </Link>
+                      )}
+
+                      <Link
+                        href={`/concessionaria/anuncios/${vehicle.id}/editar`}
                         className="flex-1 py-2 bg-white border border-[#dee6f1] hover:bg-[#f8fafc] text-[#17243f] text-[12px] font-medium rounded-[6px] text-center"
                       >
                         Editar
-                      </button>
+                      </Link>
+
+                      {!isSold && (
+                        <Link
+                          href={`/concessionaria/anuncios/${vehicle.id}/vendido`}
+                          className="py-2 px-3 text-[#64748b] hover:text-[#b91c1c] text-[12px] font-medium text-center"
+                        >
+                          Vendido
+                        </Link>
+                      )}
 
                       <button
                         type="button"
                         onClick={() => handleOpenModal('view', vehicle)}
-                        className="flex-1 py-2 bg-white border border-[#dee6f1] hover:bg-[#f8fafc] text-[#b91c1c] text-[12px] font-semibold rounded-[6px] text-center"
+                        className="py-2 px-3 bg-white border border-[#dee6f1] hover:bg-[#f8fafc] text-[#b91c1c] text-[12px] font-semibold rounded-[6px] text-center"
                       >
-                        Ver anúncio
+                        Ver
                       </button>
                     </div>
                   </div>
