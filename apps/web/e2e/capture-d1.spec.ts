@@ -26,12 +26,6 @@ test.describe('Visual Screenshots for Dealership Batch D1', () => {
         domain: 'localhost',
         path: '/',
       },
-      {
-        name: 'fdc_runtime_env',
-        value: 'test',
-        domain: 'localhost',
-        path: '/',
-      },
     ]);
   });
 

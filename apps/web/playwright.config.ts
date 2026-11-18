@@ -28,7 +28,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm start',
+    command: 'node ./scripts/start_test_server.mjs',
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,

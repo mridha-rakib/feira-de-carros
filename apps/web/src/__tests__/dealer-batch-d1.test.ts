@@ -91,7 +91,7 @@ describe('Dealership Frontend Batch D1 — Registration, Lifecycle & Shared Auth
   it('Scenario 3: Enforces strict 18+ eligibility requirement for responsible person', () => {
     // Current year is 2026
     const underAgeBirthDate = '10/05/2012'; // 14 years old
-    const underAgeBirthDate17 = '18/11/2008'; // Turns 18 tomorrow (currently 17)
+    const underAgeBirthDate17 = '31/12/2008'; // 17 years old in 2026
     const eligibleBirthDate = '15/04/1995'; // 31 years old
     const eligible18Exact = '01/01/2008'; // 18 years old in 2026
 

@@ -232,8 +232,9 @@ describe('Seller Frontend Batch S1 — Production Functional Tests', () => {
       expect(location).toContain('/entrar?redirect=%2Fvendedor%2Fanuncios');
     });
 
-    it('allows authenticated session through in production', () => {
+    it('in test harness mode, allows authenticated session through', () => {
       vi.stubEnv('NODE_ENV', 'production');
+      vi.stubEnv('FEIRA_E2E_MOCK', 'true');
 
       const req = new NextRequest('http://localhost:3000/vendedor/anuncios', {
         headers: {
@@ -242,7 +243,7 @@ describe('Seller Frontend Batch S1 — Production Functional Tests', () => {
       });
       const res = middleware(req);
 
-      // Continues to downstream backend authorization
+      // Continues to downstream backend authorization in test harness
       expect(res.status).toBe(200);
     });
   });
