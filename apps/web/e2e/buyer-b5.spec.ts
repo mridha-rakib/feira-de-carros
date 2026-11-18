@@ -50,9 +50,10 @@ test.describe('Buyer Frontend Batch B5 — Messaging, Conversations, Reporting &
 
     // Verify Conversation List
     await expect(page.getByPlaceholder('Buscar conversas...')).toBeVisible();
-    await expect(page.getByRole('button', { name: /Carlos Eduardo Mendes/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Mariana Silva/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /AutoCar Multimarcas/i })).toBeVisible();
+    const corollaBtn = page.getByRole('button', { name: /Carlos Eduardo Mendes/i });
+    await expect(corollaBtn).toBeVisible();
+    await corollaBtn.click();
+    await page.waitForTimeout(300);
 
     // Verify Active Conversation Header
     await expect(page.getByRole('heading', { name: 'Carlos Eduardo Mendes' })).toBeVisible();
@@ -66,18 +67,24 @@ test.describe('Buyer Frontend Batch B5 — Messaging, Conversations, Reporting &
       page.getByText(/Sim, o carro está disponível e com todas as revisões em dia/i),
     ).toBeVisible();
 
-    // Verify Right Rail with Vehicle Reference & Safety Advice
-    await expect(page.getByText('Veículo de Referência')).toBeVisible();
-    await expect(page.getByRole('link', { name: /Ver anúncio completo →/i })).toBeVisible();
-    await expect(page.getByText('Dicas de Segurança')).toBeVisible();
-    await expect(page.getByText('Privacidade do Chat')).toBeVisible();
+    // Verify Right Rail on desktop viewports
+    const isMobile = (page.viewportSize()?.width ?? 1280) < 1024;
+    if (!isMobile) {
+      await expect(page.getByText('Veículo de Referência')).toBeVisible();
+      await expect(page.getByRole('link', { name: /Ver anúncio completo →/i })).toBeVisible();
+      await expect(page.getByText('Dicas de Segurança')).toBeVisible();
+      await expect(page.getByText('Privacidade do Chat')).toBeVisible();
+    }
   });
 
   test('WEB-013: Sending a message updates conversation thread', async ({ page }) => {
     await loginAsBuyer(page);
 
     // Select Mariana Silva conversation
-    await page.getByRole('button', { name: /Mariana Silva/i }).click();
+    const marianaBtn = page.getByRole('button', { name: /Mariana Silva/i });
+    await expect(marianaBtn).toBeVisible();
+    await marianaBtn.click();
+    await page.waitForTimeout(300);
 
     const input = page.getByPlaceholder('Digite sua mensagem ao vendedor...');
     await expect(input).toBeVisible();
@@ -149,7 +156,10 @@ test.describe('Buyer Frontend Batch B5 — Messaging, Conversations, Reporting &
     await loginAsBuyer(page);
 
     // Select AutoCar conversation
-    await page.getByRole('button', { name: /AutoCar Multimarcas/i }).click();
+    const autocarBtn = page.getByRole('button', { name: /AutoCar Multimarcas/i });
+    await expect(autocarBtn).toBeVisible();
+    await autocarBtn.click();
+    await page.waitForTimeout(300);
 
     // Open options menu
     await page.getByRole('button', { name: 'Opções da conversa' }).click();
@@ -162,11 +172,15 @@ test.describe('Buyer Frontend Batch B5 — Messaging, Conversations, Reporting &
     await expect(page.getByText('Pedido de sinal ou pagamento antecipado')).toBeVisible();
 
     // Confirm report with block seller checked
-    await page.getByRole('button', { name: 'Confirmar Denúncia' }).click();
+    const confirmBtn = page.getByRole('button', { name: 'Confirmar Denúncia' });
+    await confirmBtn.scrollIntoViewIfNeeded();
+    await confirmBtn.click();
 
     // Conclude modal
     await expect(page.getByRole('heading', { name: 'Denúncia registrada!' })).toBeVisible();
-    await page.getByRole('button', { name: 'Concluir' }).click();
+    const concludeBtn = page.getByRole('button', { name: 'Concluir' });
+    await concludeBtn.scrollIntoViewIfNeeded();
+    await concludeBtn.click();
 
     // Conversation is now blocked & read-only (Figma 1168:693)
     await expect(
@@ -182,7 +196,10 @@ test.describe('Buyer Frontend Batch B5 — Messaging, Conversations, Reporting &
     await loginAsBuyer(page);
 
     // Select Mediated conversation
-    await page.getByRole('button', { name: /Equipe Feira de Carros/i }).click();
+    const mediatedBtn = page.getByRole('button', { name: /Equipe Feira de Carros/i });
+    await expect(mediatedBtn).toBeVisible();
+    await mediatedBtn.click();
+    await page.waitForTimeout(300);
 
     // Verify official mediation banner
     await expect(page.getByText('Equipe Feira de Carros • Mediação Oficial')).toBeVisible();

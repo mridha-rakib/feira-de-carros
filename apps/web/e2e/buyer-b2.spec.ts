@@ -16,7 +16,7 @@ test.describe('Buyer Frontend Batch B2 — Vehicle Detail, Phone Reveal & Dealer
     await expect(
       page.getByRole('heading', { name: 'Honda Civic 2022' }).filter({ visible: true }),
     ).toBeVisible();
-    await expect(page.getByText('R$ 124.900').filter({ visible: true })).toBeVisible();
+    await expect(page.getByText('R$ 124.900').filter({ visible: true }).first()).toBeVisible();
     await expect(page.getByText('2.0 EXL Flex Automático').filter({ visible: true })).toBeVisible();
 
     // Technical Specs
