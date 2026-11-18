@@ -29,15 +29,15 @@ export function PublicVehicleCard({ vehicle, variant = 'grid' }: PublicVehicleCa
         href={`/veiculos/${vehicle.id}`}
         className="group bg-white border border-[#e0e6f0] hover:border-[#b91c1c] rounded-[12px] p-3 flex flex-row gap-3.5 transition-all hover:shadow-sm overflow-hidden relative"
       >
-        {/* Thumbnail */}
-        <div className="relative w-[130px] sm:w-[150px] aspect-[4/3] rounded-[8px] overflow-hidden bg-slate-100 shrink-0">
+        {/* Thumbnail (Figma 142x117px) */}
+        <div className="relative w-[130px] sm:w-[142px] h-[117px] rounded-[8px] overflow-hidden bg-slate-100 shrink-0">
           <Image
             src={imgSrc}
             alt={vehicle.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
             onError={() => setImgSrc('/images/vehicles/demo/vehicle-fallback.svg')}
-            sizes="(max-width: 640px) 130px, 150px"
+            sizes="(max-width: 640px) 130px, 142px"
           />
           {vehicle.featured && (
             <span className="absolute top-1.5 left-1.5 bg-[#e0151f] text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">
@@ -54,7 +54,7 @@ export function PublicVehicleCard({ vehicle, variant = 'grid' }: PublicVehicleCa
         {/* Content */}
         <div className="flex-1 flex flex-col justify-between min-w-0 pr-8">
           <div>
-            <h3 className="text-[14px] sm:text-[16px] font-semibold text-[#14223b] truncate">
+            <h3 className="text-[15px] sm:text-[16px] font-semibold text-[#14223b] truncate">
               {vehicle.title}
             </h3>
             <p className="text-[11px] sm:text-[12px] text-[#62718a] truncate mt-0.5">
@@ -62,11 +62,11 @@ export function PublicVehicleCard({ vehicle, variant = 'grid' }: PublicVehicleCa
             </p>
           </div>
 
-          <div className="mt-2">
-            <p className="text-[16px] sm:text-[18px] font-bold text-[#e0151f]">
+          <div className="mt-1.5">
+            <p className="text-[17px] sm:text-[18px] font-bold text-[#e0151f]">
               {vehicle.priceFormatted}
             </p>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[#62718a] mt-1">
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-[#62718a] mt-1">
               <span className="flex items-center gap-1">
                 <IconPin className="size-3 text-[#62718a]" />
                 {vehicle.city}, {vehicle.state}
@@ -105,17 +105,17 @@ export function PublicVehicleCard({ vehicle, variant = 'grid' }: PublicVehicleCa
   return (
     <Link
       href={`/veiculos/${vehicle.id}`}
-      className="group bg-white border border-[#e0e6f0] hover:border-[#b91c1c] rounded-[12px] overflow-hidden flex flex-col transition-all hover:shadow-md relative"
+      className="group bg-white border border-[#e0e6f0] hover:border-[#b91c1c] rounded-[12px] overflow-hidden flex flex-col transition-all hover:shadow-md relative w-full max-w-[306px] mx-auto"
     >
-      {/* Image container */}
-      <div className="relative w-full aspect-[16/10] bg-slate-100 overflow-hidden">
+      {/* Image container (Figma h-[170px]) */}
+      <div className="relative w-full h-[170px] bg-slate-100 overflow-hidden">
         <Image
           src={imgSrc}
           alt={vehicle.title}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-300"
           onError={() => setImgSrc('/images/vehicles/demo/vehicle-fallback.svg')}
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 306px"
         />
 
         {/* Badges */}
@@ -153,11 +153,11 @@ export function PublicVehicleCard({ vehicle, variant = 'grid' }: PublicVehicleCa
       {/* Details */}
       <div className="p-3.5 flex flex-col flex-1 justify-between">
         <div>
-          <h3 className="text-[16px] font-bold text-[#14223b] group-hover:text-[#b91c1c] transition-colors truncate">
+          <h3 className="text-[17px] font-semibold text-[#14223b] group-hover:text-[#b91c1c] transition-colors truncate">
             {vehicle.title}
           </h3>
           <p className="text-[12px] text-[#62718a] truncate mt-0.5">{vehicle.version}</p>
-          <p className="text-[20px] font-bold text-[#e0151f] mt-2">{vehicle.priceFormatted}</p>
+          <p className="text-[20px] font-semibold text-[#e0151f] mt-2">{vehicle.priceFormatted}</p>
         </div>
 
         <div className="border-t border-[#f0f4f8] pt-2.5 mt-3 space-y-1 text-[11px] text-[#62718a]">
