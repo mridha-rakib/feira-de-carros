@@ -2,8 +2,8 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
+import { Suspense, useMemo, useState } from 'react';
 import {
   type PublicDealership,
   type PublicVehicleItem,
@@ -11,6 +11,7 @@ import {
   getVehiclesByDealershipId,
   recordPhoneRevealInteraction,
 } from '../../../lib/adapters/buyer-catalog-adapter';
+import { useDealerProfileStore } from '../../../stores/use-dealer-profile-store';
 import { MarketplaceFooter } from '../../components/MarketplaceFooter';
 import { MarketplaceHeader } from '../../components/MarketplaceHeader';
 import { PublicVehicleCard } from '../../components/PublicVehicleCard';
@@ -28,11 +29,42 @@ import {
   IconShield,
 } from '../../components/SellerIcons';
 
-export default function DealershipShowroomPage() {
+function DealershipShowroomContent() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const id = typeof params?.id === 'string' ? params.id : '';
+  const isPreview = searchParams?.get('preview') === 'true';
 
-  const dealership = getPublicDealershipById(id);
+  const { publishedProfile } = useDealerProfileStore();
+  const rawDealership = getPublicDealershipById(id);
+
+  // Synchronize with Dealer Profile Store for approved demo dealership
+  const dealership = useMemo(() => {
+    if (!rawDealership) return undefined;
+    if (
+      rawDealership.id === publishedProfile.id ||
+      rawDealership.slug === publishedProfile.id ||
+      id === 'dealer-lider-seminovos' ||
+      id === 'lider-veiculos-seminovos'
+    ) {
+      return {
+        ...rawDealership,
+        name: publishedProfile.publicName || rawDealership.name,
+        logoUrl: publishedProfile.logoUrl || rawDealership.logoUrl,
+        bannerUrl: publishedProfile.bannerUrl || rawDealership.bannerUrl,
+        description:
+          publishedProfile.description !== undefined && publishedProfile.description !== ''
+            ? publishedProfile.description
+            : rawDealership.description,
+        city: publishedProfile.city || rawDealership.city,
+        state: publishedProfile.state || rawDealership.state,
+        address:
+          publishedProfile.address !== undefined ? publishedProfile.address : rawDealership.address,
+      };
+    }
+    return rawDealership;
+  }, [rawDealership, publishedProfile, id]);
+
   const vehicles = useMemo(
     () => (dealership ? getVehiclesByDealershipId(dealership.id) : []),
     [dealership],
@@ -111,6 +143,29 @@ export default function DealershipShowroomPage() {
       <MarketplaceHeader />
 
       <main className="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-7">
+        {/* Preview Mode Notification Banner */}
+        {isPreview && (
+          <div
+            data-testid="showroom-preview-banner"
+            className="bg-[#eaf3ff] border border-[#b8d5fa] rounded-[10px] p-3.5 mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[13px] text-[#1b4b8a]"
+          >
+            <div className="flex items-center gap-2">
+              <span className="font-bold uppercase tracking-wider text-[10px] bg-[#2265bb] text-white px-2 py-0.5 rounded shrink-0">
+                Pré-visualização
+              </span>
+              <span>
+                É assim que os compradores visualizam seu showroom público na Feira de Carros.
+              </span>
+            </div>
+            <Link
+              href="/concessionaria/perfil"
+              className="text-[12px] font-semibold text-[#2265bb] hover:underline shrink-0"
+            >
+              ‹ Voltar ao Editor de Perfil
+            </Link>
+          </div>
+        )}
+
         {/* Breadcrumb */}
         <nav
           aria-label="Breadcrumb"
@@ -136,6 +191,10 @@ export default function DealershipShowroomPage() {
               alt={dealership.name}
               fill
               priority
+              unoptimized={
+                dealership.bannerUrl?.startsWith('blob:') ||
+                dealership.bannerUrl?.startsWith('data:')
+              }
               className="object-cover opacity-35"
               sizes="(max-width: 1440px) 100vw, 1440px"
             />
@@ -156,6 +215,10 @@ export default function DealershipShowroomPage() {
                     src={dealership.logoUrl}
                     alt={dealership.name}
                     fill
+                    unoptimized={
+                      dealership.logoUrl?.startsWith('blob:') ||
+                      dealership.logoUrl?.startsWith('data:')
+                    }
                     className="object-cover rounded-[10px]"
                     sizes="96px"
                   />
@@ -407,5 +470,19 @@ export default function DealershipShowroomPage() {
 
       <MarketplaceFooter />
     </div>
+  );
+}
+
+export default function DealershipShowroomPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#f5f7fb] flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c]" />
+        </div>
+      }
+    >
+      <DealershipShowroomContent />
+    </Suspense>
   );
 }

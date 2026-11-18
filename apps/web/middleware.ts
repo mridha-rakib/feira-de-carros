@@ -1,4 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { isSafeRedirect } from './lib/adapters/shared-auth-registry';
+import { isProductionEnvironment } from './lib/security/environment';
+import { verifyWebSession } from './lib/security/session-verifier';
 
 /**
  * Public onboarding and customer authentication entrypoints permitted for guest visitors without a pre-existing session.
@@ -8,6 +11,8 @@ const PUBLIC_ENTRYPOINTS = new Set([
   '/seller/sell',
   '/seller/application',
   '/vendedor/solicitacao',
+  '/dealer/application',
+  '/concessionaria/solicitacao',
   '/entrar',
   '/login',
   '/cadastrar',
@@ -18,16 +23,18 @@ const PUBLIC_ENTRYPOINTS = new Set([
 
 /**
  * Protected routes requiring an active authenticated session.
- * Application status and correction (/vendedor/solicitacao/status, /vendedor/solicitacao/corrigir)
- * interact with private applicant data (/v1/seller-applications/me) and require authentication.
+ * Application status and correction (/vendedor/solicitacao/status, /concessionaria/solicitacao/status, etc.)
+ * interact with private applicant data and require authentication.
  * Seller listings and management (/vendedor/anuncios) strictly require the Seller role.
- * Saved searches and notification preferences are private account areas.
+ * Dealership management (/concessionaria/anuncios) strictly requires the Dealer role.
+ * Saved searches and notification preferences (/conta, /buscas-salvas) are private account areas.
  */
 const PROTECTED_PREFIXES = [
   '/buyer',
   '/seller',
   '/dealer',
   '/vendedor',
+  '/concessionaria',
   '/conta',
   '/buscas-salvas',
 ];
@@ -35,10 +42,11 @@ const PROTECTED_PREFIXES = [
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 1. Preserve public seller onboarding and authentication entrypoints
+  // 1. Preserve public onboarding and authentication entrypoints
   const isPublicEntrypoint =
     PUBLIC_ENTRYPOINTS.has(pathname) ||
     pathname === '/vendedor/solicitacao/' ||
+    pathname === '/concessionaria/solicitacao/' ||
     pathname.startsWith('/entrar/') ||
     pathname.startsWith('/login/') ||
     pathname.startsWith('/cadastrar/') ||
@@ -51,22 +59,49 @@ export function middleware(request: NextRequest) {
   const isProtectedPath = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 
   if (isProtectedPath) {
-    const isProduction = process.env.NODE_ENV === 'production';
+    // Environment security check: Strictly evaluated from trusted server-side configuration.
+    // Request cookies, headers, query parameters, or user-agent strings NEVER downgrade production.
+    const isProduction = isProductionEnvironment(request.nextUrl.hostname);
     const sessionCookie = request.cookies.get('fdc_web_session');
 
-    // Visual QA and local dev/test environments may inspect UI flows without a live backend session.
-    // In production, unauthenticated requests fail closed and redirect to canonical customer login (/entrar).
-    // Notice: ?demo=true query parameter bypass is strictly prohibited in production.
-    if (!sessionCookie?.value && isProduction) {
+    // Server-side session verification (Fails closed in production)
+    const verification = verifyWebSession(sessionCookie?.value, { isProduction });
+
+    if (!verification.isValid) {
       const loginUrl = new URL('/entrar', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
+      if (isSafeRedirect(pathname)) {
+        loginUrl.searchParams.set('redirect', pathname);
+      }
       return NextResponse.redirect(loginUrl);
     }
 
-    // Security Invariant: A session cookie's mere existence is NOT proof of the Seller role.
-    // Edge middleware verifies baseline presence/token shape, but fine-grained RBAC and
-    // data isolation remain strictly and authoritatively enforced by backend API endpoints
-    // (GET /v1/seller-applications/me, GET /v1/my/listings) via @feira/api-client.
+    // Role-based boundary enforcement:
+    // Strictly verify role from the verified session claim. NEVER inferred from cookie strings.
+    const role = verification.claim?.role;
+    const isSellerRoute = pathname.startsWith('/vendedor') || pathname.startsWith('/seller');
+    const isDealerRoute = pathname.startsWith('/concessionaria') || pathname.startsWith('/dealer');
+    const isBuyerRoute =
+      pathname.startsWith('/conta') ||
+      pathname.startsWith('/buscas-salvas') ||
+      pathname.startsWith('/buyer');
+
+    if (isSellerRoute && role !== 'seller') {
+      const loginUrl = new URL('/entrar', request.url);
+      loginUrl.searchParams.set('error', 'unauthorized_seller_role_required');
+      return NextResponse.redirect(loginUrl);
+    }
+
+    if (isDealerRoute && role !== 'dealer') {
+      const loginUrl = new URL('/entrar', request.url);
+      loginUrl.searchParams.set('error', 'unauthorized_dealer_role_required');
+      return NextResponse.redirect(loginUrl);
+    }
+
+    if (isBuyerRoute && role !== 'member') {
+      const loginUrl = new URL('/entrar', request.url);
+      loginUrl.searchParams.set('error', 'unauthorized_buyer_role_required');
+      return NextResponse.redirect(loginUrl);
+    }
   }
 
   return NextResponse.next();
@@ -78,6 +113,8 @@ export const config = {
     '/seller/:path*',
     '/dealer/:path*',
     '/vendedor/:path*',
+    '/concessionaria/:path*',
     '/conta/:path*',
+    '/buscas-salvas/:path*',
   ],
 };

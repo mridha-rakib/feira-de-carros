@@ -1,5 +1,6 @@
 import '@feira/ui/globals.css';
 import type { Metadata } from 'next';
+import { isProductionEnvironment } from '../lib/security/environment';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
@@ -22,8 +23,10 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const isProduction = isProductionEnvironment();
+
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" data-app-env={isProduction ? 'production' : 'test'}>
       <body className="min-h-screen bg-background font-sans antialiased flex flex-col">
         <Providers>{children}</Providers>
       </body>

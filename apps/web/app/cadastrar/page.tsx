@@ -5,6 +5,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import {
+  isEmailRegisteredGlobally,
+  normalizeEmail,
+  registerDemoAccount,
+} from '../../lib/adapters/shared-auth-registry';
+import { isProductionEnvironment } from '../../lib/security/environment';
 import { useBuyerStore } from '../../stores/use-buyer-store';
 import { MarketplaceFooter } from '../components/MarketplaceFooter';
 import { MarketplaceHeader } from '../components/MarketplaceHeader';
@@ -97,14 +103,20 @@ export default function BuyerRegistrationPage() {
       return;
     }
 
-    if (!email.trim() || !email.includes('@')) {
+    const cleanEmail = normalizeEmail(email);
+
+    if (!cleanEmail || !cleanEmail.includes('@')) {
       setErrorMessage('Informe um e-mail válido.');
       return;
     }
 
-    if (simulateDuplicateEmail || email.trim().toLowerCase() === 'existente@exemplo.com') {
+    if (
+      simulateDuplicateEmail ||
+      cleanEmail === 'existente@exemplo.com' ||
+      isEmailRegisteredGlobally(cleanEmail)
+    ) {
       setErrorMessage(
-        'Este endereço de e-mail já possui cadastro na plataforma. Faça login ou recupere sua senha.',
+        'Este endereço de e-mail já possui cadastro na plataforma. Uma conta já existe com este endereço (faça login ou utilize outro e-mail).',
       );
       return;
     }
@@ -129,12 +141,30 @@ export default function BuyerRegistrationPage() {
     setIsLoading(true);
 
     setTimeout(() => {
-      if (typeof document !== 'undefined') {
+      // Register account in shared demo accounts registry enforcing Option 2
+      const regResult = registerDemoAccount({
+        email: cleanEmail,
+        fullName: `${firstName.trim()} ${lastName.trim()}`,
+        role: 'member',
+        status: 'active',
+        birthDate,
+      });
+
+      if (!regResult.success) {
+        setIsLoading(false);
+        setErrorMessage(
+          regResult.error ||
+            'Este endereço de e-mail já possui cadastro na plataforma. Uma conta já existe com este endereço.',
+        );
+        return;
+      }
+
+      if (typeof document !== 'undefined' && !isProductionEnvironment()) {
         document.cookie = 'fdc_web_session=demo_buyer_session; path=/; SameSite=Lax';
       }
       setIsLoading(false);
       setIsSuccess(true);
-      loginSimulation(email.trim(), `${firstName.trim()} ${lastName.trim()}`);
+      loginSimulation(cleanEmail, `${firstName.trim()} ${lastName.trim()}`);
     }, 700);
   };
 
@@ -396,6 +426,18 @@ export default function BuyerRegistrationPage() {
                   <p className="text-[13px] text-[#62718a] max-w-sm mx-auto leading-relaxed">
                     Sua conta de comprador foi criada em ambiente demonstrativo. Você já pode
                     acessar sua conta e salvar anúncios favoritos.
+                  </p>
+                  <p className="text-[11px] text-[#64748b] max-w-sm mx-auto leading-relaxed bg-[#f8fafc] border border-[#e2e8f0] p-2.5 rounded-[8px]">
+                    <strong>Nota de Simulação:</strong> Para acessar sua conta no ambiente de
+                    demonstração, utilize as credenciais padrão do fixture (senha:{' '}
+                    <code className="font-mono bg-white px-1 py-0.5 rounded border border-[#cbd5e1]">
+                      Senha@123
+                    </code>{' '}
+                    ou{' '}
+                    <code className="font-mono bg-white px-1 py-0.5 rounded border border-[#cbd5e1]">
+                      123456
+                    </code>
+                    ). Senhas personalizadas não são persistidas sem backend integrado.
                   </p>
                   <div className="pt-4 flex flex-col gap-2 max-w-xs mx-auto">
                     <button
