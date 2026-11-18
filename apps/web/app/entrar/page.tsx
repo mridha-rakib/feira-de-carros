@@ -18,9 +18,12 @@ import { MarketplaceFooter } from '../components/MarketplaceFooter';
 import { MarketplaceHeader } from '../components/MarketplaceHeader';
 import {
   IconAlert,
+  IconApple,
   IconCheck,
   IconEye,
   IconEyeOff,
+  IconFacebook,
+  IconGoogle,
   IconLock,
   IconMail,
   IconShield,
@@ -249,7 +252,7 @@ function LoginFormContent() {
                   }}
                   className="w-full h-[42px] bg-white border border-[#dae3ee] hover:bg-[#f8f9fb] text-[#111827] text-[13px] font-semibold rounded-[8px] flex items-center justify-center gap-2.5 transition-colors"
                 >
-                  <span className="font-bold text-[14px] text-blue-600">G</span>
+                  <IconGoogle className="size-5 shrink-0" />
                   <span>Continuar com Google</span>
                 </button>
                 <button
@@ -260,8 +263,19 @@ function LoginFormContent() {
                   }}
                   className="w-full h-[42px] bg-white border border-[#dae3ee] hover:bg-[#f8f9fb] text-[#111827] text-[13px] font-semibold rounded-[8px] flex items-center justify-center gap-2.5 transition-colors"
                 >
-                  <span className="font-black text-[14px]"></span>
+                  <IconApple className="w-4 h-5 shrink-0" />
                   <span>Continuar com Apple</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('comprador.facebook@exemplo.com');
+                    setPassword('123456');
+                  }}
+                  className="w-full h-[42px] bg-white border border-[#dae3ee] hover:bg-[#f8f9fb] text-[#111827] text-[13px] font-semibold rounded-[8px] flex items-center justify-center gap-2.5 transition-colors"
+                >
+                  <IconFacebook className="size-5 shrink-0" />
+                  <span>Continuar com Facebook</span>
                 </button>
               </div>
 
@@ -349,7 +363,7 @@ function LoginFormContent() {
                   Esqueceu a senha?
                 </Link>
                 <Link
-                  href="/cadastrar"
+                  href="/criar-conta"
                   className="h-[42px] bg-[#f0f4f8] hover:bg-[#e2e8f0] text-[#121b2b] text-[11px] font-semibold rounded-[8px] flex items-center justify-center text-center transition-colors px-2"
                 >
                   Criar conta

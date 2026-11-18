@@ -1122,3 +1122,101 @@ export function IconCopy(props: IconProps) {
     </svg>
   );
 }
+
+export function IconChevronRight(props: IconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <polyline points="9 18 15 12 9 6" />
+    </svg>
+  );
+}
+
+export function IconStore(props: IconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+      <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
+      <path d="M2 7h20" />
+      <circle cx="12" cy="13" r="1" />
+    </svg>
+  );
+}
+
+export function IconBolt(props: IconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
+  );
+}
+
+export function IconGoogle(props: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" {...props}>
+      <path
+        d="M12 4.75C13.77 4.75 15.355 5.36 16.605 6.55L20.03 3.125C17.95 1.19 15.235 0 12 0C7.31 0 3.255 2.69 1.28 6.61L5.27 9.705C6.215 6.86 8.87 4.75 12 4.75Z"
+        fill="#EA4335"
+      />
+      <path
+        d="M23.49 12.275C23.49 11.49 23.415 10.73 23.3 10H12V14.51H18.47C18.18 15.99 17.345 17.25 16.09 18.1L19.955 21.1C22.21 19.015 23.49 15.905 23.49 12.275Z"
+        fill="#4285F4"
+      />
+      <path
+        d="M5.265 14.295C5.025 13.565 4.885 12.79 4.885 12C4.885 11.21 5.02 10.435 5.26 9.705L1.27 6.61C0.46 8.23 0 10.06 0 12C0 13.94 0.46 15.77 1.28 17.39L5.265 14.295Z"
+        fill="#FBBC05"
+      />
+      <path
+        d="M12 24C15.24 24 17.96 22.935 19.945 21.1L16.08 18.1C15.01 18.82 13.635 19.25 12 19.25C8.87 19.25 6.215 17.14 5.265 14.295L1.275 17.39C3.255 21.31 7.31 24 12 24Z"
+        fill="#34A853"
+      />
+    </svg>
+  );
+}
+
+export function IconApple(props: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 18 25" fill="currentColor" {...props}>
+      <path d="M14.9391 13.1201C14.9297 11.3281 15.7078 9.97559 17.2828 8.97949C16.4016 7.66602 15.0703 6.94336 13.3125 6.80176C11.6484 6.66504 9.82969 7.8125 9.16406 7.8125C8.46094 7.8125 6.84844 6.85059 5.58281 6.85059C2.96719 6.89453 0.1875 9.02344 0.1875 13.3545C0.1875 14.6338 0.4125 15.9554 0.8625 17.3193C1.4625 19.1113 3.62812 23.5059 5.8875 23.4326C7.06875 23.4033 7.90312 22.5586 9.44062 22.5586C10.9312 22.5586 11.7047 23.4326 13.0219 23.4326C15.3 23.3984 17.2594 19.4043 17.8312 17.6074C14.775 16.1084 14.9391 13.2129 14.9391 13.1201ZM12.2859 5.10254C13.5656 3.52051 13.4484 2.08008 13.4109 1.5625C12.2812 1.63086 10.9734 2.36328 10.2281 3.2666C9.40781 4.2334 8.925 5.42969 9.02813 6.77734C10.2516 6.875 11.3672 6.2207 12.2859 5.10254Z" />
+    </svg>
+  );
+}
+
+export function IconFacebook(props: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" {...props}>
+      <circle cx="12" cy="12" r="12" fill="#1877F2" />
+      <path
+        d="M13.86 16.56V11.2h1.8l.27-2.09h-2.07V7.77c0-.61.17-.99.98-.99h1.05V4.91c-.18-.02-.8-.08-1.52-.08-1.5 0-2.53.92-2.53 2.6v1.68H9.9v2.09h1.94v5.36h2.02z"
+        fill="white"
+      />
+    </svg>
+  );
+}
