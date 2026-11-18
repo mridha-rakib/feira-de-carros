@@ -111,6 +111,29 @@ export default function DealershipInventoryPage() {
           <span className="font-semibold text-[#17243f]">Estoque</span>
         </div>
 
+        {/* Navigation Tabs (Estoque / Perfil Público / Showroom) */}
+        <div className="flex items-center gap-2 mb-6 border-b border-[#dee6f1] pb-3 overflow-x-auto">
+          <Link
+            href="/concessionaria/anuncios"
+            className="text-[13px] font-semibold text-[#b91c1c] bg-[#fee2e2]/60 px-3 py-1.5 rounded-[6px] transition-colors"
+          >
+            Estoque da frota
+          </Link>
+          <Link
+            href="/concessionaria/perfil"
+            className="text-[13px] font-medium text-[#697a95] hover:text-[#17243f] px-3 py-1.5 rounded-[6px] transition-colors"
+          >
+            Perfil público
+          </Link>
+          <Link
+            href="/concessionarias/dealer-lider-seminovos"
+            className="text-[13px] font-medium text-[#697a95] hover:text-[#17243f] px-3 py-1.5 rounded-[6px] transition-colors flex items-center gap-1.5 ml-auto"
+          >
+            <IconEye className="size-3.5" />
+            <span>Ver showroom público</span>
+          </Link>
+        </div>
+
         {/* Page Header Heading with Title, Dealership Badge & Working New Listing CTA */}
         <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -128,6 +151,13 @@ export default function DealershipInventoryPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <Link
+              href="/concessionaria/perfil"
+              data-testid="btn-edit-profile-nav"
+              className="bg-white border border-[#d2dce8] hover:bg-[#f8fafc] text-[#17243f] font-semibold text-[14px] h-[46px] px-4 rounded-[8px] flex items-center gap-2 transition-colors shadow-2xs"
+            >
+              <span>Editar perfil</span>
+            </Link>
             <Link
               href="/concessionaria/anuncios/novo"
               data-testid="btn-new-listing"
