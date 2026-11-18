@@ -4,8 +4,17 @@
  * All data strictly isolated from individual seller data.
  */
 
-export type DealerVehicleStatus = 'active' | 'in_review' | 'expiring' | 'paused';
+export type DealerVehicleStatus = 'active' | 'in_review' | 'expiring' | 'paused' | 'sold';
 export type DealerVehiclePlan = 'premium' | 'essential' | 'none';
+
+export interface DealerVehiclePendingRevision {
+  price: number;
+  formattedPrice: string;
+  mileageKm: number;
+  description?: string;
+  features?: string[];
+  submittedAt: string;
+}
 
 export interface DealerVehicleListing {
   id: string;
@@ -21,7 +30,7 @@ export interface DealerVehicleListing {
   price: number;
   formattedPrice: string;
   status: DealerVehicleStatus;
-  statusLabel: 'Ativo' | 'Em análise' | 'Expirando' | 'Pausado';
+  statusLabel: 'Ativo' | 'Em análise' | 'Expirando' | 'Pausado' | 'Vendido';
   plan: DealerVehiclePlan;
   planLabel: 'Plano Premium' | 'Plano Essencial' | 'Sem impulsionamento';
   expiresAt: string;
@@ -30,8 +39,14 @@ export interface DealerVehicleListing {
   viewsLabel: string;
   photoCount: number;
   imageUrl: string;
+  images?: string[];
   slug: string;
   createdAt: string;
+  category?: 'cars' | 'motorcycles' | 'trucks';
+  description?: string;
+  features?: string[];
+  pendingRevision?: DealerVehiclePendingRevision;
+  soldAt?: string;
   isMockData: boolean;
 }
 
@@ -45,6 +60,7 @@ export interface DealerInventoryMetrics {
   inReviewVehicles: number;
   expiringVehicles: number;
   pausedVehicles: number;
+  soldVehicles?: number;
   isMockData: boolean;
 }
 

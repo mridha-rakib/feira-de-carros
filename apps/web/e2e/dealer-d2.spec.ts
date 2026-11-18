@@ -180,22 +180,14 @@ test.describe('Dealership Frontend Batch D2 — Inventory Overview & Fleet Manag
     await expect(onixRow.getByText('Ativo').first()).toBeVisible();
   });
 
-  test('WEB-021: Modals for "+ Novo anúncio" (Batch D3 boundary), View and Edit', async ({
-    page,
-  }) => {
+  test('WEB-021: Action navigation for "+ Novo anúncio", View and Edit', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/concessionaria/anuncios');
 
-    // 1. New Listing D3 boundary modal
+    // 1. New Listing navigation to wizard (Batch D3 implementation)
     await page.getByTestId('btn-new-listing').click();
-    await expect(
-      page.getByRole('heading', { name: 'Publicar Novo Veículo no Estoque' }),
-    ).toBeVisible();
-    await expect(page.getByText(/Batch D3/i)).toBeVisible();
-    await page.getByRole('button', { name: 'Entendido' }).click();
-    await expect(
-      page.getByRole('heading', { name: 'Publicar Novo Veículo no Estoque' }),
-    ).not.toBeVisible();
+    await expect(page).toHaveURL(/\/concessionaria\/anuncios\/novo/);
+    await page.goto('/concessionaria/anuncios');
 
     // 2. View Vehicle Modal
     await page.getByTestId('btn-view-dlr-veh-001').click();
@@ -204,11 +196,10 @@ test.describe('Dealership Frontend Batch D2 — Inventory Overview & Fleet Manag
     await page.getByRole('button', { name: 'Fechar' }).click();
     await expect(page.getByText('Detalhes do Anúncio')).not.toBeVisible();
 
-    // 3. Edit Vehicle Modal
+    // 3. Edit Vehicle Navigation (Batch D3 implementation)
     await page.getByTestId('btn-edit-dlr-veh-001').click();
+    await expect(page).toHaveURL(/\/concessionaria\/anuncios\/dlr-veh-001\/editar/);
     await expect(page.getByRole('heading', { name: 'Editar Anúncio' })).toBeVisible();
-    await page.getByRole('button', { name: 'Cancelar' }).click();
-    await expect(page.getByRole('heading', { name: 'Editar Anúncio' })).not.toBeVisible();
   });
 
   test('WEB-021: Mobile layout (390px) renders responsive cards and hides desktop table', async ({
