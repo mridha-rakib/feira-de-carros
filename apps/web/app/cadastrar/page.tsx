@@ -427,6 +427,18 @@ export default function BuyerRegistrationPage() {
                     Sua conta de comprador foi criada em ambiente demonstrativo. Você já pode
                     acessar sua conta e salvar anúncios favoritos.
                   </p>
+                  <p className="text-[11px] text-[#64748b] max-w-sm mx-auto leading-relaxed bg-[#f8fafc] border border-[#e2e8f0] p-2.5 rounded-[8px]">
+                    <strong>Nota de Simulação:</strong> Para acessar sua conta no ambiente de
+                    demonstração, utilize as credenciais padrão do fixture (senha:{' '}
+                    <code className="font-mono bg-white px-1 py-0.5 rounded border border-[#cbd5e1]">
+                      Senha@123
+                    </code>{' '}
+                    ou{' '}
+                    <code className="font-mono bg-white px-1 py-0.5 rounded border border-[#cbd5e1]">
+                      123456
+                    </code>
+                    ). Senhas personalizadas não são persistidas sem backend integrado.
+                  </p>
                   <div className="pt-4 flex flex-col gap-2 max-w-xs mx-auto">
                     <button
                       type="button"

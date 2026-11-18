@@ -185,7 +185,7 @@ export const useDealerStore = create<DealerStoreState>()(
           termsAccepted: true,
         };
 
-        const demoSessionToken = `fdc_dealer_${Date.now().toString(36)}`;
+        const demoSessionToken = 'demo_dealer_session';
 
         // In dev/test, set cookie for local middleware simulation; never in production
         if (typeof document !== 'undefined' && !isProductionEnvironment()) {
@@ -266,8 +266,8 @@ export const useDealerStore = create<DealerStoreState>()(
         const normalized = normalizeEmail(email);
         const account = targetAccount || findAccountByEmail(normalized);
 
-        const sessionToken = `fdc_dealer_session_${Date.now().toString(36)}`;
-        if (typeof document !== 'undefined') {
+        const sessionToken = 'demo_dealer_session';
+        if (typeof document !== 'undefined' && !isProductionEnvironment()) {
           document.cookie = `fdc_web_session=${sessionToken}; path=/; SameSite=Lax`;
         }
 
