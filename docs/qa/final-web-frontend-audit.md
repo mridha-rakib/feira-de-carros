@@ -140,7 +140,7 @@ To comply with `AGENTS.md` Invariant 4 (*"Do NOT display fabricated commercial s
 | :--- | :--- | :--- | :--- |
 | **Biome Linter** | `pnpm lint` | **PASS** | Checked 431 files in 316ms. 0 errors, 0 warnings. |
 | **TypeScript Compiler** | `pnpm check-types` | **PASS** | Type-checked all 6 monorepo packages. 0 errors. |
-| **Vitest Unit Tests** | `pnpm test` | **PASS** | 340 tests passed across 33 suites. 0 failures. |
+| **Vitest Unit Tests** | `pnpm test` | **PASS** | 342 tests passed across 33 suites. 0 failures. |
 | **Playwright E2E** | `pnpm --filter @feira/web test:e2e` | **PASS** | 68 Dealership tests passed in Chromium and Mobile Safari. |
 | **Next.js Production Build** | `pnpm --filter @feira/web build` | **PASS** | 54 static/dynamic routes compiled cleanly. 0 build errors. |
 

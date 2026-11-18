@@ -91,7 +91,7 @@ pnpm --filter @feira/web build
 
 | Criterion | Audit Finding | Verdict |
 | :--- | :--- | :--- |
-| **Automated Tests** | 340 unit tests passing, 68 Dealership E2E tests passing | **READY** |
+| **Automated Tests** | 342 unit tests passing, 68 Dealership E2E tests passing | **READY** |
 | **Monorepo Boundary** | `apps/admin` strictly unmodified (0 lines diff) | **READY** |
 | **Commercial Integrity** | Mock stats tagged with `[DEMO DATA]`, photo quotas aligned | **READY** |
 | **Simulation Safety** | Non-payable watermarks on PIX, card details sanitized | **READY** |
