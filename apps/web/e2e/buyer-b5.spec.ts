@@ -196,7 +196,10 @@ test.describe('Buyer Frontend Batch B5 — Messaging, Conversations, Reporting &
     await loginAsBuyer(page);
 
     // Select Mediated conversation
-    await page.getByRole('button', { name: /Equipe Feira de Carros/i }).click();
+    const mediatedBtn = page.getByRole('button', { name: /Equipe Feira de Carros/i });
+    await expect(mediatedBtn).toBeVisible();
+    await mediatedBtn.click();
+    await page.waitForTimeout(300);
 
     // Verify official mediation banner
     await expect(page.getByText('Equipe Feira de Carros • Mediação Oficial')).toBeVisible();

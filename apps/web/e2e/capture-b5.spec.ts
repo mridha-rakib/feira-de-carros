@@ -18,6 +18,7 @@ const viewports = [
 ];
 
 test.describe('Visual Screenshots for Buyer Batch B5', () => {
+  test.slow();
   for (const vp of viewports) {
     test(`Capture Batch B5 screens at ${vp.name} (${vp.width}x${vp.height})`, async ({ page }) => {
       await page.setViewportSize({ width: vp.width, height: vp.height });

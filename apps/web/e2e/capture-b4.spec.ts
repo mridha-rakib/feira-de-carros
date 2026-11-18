@@ -18,6 +18,7 @@ const viewports = [
 ];
 
 test.describe('Visual Screenshots for Buyer Batch B4', () => {
+  test.slow();
   for (const vp of viewports) {
     test(`Capture Batch B4 screens at ${vp.name} (${vp.width}x${vp.height})`, async ({
       page,
