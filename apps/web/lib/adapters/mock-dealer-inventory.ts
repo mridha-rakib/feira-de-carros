@@ -47,6 +47,9 @@ export interface DealerVehicleListing {
   features?: string[];
   pendingRevision?: DealerVehiclePendingRevision;
   soldAt?: string;
+  isBoosted?: boolean;
+  boostedUntil?: string;
+  boostedAt?: string;
   isMockData: boolean;
 }
 

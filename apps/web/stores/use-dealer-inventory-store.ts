@@ -131,6 +131,8 @@ interface DealerInventoryStoreState {
   togglePause: (id: string) => void;
   markAsSold: (id: string) => void;
   renewVehicle: (id: string) => void;
+  updateVehiclePlan: (id: string, plan: DealerVehiclePlan) => void;
+  boostVehicle: (id: string) => void;
   getVehicleById: (id: string) => DealerVehicleListing | undefined;
   resetToFixtures: () => void;
 }
@@ -373,6 +375,54 @@ export const useDealerInventoryStore = create<DealerInventoryStoreState>()(
             return v;
           }),
         })),
+
+      updateVehiclePlan: (id, plan) =>
+        set((state) => {
+          const planLabels: Record<
+            DealerVehiclePlan,
+            'Plano Premium' | 'Plano Essencial' | 'Sem impulsionamento'
+          > = {
+            premium: 'Plano Premium',
+            essential: 'Plano Essencial',
+            none: 'Sem impulsionamento',
+          };
+          return {
+            vehicles: state.vehicles.map((v) => {
+              if (v.id === id) {
+                return {
+                  ...v,
+                  plan,
+                  planLabel: planLabels[plan],
+                };
+              }
+              return v;
+            }),
+          };
+        }),
+
+      boostVehicle: (id) =>
+        set((state) => {
+          const now = new Date();
+          const boostedUntil = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString(
+            'pt-BR',
+          );
+          return {
+            vehicles: state.vehicles.map((v) => {
+              if (v.id === id) {
+                const currentViews = v.viewsCount || 0;
+                return {
+                  ...v,
+                  isBoosted: true,
+                  boostedUntil,
+                  boostedAt: now.toLocaleDateString('pt-BR'),
+                  viewsCount: currentViews + 150,
+                  viewsLabel: `${currentViews + 150} visualizações`,
+                };
+              }
+              return v;
+            }),
+          };
+        }),
 
       getVehicleById: (id) => {
         return get().vehicles.find((v) => v.id === id);

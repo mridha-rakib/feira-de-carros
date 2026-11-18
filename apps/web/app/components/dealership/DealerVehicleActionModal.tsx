@@ -2,6 +2,7 @@
 
 import { IconCar, IconClock, IconSparkles } from '@/app/components/SellerIcons';
 import type { DealerVehicleListing } from '@/lib/adapters/mock-dealer-inventory';
+import Link from 'next/link';
 import React from 'react';
 
 export type DealerModalType = 'view' | 'edit' | 'renew' | 'd3_boundary' | null;
@@ -209,7 +210,7 @@ export function DealerVehicleActionModal({
               </p>
             </div>
 
-            <div className="mt-6 flex justify-end gap-3">
+            <div className="mt-6 flex justify-end gap-3 flex-wrap">
               <button
                 type="button"
                 onClick={onClose}
@@ -217,10 +218,17 @@ export function DealerVehicleActionModal({
               >
                 Cancelar
               </button>
+              <Link
+                href={`/concessionaria/anuncios/${vehicle.id}/renovar`}
+                onClick={onClose}
+                className="px-4 py-2 border border-[#d97706] text-[#b45309] hover:bg-[#fffbeb] text-[13px] font-semibold rounded-[8px] transition-colors"
+              >
+                Opções de Pagamento
+              </Link>
               <button
                 type="button"
                 onClick={() => {
-                  if (onConfirmRenew) onConfirmRenew(vehicle.id);
+                  onConfirmRenew?.(vehicle.id);
                   onClose();
                 }}
                 className="px-5 py-2.5 bg-[#d97706] hover:bg-[#b45309] text-white text-[13px] font-semibold rounded-[8px] transition-colors"

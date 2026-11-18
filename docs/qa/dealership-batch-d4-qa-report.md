@@ -182,7 +182,7 @@ $ git diff apps/admin
 
 ## 6. Known Frontend Limitations & Backend Dependencies
 
-1. **Local Object URLs**: Uploaded images use browser-local `URL.createObjectURL()`. In a full production implementation with backend APIs, these will be replaced with presigned uploads to an S3/GCS bucket returning permanent CDN URLs.
+1. **Local Object URLs & Storage Sanitization (Resolved in D5 Pre-Flight)**: Uploaded images in memory use browser-local `URL.createObjectURL()`. In the D5 pre-flight correction gate, automatic lifecycle cleanup via `URL.revokeObjectURL()` was implemented for image replacement, removal, and revert. Furthermore, Zustand's durable `localStorage` persistence strips ephemeral `blob:` URLs, substituting durable static fallback assets to ensure reloads never rehydrate broken/revoked object URLs.
 2. **Local Session Scope**: Profile synchronization between `/concessionaria/perfil` and `/concessionarias/[id]` operates within the active browser session via Zustand `localStorage` persistence. It does not synchronize across different client devices without backend database persistence.
 3. **Commercial Metrics**: All inventory and showroom metrics remain tagged with explicit `DEMO DATA` indicators to comply with AGENTS.md anti-fabrication guidelines.
 
