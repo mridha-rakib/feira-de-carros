@@ -7,7 +7,12 @@ test.describe('Buyer Frontend Batch B1 — Marketplace Discovery & Search', () =
     await page.goto('/');
 
     // Check locality header chip
-    await expect(page.getByText(/Ipatinga, MG/i).first()).toBeVisible();
+    await expect(
+      page
+        .getByText(/Ipatinga, MG/i)
+        .filter({ visible: true })
+        .first(),
+    ).toBeVisible();
 
     // Check Hero and search bar
     await expect(page.getByRole('heading', { name: /Encontre.*seu próximo carro/i })).toBeVisible();

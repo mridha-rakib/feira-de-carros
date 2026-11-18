@@ -41,71 +41,49 @@ export function MarketplaceHeader() {
   return (
     <>
       <header className="sticky top-0 z-40 w-full bg-white border-b border-[#e0e6f0] shadow-xs">
-        {/* Top Locality Strip */}
-        <div className="bg-[#101d34] text-white text-[11px] h-[26px] flex items-center justify-between px-4 sm:px-8">
-          <button
-            type="button"
-            onClick={openLocationModal}
-            className="flex items-center gap-1.5 hover:text-[#fca5a5] transition-colors cursor-pointer group"
-          >
-            <IconPin className="size-3 text-[#f42524] group-hover:scale-110 transition-transform" />
-            <span className="font-medium">{location.label}</span>
-            <span className="text-[#94a3b8] text-[10px] hidden sm:inline ml-1 underline">
-              (alterar cidade)
-            </span>
-          </button>
-          <div className="hidden md:flex items-center gap-4 text-[#cbd5e1] text-[11px]">
-            <Link href="/vendedor/solicitacao" className="hover:text-white transition-colors">
-              Área do Vendedor
-            </Link>
-            <span>•</span>
-            <Link href="/ajuda" className="hover:text-white transition-colors">
-              Ajuda
-            </Link>
+        {/* Top Locality Strip (Figma 752:31 / 1437:2364: 15px dark navy strip) */}
+        <div className="hidden md:block w-full bg-[#101d34]">
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-[15px] flex items-center justify-between text-white text-[10px]">
+            <button
+              type="button"
+              onClick={openLocationModal}
+              className="flex items-center gap-1 hover:text-[#fca5a5] transition-colors cursor-pointer group text-[10px]"
+            >
+              <IconPin className="size-2.5 text-[#f42524] group-hover:scale-110 transition-transform" />
+              <span className="font-medium text-white">{location.label}</span>
+              <span className="text-[#94a3b8] text-[9px] ml-1 underline group-hover:text-white">
+                (alterar cidade)
+              </span>
+            </button>
+            <div className="flex items-center gap-4 text-[#cbd5e1] text-[10px]">
+              <Link href="/vendedor/solicitacao" className="hover:text-white transition-colors">
+                Área do Vendedor
+              </Link>
+              <span>•</span>
+              <Link href="/ajuda" className="hover:text-white transition-colors">
+                Ajuda
+              </Link>
+            </div>
           </div>
         </div>
 
-        {/* Main Navbar */}
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-[68px] sm:h-[76px] flex items-center justify-between gap-4">
-          {/* Logo & Mobile Menu Trigger */}
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden p-2 text-[#14223b] hover:bg-slate-100 rounded-lg transition-colors"
-              aria-label="Abrir menu de navegação"
-            >
-              <svg
-                aria-hidden="true"
-                className="size-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
+        {/* Desktop Main Navbar (Figma 1440x89px, Total 104px) */}
+        <div className="hidden md:flex max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-[89px] items-center justify-between gap-4">
+          {/* Logo */}
+          <Link href="/" className="shrink-0 flex items-center">
+            <BrandLogo
+              variant="on-light"
+              priority
+              width={181}
+              height={29}
+              className="h-[29px] w-auto"
+            />
+          </Link>
 
-            <Link href="/" className="shrink-0 flex items-center">
-              <BrandLogo
-                variant="on-light"
-                priority
-                width={178}
-                height={32}
-                className="h-7 sm:h-8 w-auto"
-              />
-            </Link>
-          </div>
-
-          {/* Search Keyword Field */}
+          {/* Search Keyword Field (Figma 355x46px) */}
           <form
             onSubmit={handleSearchSubmit}
-            className="hidden md:flex items-center flex-1 max-w-[380px] lg:max-w-[420px] bg-[#f5f7fb] hover:bg-[#eef2f8] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#b91c1c]/20 border border-[#e2e7ee] rounded-[10px] h-[44px] px-3 transition-all"
+            className="flex items-center w-[355px] bg-[#f5f7fb] hover:bg-[#eef2f8] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#b91c1c]/20 border border-[#e2e7ee] rounded-[10px] h-[46px] px-3.5 transition-all"
           >
             <IconSearch className="size-4 text-[#62718a] shrink-0 mr-2.5" />
             <input
@@ -118,7 +96,7 @@ export function MarketplaceHeader() {
           </form>
 
           {/* Desktop Category Navigation */}
-          <nav className="hidden xl:flex items-center gap-5 text-[13px] text-[#14223b]">
+          <nav className="flex items-center gap-6 text-[12px] text-[#14223b]">
             <Link
               href="/veiculos"
               className="font-semibold text-[#14223b] hover:text-[#b91c1c] transition-colors whitespace-nowrap"
@@ -127,19 +105,19 @@ export function MarketplaceHeader() {
             </Link>
             <Link
               href="/veiculos?categoria=Carros"
-              className="text-[#475569] hover:text-[#b91c1c] transition-colors"
+              className="text-[#14223b] hover:text-[#b91c1c] transition-colors"
             >
               Carros
             </Link>
             <Link
               href="/veiculos?categoria=Motos"
-              className="text-[#475569] hover:text-[#b91c1c] transition-colors"
+              className="text-[#14223b] hover:text-[#b91c1c] transition-colors"
             >
               Motos
             </Link>
             <Link
               href="/veiculos?categoria=Caminhões"
-              className="text-[#475569] hover:text-[#b91c1c] transition-colors"
+              className="text-[#14223b] hover:text-[#b91c1c] transition-colors"
             >
               Caminhões
             </Link>
@@ -150,7 +128,7 @@ export function MarketplaceHeader() {
             {/* Favorites link */}
             <Link
               href="/favoritos"
-              className="hidden sm:flex items-center gap-1.5 p-2 text-[#14223b] hover:text-[#b91c1c] transition-colors relative"
+              className="flex items-center gap-1.5 p-2 text-[#14223b] hover:text-[#b91c1c] transition-colors relative"
               aria-label="Ver favoritos salvos"
             >
               <div className="relative">
@@ -168,7 +146,7 @@ export function MarketplaceHeader() {
             {isAuthenticated ? (
               <Link
                 href="/conta"
-                className="hidden sm:flex items-center gap-2 p-1.5 rounded-[8px] hover:bg-slate-100 transition-colors"
+                className="flex items-center gap-2 p-1.5 rounded-[8px] hover:bg-slate-100 transition-colors"
                 aria-label="Acessar minha conta"
               >
                 <div className="size-7 rounded-full bg-[#17223a] text-white flex items-center justify-center font-bold text-[11px] shrink-0">
@@ -181,7 +159,7 @@ export function MarketplaceHeader() {
             ) : (
               <Link
                 href="/entrar"
-                className="hidden sm:flex items-center gap-1.5 p-2 text-[#14223b] hover:text-[#b91c1c] transition-colors"
+                className="flex items-center gap-1.5 p-2 text-[#14223b] hover:text-[#b91c1c] transition-colors"
                 aria-label="Fazer login ou cadastrar"
               >
                 <IconUser className="size-5" />
@@ -192,21 +170,102 @@ export function MarketplaceHeader() {
             {/* Messages link */}
             <Link
               href="/mensagens"
-              className="hidden sm:flex items-center gap-1.5 p-2 text-[#14223b] hover:text-[#b91c1c] transition-colors"
+              className="flex items-center gap-1.5 p-2 text-[#14223b] hover:text-[#b91c1c] transition-colors"
               aria-label="Ver mensagens"
             >
               <IconMessageSquare className="size-5" />
               <span className="text-[12px] font-medium hidden lg:inline">Mensagens</span>
             </Link>
 
-            {/* Sell Car CTA Button */}
+            {/* Sell Car CTA Button (Figma 162x44px) */}
             <Link
               href="/vendedor/solicitacao"
-              className="bg-[#e0151f] hover:bg-[#c41217] text-white font-semibold text-[12px] sm:text-[13px] px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-[8px] transition-colors shadow-xs flex items-center gap-1.5 whitespace-nowrap"
+              className="w-[162px] h-[44px] bg-[#e0151f] hover:bg-[#c41217] text-white font-semibold text-[13px] rounded-[8px] transition-colors shadow-xs flex items-center justify-center gap-1.5 whitespace-nowrap"
             >
               <IconPlus className="size-4 stroke-[3]" />
               <span>Anunciar veículo</span>
             </Link>
+          </div>
+        </div>
+
+        {/* Mobile Header (Figma 752:50: 390x125px total) */}
+        <div className="md:hidden flex flex-col h-[125px]">
+          {/* Mobile Top Row (Menu, Logo, Actions) */}
+          <div className="h-[75px] px-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(true)}
+                className="p-1.5 text-[#14223b] hover:bg-slate-100 rounded-lg transition-colors"
+                aria-label="Abrir menu de navegação"
+              >
+                <svg
+                  aria-hidden="true"
+                  className="size-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              </button>
+
+              <Link href="/" className="shrink-0 flex items-center">
+                <BrandLogo
+                  variant="on-light"
+                  priority
+                  width={170}
+                  height={26}
+                  className="h-[26px] w-auto"
+                />
+              </Link>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Link
+                href="/favoritos"
+                className="p-1.5 text-[#14223b] hover:text-[#b91c1c] relative"
+                aria-label="Ver favoritos salvos"
+              >
+                <IconHeart className="size-5" />
+                {favorites.length > 0 && (
+                  <span className="absolute top-0 right-0 bg-[#e0151f] text-white text-[9px] font-bold size-3.5 rounded-full flex items-center justify-center">
+                    {favorites.length}
+                  </span>
+                )}
+              </Link>
+              <Link
+                href="/mensagens"
+                className="p-1.5 text-[#14223b] hover:text-[#b91c1c]"
+                aria-label="Ver mensagens"
+              >
+                <IconMessageSquare className="size-5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Mobile Bottom Sub-row (Locality Indicator matching Figma 752:50) */}
+          <div className="h-[44px] px-4 bg-white border-t border-[#e0e6f0] flex items-center justify-between">
+            <button
+              type="button"
+              onClick={openLocationModal}
+              className="flex items-center gap-1.5 text-[12px] font-medium text-[#14223b] hover:text-[#b91c1c] transition-colors"
+            >
+              <IconPin className="size-3.5 text-[#f42524]" />
+              <span className="font-semibold">{location.label}</span>
+            </button>
+            <button
+              type="button"
+              onClick={openLocationModal}
+              className="text-[#62718a] hover:text-[#b91c1c] text-[11px] font-medium underline"
+            >
+              alterar cidade
+            </button>
           </div>
         </div>
       </header>
