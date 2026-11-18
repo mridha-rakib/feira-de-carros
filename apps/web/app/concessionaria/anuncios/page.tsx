@@ -3,19 +3,121 @@
 import { MarketplaceFooter } from '@/app/components/MarketplaceFooter';
 import { MarketplaceHeader } from '@/app/components/MarketplaceHeader';
 import {
-  IconAlert,
-  IconArrowRight,
-  IconBuilding,
-  IconCheck,
-  IconShield,
+  IconCamera,
+  IconEye,
+  IconPlus,
+  IconSearch,
+  IconSparkles,
 } from '@/app/components/SellerIcons';
+import { DealerInventoryMetricsCards } from '@/app/components/dealership/DealerInventoryMetricsCards';
+import {
+  type DealerModalType,
+  DealerVehicleActionModal,
+} from '@/app/components/dealership/DealerVehicleActionModal';
 import { DealershipSubNav } from '@/app/components/dealership/DealershipSubNav';
+import {
+  type DealerSortOption,
+  type DealerVehicleListing,
+  type DealerVehiclePlan,
+  type DealerVehicleStatus,
+  MOCK_DEALER_INVENTORY_METRICS,
+  MOCK_DEALER_VEHICLES,
+  filterAndSortDealerVehicles,
+} from '@/lib/adapters/mock-dealer-inventory';
 import { useDealerStore } from '@/stores/use-dealer-store';
+import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 
-export default function DealershipInventoryStubPage() {
+export default function DealershipInventoryPage() {
   const { application, account } = useDealerStore();
+
+  // Local state for vehicles to allow interactive pause/activate/renew toggling
+  const [vehicles, setVehicles] = useState<DealerVehicleListing[]>(MOCK_DEALER_VEHICLES);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | DealerVehicleStatus>('all');
+  const [planFilter, setPlanFilter] = useState<'all' | DealerVehiclePlan>('all');
+  const [sortBy, setSortBy] = useState<DealerSortOption>('latest');
+
+  // Modal states
+  const [modalType, setModalType] = useState<DealerModalType>(null);
+  const [selectedVehicle, setSelectedVehicle] = useState<DealerVehicleListing | null>(null);
+
+  // Filtered & Sorted listings
+  const filteredVehicles = useMemo(() => {
+    return filterAndSortDealerVehicles(vehicles, searchQuery, statusFilter, planFilter, sortBy);
+  }, [vehicles, searchQuery, statusFilter, planFilter, sortBy]);
+
+  // Dynamic metrics calculation based on current vehicles list
+  const activeMetrics = useMemo(() => {
+    const activeCount = vehicles.filter((v) => v.status === 'active').length;
+    const inReviewCount = vehicles.filter((v) => v.status === 'in_review').length;
+    const expiringCount = vehicles.filter((v) => v.status === 'expiring').length;
+    const pausedCount = vehicles.filter((v) => v.status === 'paused').length;
+
+    return {
+      ...MOCK_DEALER_INVENTORY_METRICS,
+      totalVehicles: vehicles.length,
+      activeVehicles: activeCount,
+      inReviewVehicles: inReviewCount,
+      expiringVehicles: expiringCount,
+      pausedVehicles: pausedCount,
+    };
+  }, [vehicles]);
+
+  // Handlers for interactive actions
+  const handleTogglePause = (vehicleId: string) => {
+    setVehicles((prev) =>
+      prev.map((v) => {
+        if (v.id === vehicleId) {
+          const isCurrentlyActive = v.status === 'active';
+          return {
+            ...v,
+            status: isCurrentlyActive ? 'paused' : 'active',
+            statusLabel: isCurrentlyActive ? 'Pausado' : 'Ativo',
+            expiresAtLabel: isCurrentlyActive ? 'Pausado' : v.expiresAt,
+          };
+        }
+        return v;
+      }),
+    );
+  };
+
+  const handleConfirmRenew = (vehicleId: string) => {
+    setVehicles((prev) =>
+      prev.map((v) => {
+        if (v.id === vehicleId) {
+          return {
+            ...v,
+            status: 'active',
+            statusLabel: 'Ativo',
+            expiresAt: '18/12/2026',
+            expiresAtLabel: '18/12/2026',
+          };
+        }
+        return v;
+      }),
+    );
+  };
+
+  const handleOpenModal = (type: DealerModalType, vehicle: DealerVehicleListing | null = null) => {
+    setSelectedVehicle(vehicle);
+    setModalType(type);
+  };
+
+  const handleClearFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('all');
+    setPlanFilter('all');
+    setSortBy('latest');
+  };
+
+  const isFiltered =
+    searchQuery !== '' || statusFilter !== 'all' || planFilter !== 'all' || sortBy !== 'latest';
+
+  const dealershipName =
+    application.dealershipName || account?.dealershipName || 'Líder Veículos e Seminovos Ltda';
+  const dealershipLocation = `${application.city || 'Ipatinga'} - ${application.state || 'MG'}`;
 
   return (
     <div className="min-h-screen bg-[#f4f7fc] flex flex-col font-sans text-[#17243f]">
@@ -23,21 +125,21 @@ export default function DealershipInventoryStubPage() {
       <DealershipSubNav activeItem="concessionarias" />
 
       <main className="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-[70px] py-8 pb-24">
-        {/* Breadcrumb */}
+        {/* Breadcrumb Navigation */}
         <div className="flex items-center gap-2 text-[12px] text-[#697a95] mb-4">
           <Link href="/" className="hover:text-[#17243f] transition-colors">
             Início
           </Link>
           <span>›</span>
-          <span className="font-semibold text-[#17243f]">Painel da Concessionária</span>
+          <span className="text-[#697a95]">Minha Concessionária</span>
           <span>›</span>
-          <span>Estoque de Veículos</span>
+          <span className="font-semibold text-[#17243f]">Estoque</span>
         </div>
 
-        {/* Header Heading */}
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        {/* Page Header Heading with Title, Dealership Badge & New Listing CTA */}
+        <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-[26px] sm:text-[32px] font-bold text-[#17243f] tracking-tight">
                 Estoque da Concessionária
               </h1>
@@ -46,82 +148,531 @@ export default function DealershipInventoryStubPage() {
               </span>
             </div>
             <p className="text-[14px] text-[#697a95] mt-1">
-              {application.dealershipName ||
-                account?.dealershipName ||
-                'Líder Veículos e Seminovos Ltda'}{' '}
-              · {application.city || 'Ipatinga'} - {application.state || 'MG'}
+              {dealershipName} · {dealershipLocation}
             </p>
           </div>
 
-          <Link
-            href="/concessionaria/solicitacao/status"
-            className="text-[12px] font-semibold text-[#17243f] bg-white border border-[#dee6f1] hover:bg-[#f8fafc] px-4 py-2.5 rounded-[8px] transition-colors self-start sm:self-auto"
-          >
-            Ver dados da solicitação
-          </Link>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => handleOpenModal('d3_boundary')}
+              data-testid="btn-new-listing"
+              className="bg-[#b91c1c] hover:bg-[#991b1b] text-white font-semibold text-[14px] h-[46px] px-5 rounded-[8px] flex items-center gap-2 transition-colors shadow-xs"
+            >
+              <IconPlus className="size-4" />
+              <span>Novo anúncio</span>
+            </button>
+          </div>
         </div>
 
-        {/* Milestone Banner: Batch D2 Gateway */}
-        <div className="bg-white border border-[#dee6f1] rounded-[14px] p-6 sm:p-8 shadow-xs max-w-[960px]">
-          <div className="flex items-start gap-4">
-            <div className="size-[48px] rounded-full bg-[#e8f1ff] text-[#215c9d] flex items-center justify-center shrink-0">
-              <IconBuilding className="size-6" />
-            </div>
-            <div>
-              <h2 className="text-[20px] font-bold text-[#17243f]">
-                Portal de Gerenciamento de Estoque (Batch D2)
-              </h2>
-              <p className="text-[14px] text-[#697a95] mt-1.5 leading-relaxed">
-                Você está autenticado como concessionária aprovada. A visualização completa da
-                tabela de inventário (WEB-021), métricas consolidadas de visualização (ANA-001) e
-                filtros avançados de estoque serão implementados no <strong>Batch D2</strong>.
-              </p>
+        {/* Analytics Summary Cards (Figma 1592:3472 & 1592:3701) */}
+        <DealerInventoryMetricsCards metrics={activeMetrics} />
 
-              <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="p-4 bg-[#f8fafc] border border-[#dee6f1] rounded-[10px]">
-                  <span className="text-[11px] font-semibold text-[#697a95] uppercase">
-                    Veículos em Análise
-                  </span>
-                  <p className="text-[24px] font-bold text-[#17243f] mt-1">0</p>
-                  <p className="text-[11px] text-[#697a95] mt-0.5">Aguardando Batch D3</p>
-                </div>
-                <div className="p-4 bg-[#f8fafc] border border-[#dee6f1] rounded-[10px]">
-                  <span className="text-[11px] font-semibold text-[#697a95] uppercase">
-                    Anúncios Ativos
-                  </span>
-                  <p className="text-[24px] font-bold text-[#059669] mt-1">Pronto</p>
-                  <p className="text-[11px] text-[#059669] mt-0.5">Credencial habilitada</p>
-                </div>
-                <div className="p-4 bg-[#f8fafc] border border-[#dee6f1] rounded-[10px]">
-                  <span className="text-[11px] font-semibold text-[#697a95] uppercase">
-                    Showroom Público
-                  </span>
-                  <p className="text-[24px] font-bold text-[#2563eb] mt-1">WEB-022</p>
-                  <p className="text-[11px] text-[#697a95] mt-0.5">Planejado para Batch D4</p>
-                </div>
+        {/* Inventory Management Card */}
+        <div className="bg-white border border-[#dee6f1] rounded-[14px] shadow-xs overflow-hidden">
+          {/* Controls Bar: Search Input, Status Filter, Plan Filter, Sorting */}
+          <div className="p-4 sm:p-5 border-b border-[#dee6f1] bg-white">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+              {/* Search Bar (Col 1-5) */}
+              <div className="md:col-span-5 relative">
+                <IconSearch className="size-4 text-[#8a99ad] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Buscar por marca, modelo ou placa..."
+                  data-testid="input-dealer-search"
+                  className="w-full h-[42px] pl-10 pr-4 bg-[#f8fafc] border border-[#d2dce8] rounded-[8px] text-[13px] text-[#17243f] placeholder-[#8a99ad] focus:outline-hidden focus:border-[#b91c1c] focus:bg-white transition-colors"
+                />
               </div>
 
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link
-                  href="/concessionaria/solicitacao/status"
-                  className="px-5 py-2.5 bg-[#b91c1c] hover:bg-[#a11818] text-white font-semibold text-[13px] rounded-[8px] flex items-center gap-2 transition-colors"
+              {/* Status Filter Dropdown (Col 6-7) */}
+              <div className="md:col-span-2">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as 'all' | DealerVehicleStatus)}
+                  data-testid="select-status-filter"
+                  className="w-full h-[42px] px-3 bg-[#f8fafc] border border-[#d2dce8] rounded-[8px] text-[13px] text-[#17243f] font-medium focus:outline-hidden focus:border-[#b91c1c] transition-colors"
                 >
-                  <span>Acompanhar protocolo da solicitação</span>
-                  <IconArrowRight className="size-4" />
-                </Link>
-                <Link
-                  href="/"
-                  className="px-5 py-2.5 bg-white border border-[#dee6f1] text-[#17243f] hover:bg-[#f8fafc] font-semibold text-[13px] rounded-[8px] transition-colors"
+                  <option value="all">Todos os status</option>
+                  <option value="active">Ativo</option>
+                  <option value="in_review">Em análise</option>
+                  <option value="expiring">Expirando</option>
+                  <option value="paused">Pausado</option>
+                </select>
+              </div>
+
+              {/* Plan Filter Dropdown (Col 8-9) */}
+              <div className="md:col-span-2">
+                <select
+                  value={planFilter}
+                  onChange={(e) => setPlanFilter(e.target.value as 'all' | DealerVehiclePlan)}
+                  data-testid="select-plan-filter"
+                  className="w-full h-[42px] px-3 bg-[#f8fafc] border border-[#d2dce8] rounded-[8px] text-[13px] text-[#17243f] font-medium focus:outline-hidden focus:border-[#b91c1c] transition-colors"
                 >
-                  Ir para o marketplace
-                </Link>
+                  <option value="all">Todos os planos</option>
+                  <option value="premium">Plano Premium</option>
+                  <option value="essential">Plano Essencial</option>
+                  <option value="none">Sem impulsionamento</option>
+                </select>
+              </div>
+
+              {/* Sort Order Dropdown (Col 10-12) */}
+              <div className="md:col-span-3 flex items-center gap-2">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as DealerSortOption)}
+                  data-testid="select-sort-order"
+                  className="w-full h-[42px] px-3 bg-[#f8fafc] border border-[#d2dce8] rounded-[8px] text-[13px] text-[#17243f] font-medium focus:outline-hidden focus:border-[#b91c1c] transition-colors"
+                >
+                  <option value="latest">Mais recentes</option>
+                  <option value="price_asc">Menor preço</option>
+                  <option value="price_desc">Maior preço</option>
+                  <option value="views_desc">Mais visualizados</option>
+                </select>
+
+                {isFiltered && (
+                  <button
+                    type="button"
+                    onClick={handleClearFilters}
+                    data-testid="btn-clear-filters"
+                    title="Limpar todos os filtros"
+                    className="h-[42px] px-3 bg-gray-100 hover:bg-gray-200 text-[#475569] text-[12px] font-semibold rounded-[8px] whitespace-nowrap transition-colors"
+                  >
+                    Limpar
+                  </button>
+                )}
               </div>
             </div>
+          </div>
+
+          {/* Desktop Table View (Figma 1592:3527) */}
+          <div className="hidden md:block overflow-x-auto">
+            <table
+              className="w-full border-collapse text-left"
+              data-testid="dealer-inventory-table"
+            >
+              <thead>
+                <tr className="border-b border-[#dee6f1] bg-[#f8fafc] text-[12px] font-semibold text-[#697a95] uppercase tracking-wider">
+                  <th scope="col" className="py-3.5 pl-6 pr-4 min-w-[340px]">
+                    Veículo
+                  </th>
+                  <th scope="col" className="py-3.5 px-4 min-w-[120px]">
+                    Preço
+                  </th>
+                  <th scope="col" className="py-3.5 px-4 min-w-[130px]">
+                    Status
+                  </th>
+                  <th scope="col" className="py-3.5 px-4 min-w-[170px]">
+                    Plano
+                  </th>
+                  <th scope="col" className="py-3.5 px-4 min-w-[150px]">
+                    Validade
+                  </th>
+                  <th scope="col" className="py-3.5 px-4 min-w-[130px]">
+                    Visualizações
+                  </th>
+                  <th scope="col" className="py-3.5 pr-6 pl-4 text-right min-w-[170px]">
+                    Ações
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#f1f5f9]">
+                {filteredVehicles.length > 0 ? (
+                  filteredVehicles.map((vehicle) => {
+                    const isActive = vehicle.status === 'active';
+                    const isExpiring = vehicle.status === 'expiring';
+                    const isPaused = vehicle.status === 'paused';
+
+                    return (
+                      <tr
+                        key={vehicle.id}
+                        data-testid={`vehicle-row-${vehicle.id}`}
+                        className="hover:bg-[#f8fafc]/80 transition-colors group"
+                      >
+                        {/* Column 1: Veículo */}
+                        <td className="py-4 pl-6 pr-4">
+                          <div className="flex items-center gap-3.5">
+                            {/* Photo with photo count badge */}
+                            <div className="relative w-[119px] h-[85px] rounded-[8px] overflow-hidden bg-[#e2e8f0] shrink-0 border border-[#dee6f1]">
+                              <Image
+                                src={vehicle.imageUrl}
+                                alt={`${vehicle.make} ${vehicle.model}`}
+                                fill
+                                className="object-cover"
+                              />
+                              <div className="absolute bottom-1.5 right-1.5 bg-[#182539]/90 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-[4px] flex items-center gap-1 shadow-xs">
+                                <IconCamera className="size-3" />
+                                <span>{vehicle.photoCount}</span>
+                              </div>
+                            </div>
+
+                            {/* Title, version and metadata */}
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h3 className="text-[15px] font-bold text-[#17243f] leading-snug">
+                                  {vehicle.make} {vehicle.model}
+                                </h3>
+                                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-[#475569] border border-gray-200">
+                                  {vehicle.plate}
+                                </span>
+                              </div>
+                              <p className="text-[12px] text-[#697a95] mt-0.5 line-clamp-1">
+                                {vehicle.version}
+                              </p>
+                              <p className="text-[11px] text-[#8a99ad] mt-1">
+                                {vehicle.year} · {vehicle.mileageKm.toLocaleString('pt-BR')} km ·{' '}
+                                {vehicle.fuel} · {vehicle.transmission}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Column 2: Preço */}
+                        <td className="py-4 px-4">
+                          <span className="text-[15px] font-bold text-[#17243f]">
+                            {vehicle.formattedPrice}
+                          </span>
+                        </td>
+
+                        {/* Column 3: Status Badge */}
+                        <td className="py-4 px-4">
+                          {vehicle.status === 'active' && (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#e5f7ed] text-[#14865a] border border-[#a3e6c2]">
+                              Ativo
+                            </span>
+                          )}
+                          {vehicle.status === 'in_review' && (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#eaf3ff] text-[#2265bb] border border-[#bfdbfe]">
+                              Em análise
+                            </span>
+                          )}
+                          {vehicle.status === 'expiring' && (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#fff3dc] text-[#d97706] border border-[#fde68a]">
+                              Expirando
+                            </span>
+                          )}
+                          {vehicle.status === 'paused' && (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#f2f5fa] text-[#6e7890] border border-[#e2e8f0]">
+                              Pausado
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Column 4: Plano */}
+                        <td className="py-4 px-4">
+                          {vehicle.plan === 'premium' && (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#fef2f2] text-[#b91c1c] border border-[#fecaca]">
+                              <IconSparkles className="size-3" />
+                              Plano Premium
+                            </span>
+                          )}
+                          {vehicle.plan === 'essential' && (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#f0f9ff] text-[#0369a1] border border-[#bae6fd]">
+                              Plano Essencial
+                            </span>
+                          )}
+                          {vehicle.plan === 'none' && (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-normal bg-[#f8fafc] text-[#64748b] border border-[#e2e8f0]">
+                              Sem impulsionamento
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Column 5: Validade */}
+                        <td className="py-4 px-4">
+                          <span
+                            className={`text-[12px] font-medium ${
+                              isExpiring
+                                ? 'text-[#d97706] font-semibold'
+                                : vehicle.status === 'in_review' || isPaused
+                                  ? 'text-[#8a99ad]'
+                                  : 'text-[#17243f]'
+                            }`}
+                          >
+                            {vehicle.expiresAtLabel}
+                          </span>
+                        </td>
+
+                        {/* Column 6: Visualizações */}
+                        <td className="py-4 px-4">
+                          <div className="flex items-center gap-1.5 text-[12px] text-[#697a95]">
+                            <IconEye className="size-3.5 text-[#8a99ad]" />
+                            <span>{vehicle.viewsCount.toLocaleString('pt-BR')}</span>
+                          </div>
+                        </td>
+
+                        {/* Column 7: Ações */}
+                        <td className="py-4 pr-6 pl-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {/* Contextual Action: Renovar (if expiring), Pausar (if active), Ativar (if paused) */}
+                            {isExpiring && (
+                              <button
+                                type="button"
+                                onClick={() => handleOpenModal('renew', vehicle)}
+                                data-testid={`btn-renew-${vehicle.id}`}
+                                className="px-2.5 py-1.5 bg-[#fef3c7] hover:bg-[#fde68a] text-[#b45309] text-[11px] font-semibold rounded-[6px] transition-colors"
+                              >
+                                Renovar
+                              </button>
+                            )}
+
+                            {isActive && (
+                              <button
+                                type="button"
+                                onClick={() => handleTogglePause(vehicle.id)}
+                                data-testid={`btn-pause-${vehicle.id}`}
+                                className="px-2.5 py-1.5 bg-gray-100 hover:bg-gray-200 text-[#475569] text-[11px] font-medium rounded-[6px] transition-colors"
+                              >
+                                Pausar
+                              </button>
+                            )}
+
+                            {isPaused && (
+                              <button
+                                type="button"
+                                onClick={() => handleTogglePause(vehicle.id)}
+                                data-testid={`btn-activate-${vehicle.id}`}
+                                className="px-2.5 py-1.5 bg-[#e5f7ed] hover:bg-[#cbf2dc] text-[#14865a] text-[11px] font-semibold rounded-[6px] transition-colors"
+                              >
+                                Ativar
+                              </button>
+                            )}
+
+                            {/* Edit Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleOpenModal('edit', vehicle)}
+                              data-testid={`btn-edit-${vehicle.id}`}
+                              className="px-2.5 py-1.5 bg-white border border-[#dee6f1] hover:bg-[#f8fafc] text-[#17243f] text-[11px] font-medium rounded-[6px] transition-colors"
+                            >
+                              Editar
+                            </button>
+
+                            {/* View Vehicle Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleOpenModal('view', vehicle)}
+                              data-testid={`btn-view-${vehicle.id}`}
+                              className="px-2.5 py-1.5 bg-white border border-[#dee6f1] hover:bg-[#f8fafc] text-[#b91c1c] text-[11px] font-semibold rounded-[6px] transition-colors"
+                            >
+                              Ver
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="py-12 text-center">
+                      <div className="max-w-[360px] mx-auto text-center">
+                        <div className="size-12 rounded-full bg-[#f1f5f9] text-[#64748b] flex items-center justify-center mx-auto mb-3">
+                          <IconSearch className="size-6" />
+                        </div>
+                        <h4 className="text-[16px] font-bold text-[#17243f]">
+                          Nenhum veículo encontrado
+                        </h4>
+                        <p className="text-[13px] text-[#697a95] mt-1 leading-relaxed">
+                          Não encontramos anúncios correspondentes aos filtros aplicados.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={handleClearFilters}
+                          className="mt-4 px-4 py-2 bg-[#b91c1c] hover:bg-[#991b1b] text-white text-[12px] font-semibold rounded-[6px] transition-colors"
+                        >
+                          Limpar todos os filtros
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Cards View (Figma 1592:3701) */}
+          <div
+            className="md:hidden divide-y divide-[#dee6f1]"
+            data-testid="dealer-inventory-mobile-list"
+          >
+            {filteredVehicles.length > 0 ? (
+              filteredVehicles.map((vehicle) => {
+                const isActive = vehicle.status === 'active';
+                const isExpiring = vehicle.status === 'expiring';
+                const isPaused = vehicle.status === 'paused';
+
+                return (
+                  <div
+                    key={vehicle.id}
+                    data-testid={`mobile-card-${vehicle.id}`}
+                    className="p-4 bg-white space-y-3"
+                  >
+                    {/* Top Row: Thumbnail + Title & Price */}
+                    <div className="flex gap-3">
+                      <div className="relative w-[110px] h-[85px] rounded-[8px] overflow-hidden bg-gray-100 shrink-0 border border-[#dee6f1]">
+                        <Image
+                          src={vehicle.imageUrl}
+                          alt={`${vehicle.make} ${vehicle.model}`}
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="absolute bottom-1 right-1 bg-[#182539]/90 text-white text-[9px] font-semibold px-1 py-0.5 rounded flex items-center gap-0.5">
+                          <IconCamera className="size-2.5" />
+                          <span>{vehicle.photoCount}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-1">
+                          <h3 className="text-[14px] font-bold text-[#17243f] truncate">
+                            {vehicle.make} {vehicle.model}
+                          </h3>
+                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-[#475569]">
+                            {vehicle.plate}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-[#697a95] truncate mt-0.5">
+                          {vehicle.version}
+                        </p>
+                        <p className="text-[11px] text-[#8a99ad] mt-0.5">
+                          {vehicle.year} · {vehicle.mileageKm.toLocaleString('pt-BR')} km
+                        </p>
+                        <p className="text-[15px] font-bold text-[#17243f] mt-1">
+                          {vehicle.formattedPrice}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Middle Row: Badges & Metrics */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-[#f1f5f9] text-[11px]">
+                      <div className="flex items-center gap-1.5">
+                        {vehicle.status === 'active' && (
+                          <span className="px-2 py-0.5 rounded-full font-semibold bg-[#e5f7ed] text-[#14865a]">
+                            Ativo
+                          </span>
+                        )}
+                        {vehicle.status === 'in_review' && (
+                          <span className="px-2 py-0.5 rounded-full font-semibold bg-[#eaf3ff] text-[#2265bb]">
+                            Em análise
+                          </span>
+                        )}
+                        {vehicle.status === 'expiring' && (
+                          <span className="px-2 py-0.5 rounded-full font-semibold bg-[#fff3dc] text-[#d97706]">
+                            Expirando
+                          </span>
+                        )}
+                        {vehicle.status === 'paused' && (
+                          <span className="px-2 py-0.5 rounded-full font-semibold bg-[#f2f5fa] text-[#6e7890]">
+                            Pausado
+                          </span>
+                        )}
+
+                        <span className="text-[#64748b]">{vehicle.planLabel}</span>
+                      </div>
+
+                      <div className="flex items-center gap-1 text-[#697a95]">
+                        <IconEye className="size-3 text-[#8a99ad]" />
+                        <span>{vehicle.viewsCount.toLocaleString('pt-BR')} views</span>
+                      </div>
+                    </div>
+
+                    {/* Bottom Row: Actions */}
+                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#f1f5f9]">
+                      {isExpiring && (
+                        <button
+                          type="button"
+                          onClick={() => handleOpenModal('renew', vehicle)}
+                          className="flex-1 py-2 bg-[#fef3c7] hover:bg-[#fde68a] text-[#b45309] text-[12px] font-semibold rounded-[6px] text-center"
+                        >
+                          Renovar
+                        </button>
+                      )}
+
+                      {isActive && (
+                        <button
+                          type="button"
+                          onClick={() => handleTogglePause(vehicle.id)}
+                          className="flex-1 py-2 bg-gray-100 hover:bg-gray-200 text-[#475569] text-[12px] font-medium rounded-[6px] text-center"
+                        >
+                          Pausar
+                        </button>
+                      )}
+
+                      {isPaused && (
+                        <button
+                          type="button"
+                          onClick={() => handleTogglePause(vehicle.id)}
+                          className="flex-1 py-2 bg-[#e5f7ed] hover:bg-[#cbf2dc] text-[#14865a] text-[12px] font-semibold rounded-[6px] text-center"
+                        >
+                          Ativar
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => handleOpenModal('edit', vehicle)}
+                        className="flex-1 py-2 bg-white border border-[#dee6f1] hover:bg-[#f8fafc] text-[#17243f] text-[12px] font-medium rounded-[6px] text-center"
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleOpenModal('view', vehicle)}
+                        className="flex-1 py-2 bg-white border border-[#dee6f1] hover:bg-[#f8fafc] text-[#b91c1c] text-[12px] font-semibold rounded-[6px] text-center"
+                      >
+                        Ver anúncio
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="py-12 px-4 text-center">
+                <div className="size-12 rounded-full bg-[#f1f5f9] text-[#64748b] flex items-center justify-center mx-auto mb-3">
+                  <IconSearch className="size-6" />
+                </div>
+                <h4 className="text-[16px] font-bold text-[#17243f]">Nenhum veículo encontrado</h4>
+                <p className="text-[13px] text-[#697a95] mt-1 leading-relaxed">
+                  Não encontramos anúncios correspondentes aos filtros aplicados.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="mt-4 px-4 py-2 bg-[#b91c1c] text-white text-[12px] font-semibold rounded-[6px]"
+                >
+                  Limpar todos os filtros
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Footer of Table / List */}
+          <div className="p-4 sm:px-6 bg-[#f8fafc] border-t border-[#dee6f1] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-[12px] text-[#697a95]">
+            <p data-testid="inventory-footer-count">
+              Mostrando{' '}
+              <span className="font-semibold text-[#17243f]">{filteredVehicles.length}</span> de{' '}
+              <span className="font-semibold text-[#17243f]">{vehicles.length}</span> veículos da
+              frota
+            </p>
+            <p className="text-[11px] text-[#8a99ad]">
+              Valores, fotos e métricas são dados ilustrativos para revisão do design. (DEMO DATA)
+            </p>
           </div>
         </div>
       </main>
 
       <MarketplaceFooter />
+
+      {/* Action and Information Modal */}
+      <DealerVehicleActionModal
+        type={modalType}
+        vehicle={selectedVehicle}
+        isOpen={modalType !== null}
+        onClose={() => setModalType(null)}
+        onConfirmRenew={handleConfirmRenew}
+      />
     </div>
   );
 }
