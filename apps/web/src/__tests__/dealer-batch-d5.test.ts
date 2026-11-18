@@ -4,6 +4,13 @@ import {
   saveDealerOrder,
   updateDealerOrderStatus,
 } from '@/lib/adapters/dealer-orders-adapter';
+import {
+  DEALER_BOOST,
+  DEALER_PLANS,
+  DEALER_RENEWAL,
+  formatDealerBRL,
+  getDealerMaxPhotos,
+} from '@/lib/constants/dealer-commercial';
 import { useDealerInventoryStore } from '@/stores/use-dealer-inventory-store';
 import { useDealerMessagesStore } from '@/stores/use-dealer-messages-store';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -257,6 +264,25 @@ describe('Dealer Batch D5 Unit Tests — Messaging, Advertising Plans, Renewal, 
 
       expect(order.id.startsWith('DLR-ORD-')).toBe(true);
       expect(order.id.startsWith('ORD-')).toBe(false);
+    });
+
+    it('17. should resolve dealership photo quotas dynamically by plan (8 for essential, 20 for premium)', () => {
+      expect(getDealerMaxPhotos('essential')).toBe(8);
+      expect(getDealerMaxPhotos('premium')).toBe(20);
+      expect(getDealerMaxPhotos(undefined)).toBe(20);
+      expect(DEALER_PLANS.essential.maxPhotos).toBe(8);
+      expect(DEALER_PLANS.premium.maxPhotos).toBe(20);
+    });
+
+    it('18. should strictly conform to dealership commercial pricing baseline', () => {
+      expect(DEALER_PLANS.essential.priceCents).toBe(4990);
+      expect(DEALER_PLANS.premium.priceCents).toBe(8990);
+      expect(DEALER_BOOST.priceCents).toBe(2990);
+      expect(DEALER_RENEWAL.priceCents).toBe(4990);
+
+      expect(formatDealerBRL(4990)).toContain('49,90');
+      expect(formatDealerBRL(8990)).toContain('89,90');
+      expect(formatDealerBRL(2990)).toContain('29,90');
     });
   });
 });

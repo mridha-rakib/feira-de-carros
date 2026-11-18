@@ -185,9 +185,14 @@ export default function DealershipVehicleBoostPage({ params }: PageProps) {
               <div className="size-8 rounded-full bg-[#ecfdf5] text-[#059669] flex items-center justify-center font-bold text-[14px] mb-2">
                 📈
               </div>
-              <div className="font-bold text-[14px] text-[#16243c]">+150% Visualizações</div>
+              <div className="font-bold text-[14px] text-[#16243c]">
+                +150% Visualizações{' '}
+                <span className="text-[10px] text-[#63738e] font-normal block">
+                  [ILUSTRATIVO · DEMO DATA]
+                </span>
+              </div>
               <p className="text-[12px] text-[#63738e] mt-1">
-                Aumento médio verificado de compradores visualizando o anúncio.
+                Estimativa ilustrativa de incremento de visibilidade de compradores na plataforma.
               </p>
             </div>
 

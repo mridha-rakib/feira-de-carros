@@ -91,7 +91,11 @@ export default function DealershipPaymentStatusPage({ params }: PageProps) {
           </p>
 
           {/* Receipt / Order Info Box */}
-          <div className="bg-[#f8fafc] border border-[#dee6f1] rounded-[14px] p-5 text-left space-y-3 mb-8">
+          <div className="bg-[#f8fafc] border border-[#dee6f1] rounded-[14px] p-5 text-left space-y-3 mb-8 relative">
+            <div className="text-[10px] font-bold text-[#63738e] uppercase tracking-wider mb-1 flex items-center justify-between">
+              <span>Recibo do Pedido</span>
+              <span className="text-[#b91c1c] bg-[#fee2e2] px-2 py-0.5 rounded">DEMO DATA</span>
+            </div>
             <div className="flex items-center justify-between pb-3 border-b border-[#e2e8f0]">
               <span className="text-[12px] text-[#63738e]">Código da transação</span>
               <span className="text-[13px] font-mono font-semibold text-[#16243c]">{order.id}</span>

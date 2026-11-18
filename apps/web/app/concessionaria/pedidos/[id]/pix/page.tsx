@@ -133,6 +133,15 @@ export default function DealershipPixCheckoutPage({ params }: PageProps) {
           </p>
         </div>
 
+        {/* Safety Disclaimer Banner */}
+        <div className="mb-6 p-3.5 bg-[#fffbeb] border border-[#fde68a] rounded-[12px] text-[12px] text-[#92400e] flex items-center gap-2.5 shadow-2xs">
+          <IconAlert className="size-4 shrink-0 text-[#d97706]" />
+          <span>
+            <strong>AMBIENTE DE DEMONSTRAÇÃO:</strong> Este QR Code e código PIX são fictícios para
+            validação de interface. Não realize transferências financeiras reais.
+          </span>
+        </div>
+
         {/* Order Details Header */}
         <div className="bg-white border border-[#dee6f1] rounded-[14px] p-5 mb-6 shadow-2xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#f1f5f9]">
@@ -165,7 +174,10 @@ export default function DealershipPixCheckoutPage({ params }: PageProps) {
 
         {/* QR Code & Code Box */}
         <div className="bg-white border border-[#dee6f1] rounded-[16px] p-6 sm:p-8 text-center shadow-xs mb-6">
-          <div className="size-52 mx-auto bg-[#f8fafc] border-2 border-dashed border-[#cbd5e1] rounded-[16px] flex flex-col items-center justify-center p-4 mb-5 relative">
+          <div className="size-52 mx-auto bg-[#f8fafc] border-2 border-dashed border-[#cbd5e1] rounded-[16px] flex flex-col items-center justify-center p-4 mb-5 relative overflow-hidden">
+            <span className="absolute top-2 left-2 right-2 bg-[#fee2e2]/95 text-[#b91c1c] text-[10px] font-extrabold uppercase py-0.5 rounded border border-[#fca5a5] tracking-wider z-10 shadow-2xs">
+              DEMO — NÃO PAGAR
+            </span>
             <svg
               className="size-40 text-[#16243c]"
               viewBox="0 0 24 24"

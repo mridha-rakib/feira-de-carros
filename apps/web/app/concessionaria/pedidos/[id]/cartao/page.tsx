@@ -172,6 +172,15 @@ export default function DealershipCardCheckoutPage({ params }: PageProps) {
           </p>
         </div>
 
+        {/* Demo Disclaimer */}
+        <div className="mb-6 p-3.5 bg-[#fffbeb] border border-[#fde68a] rounded-[12px] text-[12px] text-[#92400e] flex items-center gap-2.5 shadow-2xs">
+          <IconAlert className="size-4 shrink-0 text-[#d97706]" />
+          <span>
+            <strong>AMBIENTE DE DEMONSTRAÇÃO:</strong> Formulário de checkout simulado para
+            homologação frontend. Não insira dados reais de cartão de crédito.
+          </span>
+        </div>
+
         {/* Order Details Header */}
         <div className="bg-white border border-[#dee6f1] rounded-[14px] p-5 mb-6 shadow-2xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#f1f5f9]">

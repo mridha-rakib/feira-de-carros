@@ -16,6 +16,7 @@ import {
 } from '@/app/components/SellerIcons';
 import { DealerWizardStepper } from '@/app/components/dealership/DealerWizardStepper';
 import { DealershipSubNav } from '@/app/components/dealership/DealershipSubNav';
+import { getDealerMaxPhotos } from '@/lib/constants/dealer-commercial';
 import { useDealerInventoryStore } from '@/stores/use-dealer-inventory-store';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -39,7 +40,7 @@ export default function DealerNovoAnuncioFotosPage() {
 
   const [photoError, setPhotoError] = useState<string | null>(null);
 
-  const maxPhotos = 10;
+  const maxPhotos = getDealerMaxPhotos(draft.plan);
   const currentPhotoCount = draft.images.length;
 
   const handleAddSamplePhotos = () => {
