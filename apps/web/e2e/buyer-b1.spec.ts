@@ -22,9 +22,15 @@ test.describe('Buyer Frontend Batch B1 — Marketplace Discovery & Search', () =
     await expect(page.getByText('Atendimento ágil').first()).toBeVisible();
 
     // Check Featured listings
-    await expect(page.getByRole('heading', { name: /Destaques da semana/i })).toBeVisible();
-    await expect(page.getByText('Honda Civic 2022').first()).toBeVisible();
-    await expect(page.getByText('Toyota Corolla 2021').first()).toBeVisible();
+    const featuredHeading = page.getByRole('heading', { name: /Destaques da semana/i });
+    await expect(featuredHeading).toBeVisible();
+    await featuredHeading.scrollIntoViewIfNeeded();
+    await expect(
+      page.getByText('Honda Civic 2022').filter({ visible: true }).first(),
+    ).toBeVisible();
+    await expect(
+      page.getByText('Toyota Corolla 2021').filter({ visible: true }).first(),
+    ).toBeVisible();
 
     // Check Categories
     await expect(page.getByRole('heading', { name: /Encontre por categoria/i })).toBeVisible();
