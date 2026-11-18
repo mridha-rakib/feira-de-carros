@@ -215,4 +215,32 @@ test.describe('Dealership Frontend Batch D4 — Business Profile Editor & Public
     const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
     expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 2);
   });
+
+  // 9. D4 Image Lifecycle Pre-flight & Reload Resilience
+  test('WEB-022: Reload resilience prevents broken image states and sanitizes durable storage', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/concessionaria/perfil');
+
+    // Simulate saving a profile and reloading page
+    await page.getByTestId('input-city').fill('Ipatinga');
+    await page.getByTestId('btn-save-profile').click();
+    await expect(page.getByTestId('save-success-banner')).toBeVisible();
+
+    // Reload page
+    await page.reload();
+
+    // Ensure page loads cleanly without 404 or broken image
+    await expect(
+      page.getByRole('heading', { name: 'Perfil público da concessionária' }),
+    ).toBeVisible();
+    await expect(page.getByTestId('preview-saved-badge')).toHaveText('Publicado');
+
+    // Verify localStorage does not contain any blob: string
+    const localStorageData = await page.evaluate(() =>
+      window.localStorage.getItem('fdc_dealer_public_profile'),
+    );
+    expect(localStorageData).not.toContain('blob:');
+  });
 });

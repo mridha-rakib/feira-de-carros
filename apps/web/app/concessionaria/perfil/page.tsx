@@ -18,6 +18,7 @@ import {
   IconUpload,
   IconUserRound,
 } from '@/app/components/SellerIcons';
+import { DealerConsoleTabs } from '@/app/components/dealership/DealerConsoleTabs';
 import { DealershipSubNav } from '@/app/components/dealership/DealershipSubNav';
 import {
   type DealerPublicProfile,
@@ -194,28 +195,8 @@ export default function DealershipBusinessProfilePage() {
           <span className="font-semibold text-[#16243c]">Perfil público</span>
         </nav>
 
-        {/* Navigation Tabs (Estoque / Perfil Público / Showroom) */}
-        <div className="flex items-center gap-2 mb-6 border-b border-[#dfe7f1] pb-3 overflow-x-auto">
-          <Link
-            href="/concessionaria/anuncios"
-            className="text-[13px] font-medium text-[#63738e] hover:text-[#16243c] px-3 py-1.5 rounded-[6px] transition-colors"
-          >
-            Estoque da frota
-          </Link>
-          <Link
-            href="/concessionaria/perfil"
-            className="text-[13px] font-semibold text-[#b91c1c] bg-[#fee2e2]/60 px-3 py-1.5 rounded-[6px] transition-colors"
-          >
-            Perfil público
-          </Link>
-          <Link
-            href={`/concessionarias/${publishedProfile.id}?preview=true`}
-            className="text-[13px] font-medium text-[#63738e] hover:text-[#16243c] px-3 py-1.5 rounded-[6px] transition-colors flex items-center gap-1.5 ml-auto"
-          >
-            <IconEye className="size-3.5" />
-            <span>Ver showroom público</span>
-          </Link>
-        </div>
+        {/* Navigation Tabs (Estoque / Perfil Público / Mensagens / Showroom) */}
+        <DealerConsoleTabs activeTab="perfil" />
 
         {/* Page Header (WEB-022) */}
         <div className="mb-6">

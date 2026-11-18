@@ -227,4 +227,89 @@ describe('Dealership Frontend Batch D4 — Business Profile & Showroom Integrati
     expect(unrelatedDealership?.name).toBe('AutoCar Multimarcas');
     expect(unrelatedDealership?.id).not.toBe(currentProfile.id);
   });
+
+  // 15. D4 Image Lifecycle Pre-flight: Revocation on replacement, removal, and revert
+  it('correctly tracks and safely revokes ephemeral object URLs during image replacement, removal, and revert', () => {
+    const revokedUrls: string[] = [];
+    const origRevoke = URL.revokeObjectURL;
+    const origCreate = URL.createObjectURL;
+
+    URL.createObjectURL = (file: Blob | MediaSource) =>
+      `blob:mock-uuid-${(file as File).name || 'file'}`;
+    URL.revokeObjectURL = (url: string) => {
+      revokedUrls.push(url);
+    };
+
+    try {
+      const store = useDealerProfileStore.getState();
+
+      // Set initial logo
+      const file1 = new File(['1'], 'logo1.png', { type: 'image/png' });
+      store.setLogoFile(file1);
+      expect(useDealerProfileStore.getState().tempLogoPreview).toBe('blob:mock-uuid-logo1.png');
+
+      // Replace logo -> previous url must be revoked
+      const file2 = new File(['2'], 'logo2.png', { type: 'image/png' });
+      store.setLogoFile(file2);
+      expect(revokedUrls).toContain('blob:mock-uuid-logo1.png');
+      expect(useDealerProfileStore.getState().tempLogoPreview).toBe('blob:mock-uuid-logo2.png');
+
+      // Remove logo -> current url must be revoked
+      store.removeLogo();
+      expect(revokedUrls).toContain('blob:mock-uuid-logo2.png');
+      expect(useDealerProfileStore.getState().tempLogoPreview).toBeNull();
+      expect(useDealerProfileStore.getState().draftProfile.logoUrl).toBe('');
+
+      // Set banner and revert -> banner url must be revoked
+      const bannerFile = new File(['b'], 'banner.jpg', { type: 'image/jpeg' });
+      store.setBannerFile(bannerFile);
+      expect(useDealerProfileStore.getState().tempBannerPreview).toBe('blob:mock-uuid-banner.jpg');
+
+      store.revertChanges();
+      expect(revokedUrls).toContain('blob:mock-uuid-banner.jpg');
+      expect(useDealerProfileStore.getState().tempBannerPreview).toBeNull();
+    } finally {
+      URL.createObjectURL = origCreate;
+      URL.revokeObjectURL = origRevoke;
+    }
+  });
+
+  // 16. D4 Image Lifecycle Pre-flight: Never persist blob URLs to durable localStorage
+  it('never persists ephemeral blob URLs to durable storage, falling back to default asset', () => {
+    const origCreate = URL.createObjectURL;
+    URL.createObjectURL = () => 'blob:http://localhost:3000/mock-active-blob';
+
+    try {
+      const store = useDealerProfileStore.getState();
+      const testFile = new File(['data'], 'test.png', { type: 'image/png' });
+      store.setLogoFile(testFile);
+      store.saveChanges();
+
+      // In active session memory, blob preview is available
+      expect(useDealerProfileStore.getState().publishedProfile.logoUrl).toBe(
+        'blob:http://localhost:3000/mock-active-blob',
+      );
+
+      // Verify that store partialize function strips blob: URL for storage
+      const persistStore = useDealerProfileStore as unknown as {
+        persist?: {
+          getOptions?: () => {
+            partialize?: (s: unknown) => {
+              publishedProfile: { logoUrl: string };
+              draftProfile: { logoUrl: string };
+            };
+          };
+        };
+      };
+      const partialize = persistStore.persist?.getOptions?.()?.partialize;
+      if (partialize) {
+        const persistedData = partialize(useDealerProfileStore.getState());
+        expect(persistedData.publishedProfile.logoUrl).not.toContain('blob:');
+        expect(persistedData.publishedProfile.logoUrl).toBe(DEFAULT_DEALER_PUBLIC_PROFILE.logoUrl);
+        expect(persistedData.draftProfile.logoUrl).not.toContain('blob:');
+      }
+    } finally {
+      URL.createObjectURL = origCreate;
+    }
+  });
 });

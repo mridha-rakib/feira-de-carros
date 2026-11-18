@@ -10,6 +10,7 @@ import {
   IconSearch,
   IconSparkles,
 } from '@/app/components/SellerIcons';
+import { DealerConsoleTabs } from '@/app/components/dealership/DealerConsoleTabs';
 import { DealerInventoryMetricsCards } from '@/app/components/dealership/DealerInventoryMetricsCards';
 import {
   type DealerModalType,
@@ -111,28 +112,8 @@ export default function DealershipInventoryPage() {
           <span className="font-semibold text-[#17243f]">Estoque</span>
         </div>
 
-        {/* Navigation Tabs (Estoque / Perfil Público / Showroom) */}
-        <div className="flex items-center gap-2 mb-6 border-b border-[#dee6f1] pb-3 overflow-x-auto">
-          <Link
-            href="/concessionaria/anuncios"
-            className="text-[13px] font-semibold text-[#b91c1c] bg-[#fee2e2]/60 px-3 py-1.5 rounded-[6px] transition-colors"
-          >
-            Estoque da frota
-          </Link>
-          <Link
-            href="/concessionaria/perfil"
-            className="text-[13px] font-medium text-[#697a95] hover:text-[#17243f] px-3 py-1.5 rounded-[6px] transition-colors"
-          >
-            Perfil público
-          </Link>
-          <Link
-            href="/concessionarias/dealer-lider-seminovos"
-            className="text-[13px] font-medium text-[#697a95] hover:text-[#17243f] px-3 py-1.5 rounded-[6px] transition-colors flex items-center gap-1.5 ml-auto"
-          >
-            <IconEye className="size-3.5" />
-            <span>Ver showroom público</span>
-          </Link>
-        </div>
+        {/* Navigation Tabs (Estoque / Perfil Público / Mensagens / Showroom) */}
+        <DealerConsoleTabs activeTab="estoque" />
 
         {/* Page Header Heading with Title, Dealership Badge & Working New Listing CTA */}
         <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -389,6 +370,13 @@ export default function DealershipInventoryPage() {
                               Sem impulsionamento
                             </span>
                           )}
+                          <Link
+                            href={`/concessionaria/anuncios/${vehicle.id}/plano`}
+                            data-testid={`btn-change-plan-${vehicle.id}`}
+                            className="text-[10px] text-[#697a95] hover:text-[#b91c1c] block mt-1 underline"
+                          >
+                            Alterar plano
+                          </Link>
                         </td>
 
                         {/* Column 5: Validade */}
@@ -417,6 +405,18 @@ export default function DealershipInventoryPage() {
                         {/* Column 7: Ações */}
                         <td className="py-4 pr-6 pl-4 text-right">
                           <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                            {/* Impulsionar action */}
+                            {!isSold && (
+                              <Link
+                                href={`/concessionaria/anuncios/${vehicle.id}/impulsionar`}
+                                data-testid={`btn-boost-${vehicle.id}`}
+                                className="px-2.5 py-1.5 bg-[#fef3c7] hover:bg-[#fde68a] text-[#b45309] text-[11px] font-semibold rounded-[6px] transition-colors flex items-center gap-1"
+                              >
+                                <IconSparkles className="size-3" />
+                                <span>Impulsionar</span>
+                              </Link>
+                            )}
+
                             {/* Renovar action for expiring */}
                             {isExpiring && (
                               <button
@@ -621,14 +621,22 @@ export default function DealershipInventoryPage() {
 
                     {/* Bottom Row: Actions */}
                     <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#f1f5f9] flex-wrap">
+                      {!isSold && (
+                        <Link
+                          href={`/concessionaria/anuncios/${vehicle.id}/impulsionar`}
+                          className="flex-1 py-2 bg-[#fef3c7] hover:bg-[#fde68a] text-[#b45309] text-[12px] font-semibold rounded-[6px] text-center"
+                        >
+                          Impulsionar
+                        </Link>
+                      )}
+
                       {isExpiring && (
-                        <button
-                          type="button"
-                          onClick={() => handleOpenModal('renew', vehicle)}
+                        <Link
+                          href={`/concessionaria/anuncios/${vehicle.id}/renovar`}
                           className="flex-1 py-2 bg-[#fef3c7] hover:bg-[#fde68a] text-[#b45309] text-[12px] font-semibold rounded-[6px] text-center"
                         >
                           Renovar
-                        </button>
+                        </Link>
                       )}
 
                       {isActive && (

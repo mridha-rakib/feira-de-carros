@@ -35,6 +35,25 @@ export const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'ima
 export const MAX_LOGO_BYTES = 2 * 1024 * 1024; // 2 MB
 export const MAX_BANNER_BYTES = 5 * 1024 * 1024; // 5 MB
 
+export function isBlobUrl(url?: string | null): boolean {
+  return typeof url === 'string' && url.startsWith('blob:');
+}
+
+export function safeRevokeUrl(url?: string | null) {
+  if (
+    url &&
+    isBlobUrl(url) &&
+    typeof URL !== 'undefined' &&
+    typeof URL.revokeObjectURL === 'function'
+  ) {
+    try {
+      URL.revokeObjectURL(url);
+    } catch {
+      // ignore
+    }
+  }
+}
+
 export function validateLogoFile(file: File): { valid: boolean; error?: string } {
   if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
     return {
@@ -141,6 +160,12 @@ export const useDealerProfileStore = create<DealerProfileState>()(
           return { success: false, error: validation.error };
         }
 
+        // Revoke previously held temporary preview if any
+        const oldPreview = get().tempLogoPreview;
+        if (oldPreview) {
+          safeRevokeUrl(oldPreview);
+        }
+
         const previewUrl = URL.createObjectURL(file);
         set((state) => ({
           tempLogoPreview: previewUrl,
@@ -152,6 +177,11 @@ export const useDealerProfileStore = create<DealerProfileState>()(
       },
 
       removeLogo: () => {
+        const oldPreview = get().tempLogoPreview;
+        if (oldPreview) {
+          safeRevokeUrl(oldPreview);
+        }
+
         set((state) => ({
           tempLogoPreview: null,
           draftProfile: { ...state.draftProfile, logoUrl: '' },
@@ -165,6 +195,12 @@ export const useDealerProfileStore = create<DealerProfileState>()(
           return { success: false, error: validation.error };
         }
 
+        // Revoke previously held temporary preview if any
+        const oldPreview = get().tempBannerPreview;
+        if (oldPreview) {
+          safeRevokeUrl(oldPreview);
+        }
+
         const previewUrl = URL.createObjectURL(file);
         set((state) => ({
           tempBannerPreview: previewUrl,
@@ -176,6 +212,11 @@ export const useDealerProfileStore = create<DealerProfileState>()(
       },
 
       removeBanner: () => {
+        const oldPreview = get().tempBannerPreview;
+        if (oldPreview) {
+          safeRevokeUrl(oldPreview);
+        }
+
         set((state) => ({
           tempBannerPreview: null,
           draftProfile: { ...state.draftProfile, bannerUrl: '' },
@@ -208,7 +249,16 @@ export const useDealerProfileStore = create<DealerProfileState>()(
       },
 
       revertChanges: () => {
-        const { publishedProfile } = get();
+        const { publishedProfile, tempLogoPreview, tempBannerPreview } = get();
+
+        // Safely revoke any uncommitted object URLs
+        if (tempLogoPreview) {
+          safeRevokeUrl(tempLogoPreview);
+        }
+        if (tempBannerPreview) {
+          safeRevokeUrl(tempBannerPreview);
+        }
+
         set({
           draftProfile: { ...publishedProfile },
           isDirty: false,
@@ -218,6 +268,14 @@ export const useDealerProfileStore = create<DealerProfileState>()(
       },
 
       resetToDefaults: () => {
+        const { tempLogoPreview, tempBannerPreview } = get();
+        if (tempLogoPreview) {
+          safeRevokeUrl(tempLogoPreview);
+        }
+        if (tempBannerPreview) {
+          safeRevokeUrl(tempBannerPreview);
+        }
+
         set({
           publishedProfile: { ...DEFAULT_DEALER_PUBLIC_PROFILE },
           draftProfile: { ...DEFAULT_DEALER_PUBLIC_PROFILE },
@@ -239,11 +297,25 @@ export const useDealerProfileStore = create<DealerProfileState>()(
           removeItem: () => {},
         };
       }),
-      partialize: (state) => ({
-        publishedProfile: state.publishedProfile,
-        draftProfile: state.draftProfile,
-        isDirty: state.isDirty,
-      }),
+      partialize: (state) => {
+        // Strip ephemeral blob: URLs from durable localStorage persistence
+        // so that hard page reloads NEVER rehydrate broken/revoked object URLs.
+        const sanitizeProfileForStorage = (profile: DealerPublicProfile): DealerPublicProfile => ({
+          ...profile,
+          logoUrl: isBlobUrl(profile.logoUrl)
+            ? DEFAULT_DEALER_PUBLIC_PROFILE.logoUrl
+            : profile.logoUrl,
+          bannerUrl: isBlobUrl(profile.bannerUrl)
+            ? DEFAULT_DEALER_PUBLIC_PROFILE.bannerUrl
+            : profile.bannerUrl,
+        });
+
+        return {
+          publishedProfile: sanitizeProfileForStorage(state.publishedProfile),
+          draftProfile: sanitizeProfileForStorage(state.draftProfile),
+          isDirty: state.isDirty,
+        };
+      },
     },
   ),
 );
