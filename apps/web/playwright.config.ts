@@ -30,7 +30,11 @@ export default defineConfig({
   webServer: {
     command: 'node ./scripts/start_test_server.mjs',
     url: BASE_URL,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 120 * 1000,
+    env: {
+      FEIRA_E2E_MOCK: 'true',
+      PORT: `${PORT}`,
+    },
   },
 });

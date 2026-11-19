@@ -10,8 +10,8 @@ import {
   normalizeEmail,
   registerDemoAccount,
 } from '../../lib/adapters/shared-auth-registry';
+import { setAuthenticatedAccount } from '../../lib/hooks/use-current-auth';
 import { isProductionEnvironment } from '../../lib/security/environment';
-import { useBuyerStore } from '../../stores/use-buyer-store';
 import { MarketplaceFooter } from '../components/MarketplaceFooter';
 import { MarketplaceHeader } from '../components/MarketplaceHeader';
 import {
@@ -27,7 +27,6 @@ import {
 
 export default function BuyerRegistrationPage() {
   const router = useRouter();
-  const { loginSimulation } = useBuyerStore();
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -159,12 +158,11 @@ export default function BuyerRegistrationPage() {
         return;
       }
 
-      if (typeof document !== 'undefined' && !isProductionEnvironment()) {
-        document.cookie = 'fdc_web_session=demo_buyer_session; path=/; SameSite=Lax';
+      if (regResult.account) {
+        setAuthenticatedAccount(regResult.account);
       }
       setIsLoading(false);
       setIsSuccess(true);
-      loginSimulation(cleanEmail, `${firstName.trim()} ${lastName.trim()}`);
     }, 700);
   };
 

@@ -57,7 +57,7 @@ export default function VendedorContaPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Link
-              href="/conta/configuracoes"
+              href="/vendedor/configuracoes"
               className="p-5 rounded-[12px] border border-[#cbd5e1] hover:border-[#c41217] hover:bg-[#fef2f2]/30 transition-all group flex flex-col justify-between"
             >
               <div>

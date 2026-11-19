@@ -3,7 +3,7 @@
 import { BrandLogo } from '@feira/ui';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import {
   authenticateDemoLogin,
@@ -11,9 +11,8 @@ import {
   isSafeRedirect,
   normalizeEmail,
 } from '../../lib/adapters/shared-auth-registry';
+import { setAuthenticatedAccount } from '../../lib/hooks/use-current-auth';
 import { isProductionEnvironment } from '../../lib/security/environment';
-import { useBuyerStore } from '../../stores/use-buyer-store';
-import { useDealerStore } from '../../stores/use-dealer-store';
 import { MarketplaceFooter } from '../components/MarketplaceFooter';
 import { MarketplaceHeader } from '../components/MarketplaceHeader';
 import {
@@ -39,13 +38,10 @@ function getSafeRedirect(rawRedirect: string | null): string {
 }
 
 function LoginFormContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTarget = getSafeRedirect(
     searchParams.get('redirect') || searchParams.get('retorno'),
   );
-
-  const { loginSimulation } = useBuyerStore();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -93,25 +89,12 @@ function LoginFormContent() {
       const account = authResult.account;
       const targetDestination = authResult.destination || '/conta';
 
-      // Set demo session cookie for local dev/testing environments only; never in production
-      if (typeof document !== 'undefined' && !isProductionEnvironment()) {
-        if (account?.role === 'dealer') {
-          document.cookie = 'fdc_web_session=demo_dealer_session; path=/; SameSite=Lax';
-        } else if (account?.role === 'seller') {
-          document.cookie = 'fdc_web_session=demo_seller_session; path=/; SameSite=Lax';
-        } else {
-          document.cookie = 'fdc_web_session=demo_buyer_session; path=/; SameSite=Lax';
-        }
-      }
-
-      if (account?.role === 'dealer') {
-        useDealerStore.getState().loginSimulation(cleanEmail, account);
-      } else if (account?.role === 'member') {
-        loginSimulation(cleanEmail);
+      if (account) {
+        setAuthenticatedAccount(account);
       }
 
       setIsLoading(false);
-      router.push(targetDestination);
+      window.location.href = targetDestination;
     }, 500);
   };
 

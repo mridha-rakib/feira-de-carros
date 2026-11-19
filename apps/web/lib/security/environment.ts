@@ -57,12 +57,13 @@ export function isProductionEnvironment(hostname?: string): boolean {
       }
     }
 
-    // Production build / deployment (NODE_ENV === 'production' or unset)
+    // Local E2E test runner fixture: private server-side environment variable ONLY on local loopback
+    if (isE2eMock) {
+      return false;
+    }
+
+    // Production build / deployment (NODE_ENV === 'production')
     if (nodeEnv === 'production') {
-      // Local E2E test runner fixture: private server-side environment variable ONLY
-      if (isE2eMock) {
-        return false;
-      }
       return true;
     }
   }

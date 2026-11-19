@@ -20,7 +20,7 @@ export function DealerConsoleTabs({ activeTab }: DealerConsoleTabsProps) {
 
   const totalUnread = mounted ? conversations.reduce((sum, c) => sum + (c.unreadCount || 0), 0) : 0;
 
-  const showroomSlug = publishedProfile?.id || 'lider-seminovos';
+  const showroomSlug = publishedProfile?.id || 'dealer-lider-seminovos';
 
   return (
     <div className="flex items-center justify-between gap-4 mb-6 border-b border-[#dfe7f1] pb-3 overflow-x-auto">
@@ -67,7 +67,7 @@ export function DealerConsoleTabs({ activeTab }: DealerConsoleTabsProps) {
 
       <div className="flex items-center">
         <Link
-          href={`/lojas/${showroomSlug}`}
+          href={`/concessionarias/${showroomSlug}`}
           target="_blank"
           rel="noopener noreferrer"
           className="text-[13px] font-medium text-[#0066cc] hover:text-[#004d99] flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] hover:bg-[#eff6ff] transition-colors"

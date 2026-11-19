@@ -319,6 +319,27 @@ export const useBuyerStore = create<BuyerStoreState>()(
             profile.avatarInitials =
               `${profile.firstName[0] || ''}${profile.lastName[0] || ''}`.toUpperCase();
           }
+
+          if (typeof window !== 'undefined') {
+            document.cookie = 'fdc_web_session=demo_buyer_session; path=/; SameSite=Lax';
+            try {
+              localStorage.setItem(
+                'fdc_active_auth_account',
+                JSON.stringify({
+                  id: profile.id,
+                  email: profile.email,
+                  normalizedEmail: profile.email.toLowerCase().trim(),
+                  fullName: profile.fullName,
+                  role: 'member',
+                  status: 'active',
+                }),
+              );
+            } catch {
+              // ignore
+            }
+            window.dispatchEvent(new Event('fdc-auth-changed'));
+          }
+
           return {
             isAuthenticated: true,
             isAuthModalOpen: false,
@@ -328,10 +349,11 @@ export const useBuyerStore = create<BuyerStoreState>()(
           };
         }),
 
-      logoutSimulation: () =>
+      logoutSimulation: () => {
         set({
           isAuthenticated: false,
-        }),
+        });
+      },
     }),
     {
       name: 'fdc_buyer_preferences',
