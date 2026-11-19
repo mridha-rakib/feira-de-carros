@@ -85,6 +85,11 @@ export function middleware(request: NextRequest) {
       pathname.startsWith('/buscas-salvas') ||
       pathname.startsWith('/buyer');
 
+    // Harmonize shared account settings between seller and buyer namespaces
+    if (pathname === '/conta/configuracoes' && role === 'seller') {
+      return NextResponse.redirect(new URL('/vendedor/configuracoes', request.url));
+    }
+
     if (isSellerRoute && role !== 'seller') {
       const loginUrl = new URL('/entrar', request.url);
       loginUrl.searchParams.set('error', 'unauthorized_seller_role_required');

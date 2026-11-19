@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrentAuth } from '@/lib/hooks/use-current-auth';
 import Link from 'next/link';
 import React from 'react';
 
@@ -8,6 +9,11 @@ interface DealershipSubNavProps {
 }
 
 export function DealershipSubNav({ activeItem = 'concessionarias' }: DealershipSubNavProps) {
+  const { role } = useCurrentAuth();
+
+  const sellerHref = role === 'seller' ? '/vendedor/anuncios' : '/vendedor/solicitacao';
+  const dealerHref = role === 'dealer' ? '/concessionaria/anuncios' : '/concessionaria/solicitacao';
+
   return (
     <div className="w-full bg-white border-b border-[#dee6f1] text-[12px] leading-[1.26]">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-[70px] h-[34px] flex items-center gap-6 sm:gap-8">
@@ -22,7 +28,7 @@ export function DealershipSubNav({ activeItem = 'concessionarias' }: DealershipS
           Compradores
         </Link>
         <Link
-          href="/vendedor/solicitacao"
+          href={sellerHref}
           className={`transition-colors ${
             activeItem === 'vender'
               ? 'font-semibold text-[#f42524]'
@@ -32,7 +38,7 @@ export function DealershipSubNav({ activeItem = 'concessionarias' }: DealershipS
           Vender
         </Link>
         <Link
-          href="/concessionaria/solicitacao"
+          href={dealerHref}
           className={`transition-colors ${
             activeItem === 'concessionarias'
               ? 'font-semibold text-[#f42524]'

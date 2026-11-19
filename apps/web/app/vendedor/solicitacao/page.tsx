@@ -6,6 +6,7 @@ import {
   normalizeEmail,
   registerDemoAccount,
 } from '@/lib/adapters/shared-auth-registry';
+import { setAuthenticatedAccount } from '@/lib/hooks/use-current-auth';
 import { isProductionEnvironment } from '@/lib/security/environment';
 import { validateSellerApplicationForm } from '@/lib/utils/seller-validation';
 import { useRouter } from 'next/navigation';
@@ -94,8 +95,8 @@ export default function SellerApplicationPage() {
         return;
       }
 
-      if (typeof document !== 'undefined' && !isProductionEnvironment()) {
-        document.cookie = 'fdc_web_session=demo_seller_session; path=/; SameSite=Lax';
+      if (regResult.account) {
+        setAuthenticatedAccount(regResult.account);
       }
 
       setIsSubmitting(false);

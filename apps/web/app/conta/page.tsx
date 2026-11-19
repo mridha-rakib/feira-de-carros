@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { executeUnifiedLogout } from '../../lib/hooks/use-current-auth';
 import { useBuyerStore } from '../../stores/use-buyer-store';
 import { MarketplaceFooter } from '../components/MarketplaceFooter';
 import { MarketplaceHeader } from '../components/MarketplaceHeader';
@@ -21,8 +21,7 @@ import {
 } from '../components/SellerIcons';
 
 export default function BuyerAccountDashboardPage() {
-  const router = useRouter();
-  const { buyerProfile, updateBuyerProfile, favorites, logoutSimulation } = useBuyerStore();
+  const { buyerProfile, updateBuyerProfile, favorites } = useBuyerStore();
 
   const [activeTab, setActiveTab] = useState<'perfil' | 'mensagens' | 'buscas' | 'seguranca'>(
     'perfil',
@@ -51,11 +50,7 @@ export default function BuyerAccountDashboardPage() {
   };
 
   const handleLogout = () => {
-    logoutSimulation();
-    if (typeof document !== 'undefined') {
-      document.cookie = 'fdc_web_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    }
-    router.push('/');
+    executeUnifiedLogout('/');
   };
 
   return (
