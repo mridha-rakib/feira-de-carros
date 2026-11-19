@@ -367,4 +367,259 @@ test.describe('Role-Based Navigation & Screen Accessibility Suite', () => {
 
     await expect(page).toHaveURL('/entrar');
   });
+
+  test('Session Consistency: Refresh preserves valid local demo session', async ({
+    page,
+    context,
+    isMobile,
+  }) => {
+    await context.addCookies([
+      {
+        name: 'fdc_web_session',
+        value: 'demo_buyer_session',
+        domain: 'localhost',
+        path: '/',
+      },
+    ]);
+    await page.goto('/');
+
+    if (isMobile) {
+      const menuBtn = page.getByRole('button', { name: /Abrir menu de navegação/i });
+      await menuBtn.click();
+      await expect(page.getByText('Carlos Eduardo Mendes')).toBeVisible();
+
+      // Reload page and re-verify
+      await page.reload();
+      await menuBtn.click();
+      await expect(page.getByText('Carlos Eduardo Mendes')).toBeVisible();
+    } else {
+      const accountButton = page.getByRole('button', { name: /Abrir menu da conta/i });
+      await expect(accountButton).toBeVisible();
+      await expect(accountButton).toContainText(/Carlos/i);
+
+      // Reload page
+      await page.reload();
+      await expect(accountButton).toBeVisible();
+      await expect(accountButton).toContainText(/Carlos/i);
+    }
+  });
+
+  test('Session Consistency: Stale browser storage without cookie is strictly treated as guest', async ({
+    page,
+    isMobile,
+  }) => {
+    await page.goto('/');
+
+    // Stale or orphaned localStorage containing authenticated identity without a cookie
+    await page.evaluate(() => {
+      localStorage.setItem(
+        'fdc_active_auth_account',
+        JSON.stringify({
+          id: 'acc-stale-001',
+          email: 'stale.dealer@exemplo.com.br',
+          fullName: 'Stale Dealership Ltda',
+          tradeName: 'Stale Dealership',
+          role: 'dealer',
+          status: 'active',
+        }),
+      );
+    });
+
+    // Reload page
+    await page.goto('/');
+
+    // Verification: Header MUST evaluate to Guest state and NEVER display stale stored account!
+    if (isMobile) {
+      const menuBtn = page.getByRole('button', { name: /Abrir menu de navegação/i });
+      await menuBtn.click();
+      await expect(page.getByRole('link', { name: /Entrar ou cadastrar/i })).toBeVisible();
+      await expect(page.getByText('Stale Dealership')).not.toBeVisible();
+    } else {
+      const entrarLink = page
+        .getByRole('link', { name: /Fazer login ou cadastrar|Entrar/i })
+        .first();
+      await expect(entrarLink).toBeVisible();
+      await expect(page.getByText('Stale Dealership')).not.toBeVisible();
+    }
+
+    // Direct access to protected page must redirect to login
+    await page.goto('/concessionaria/anuncios');
+    await expect(page).toHaveURL(/\/entrar\?redirect=%2Fconcessionaria%2Fanuncios/);
+  });
+
+  test('Session Consistency: Invalid or unrecognized cookie with stale storage is strictly treated as guest', async ({
+    page,
+    context,
+    isMobile,
+  }) => {
+    await context.addCookies([
+      {
+        name: 'fdc_web_session',
+        value: 'unrecognized_tampered_token_xyz',
+        domain: 'localhost',
+        path: '/',
+      },
+    ]);
+
+    await page.goto('/');
+    await page.evaluate(() => {
+      localStorage.setItem(
+        'fdc_active_auth_account',
+        JSON.stringify({
+          id: 'acc-stale-002',
+          email: 'attacker@exemplo.com.br',
+          fullName: 'Malicious Attacker',
+          role: 'dealer',
+          status: 'active',
+        }),
+      );
+    });
+
+    await page.goto('/');
+    if (isMobile) {
+      const menuBtn = page.getByRole('button', { name: /Abrir menu de navegação/i });
+      await menuBtn.click();
+      await expect(page.getByRole('link', { name: /Entrar ou cadastrar/i })).toBeVisible();
+      await expect(page.getByText('Malicious Attacker')).not.toBeVisible();
+    } else {
+      const entrarLink = page
+        .getByRole('link', { name: /Fazer login ou cadastrar|Entrar/i })
+        .first();
+      await expect(entrarLink).toBeVisible();
+      await expect(page.getByText('Malicious Attacker')).not.toBeVisible();
+    }
+
+    await page.goto('/concessionaria/anuncios');
+    await expect(page).toHaveURL(/\/entrar\?redirect=%2Fconcessionaria%2Fanuncios/);
+  });
+
+  test('Session Consistency: Cookie role and stored account role mismatch fails closed', async ({
+    page,
+    context,
+  }) => {
+    // Cookie is a valid Buyer session
+    await context.addCookies([
+      {
+        name: 'fdc_web_session',
+        value: 'demo_buyer_session',
+        domain: 'localhost',
+        path: '/',
+      },
+    ]);
+
+    await page.goto('/');
+
+    // Tamper localStorage with Dealer data
+    await page.evaluate(() => {
+      localStorage.setItem(
+        'fdc_active_auth_account',
+        JSON.stringify({
+          id: 'acc-dealer-999',
+          email: 'mismatched.dealer@exemplo.com',
+          fullName: 'Mismatched Loja Ltda',
+          tradeName: 'Mismatched Loja',
+          role: 'dealer',
+          status: 'active',
+        }),
+      );
+    });
+
+    await page.goto('/');
+
+    // Under no circumstances should "Mismatched Loja" or dealer identity be displayed
+    await expect(page.getByText('Mismatched Loja')).not.toBeVisible();
+  });
+
+  test('Status-Aware Navigation: Pending Seller and Dealer cannot access approved-only actions', async ({
+    page,
+    context,
+    isMobile,
+  }) => {
+    // 1. Pending Seller
+    await context.addCookies([
+      {
+        name: 'fdc_web_session',
+        value: 'demo_seller_pending_session',
+        domain: 'localhost',
+        path: '/',
+      },
+    ]);
+
+    // Accessing management dashboard redirects to application status
+    await page.goto('/vendedor/anuncios');
+    await expect(page).toHaveURL('/vendedor/solicitacao/status');
+
+    // Header CTA button points to status tracking
+    await page.goto('/');
+    if (isMobile) {
+      const menuBtn = page.getByRole('button', { name: /Abrir menu de navegação/i });
+      await menuBtn.click();
+      const ctaLink = page.getByRole('link', { name: /Anunciar meu veículo/i });
+      await expect(ctaLink).toHaveAttribute('href', '/vendedor/solicitacao/status');
+      await expect(page.getByRole('link', { name: /Acompanhar solicitação/i })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Criar anúncio' })).not.toBeVisible();
+    } else {
+      const sellerCta = page.getByRole('link', { name: /Anunciar veículo/i }).first();
+      await expect(sellerCta).toHaveAttribute('href', '/vendedor/solicitacao/status');
+    }
+
+    // 2. Pending Dealer
+    await context.clearCookies();
+    await context.addCookies([
+      {
+        name: 'fdc_web_session',
+        value: 'demo_dealer_pending_session',
+        domain: 'localhost',
+        path: '/',
+      },
+    ]);
+
+    // Accessing dealership inventory redirects to application status
+    await page.goto('/concessionaria/anuncios');
+    await expect(page).toHaveURL('/concessionaria/solicitacao/status');
+
+    // Header CTA button points to status tracking
+    await page.goto('/');
+    if (isMobile) {
+      const menuBtn = page.getByRole('button', { name: /Abrir menu de navegação/i });
+      await menuBtn.click();
+      const ctaLink = page.getByRole('link', { name: /Anunciar meu veículo/i });
+      await expect(ctaLink).toHaveAttribute('href', '/concessionaria/solicitacao/status');
+      await expect(page.getByRole('link', { name: /Acompanhar solicitação/i })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Adicionar veículo' })).not.toBeVisible();
+    } else {
+      const dealerCta = page.getByRole('link', { name: /Anunciar veículo/i }).first();
+      await expect(dealerCta).toHaveAttribute('href', '/concessionaria/solicitacao/status');
+    }
+  });
+
+  test('Navigation Reliability: Direct URL, browser back and refresh behave consistently', async ({
+    page,
+    context,
+  }) => {
+    await context.addCookies([
+      {
+        name: 'fdc_web_session',
+        value: 'demo_seller_session',
+        domain: 'localhost',
+        path: '/',
+      },
+    ]);
+
+    // Direct URL navigation
+    await page.goto('/vendedor/anuncios');
+    await expect(page).toHaveURL('/vendedor/anuncios');
+
+    // Navigation to home
+    await page.goto('/');
+    await expect(page).toHaveURL('/');
+
+    // Browser back
+    await page.goBack();
+    await expect(page).toHaveURL('/vendedor/anuncios');
+
+    // Refresh
+    await page.reload();
+    await expect(page).toHaveURL('/vendedor/anuncios');
+  });
 });

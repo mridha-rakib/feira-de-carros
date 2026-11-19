@@ -78,6 +78,14 @@ export function middleware(request: NextRequest) {
     // Role-based boundary enforcement:
     // Strictly verify role from the verified session claim. NEVER inferred from cookie strings.
     const role = verification.claim?.role;
+    const status = verification.claim?.status || 'active';
+
+    if (status === 'suspended') {
+      const loginUrl = new URL('/entrar', request.url);
+      loginUrl.searchParams.set('status', 'suspensa');
+      return NextResponse.redirect(loginUrl);
+    }
+
     const isSellerRoute = pathname.startsWith('/vendedor') || pathname.startsWith('/seller');
     const isDealerRoute = pathname.startsWith('/concessionaria') || pathname.startsWith('/dealer');
     const isBuyerRoute =
@@ -106,6 +114,30 @@ export function middleware(request: NextRequest) {
       const loginUrl = new URL('/entrar', request.url);
       loginUrl.searchParams.set('error', 'unauthorized_buyer_role_required');
       return NextResponse.redirect(loginUrl);
+    }
+
+    // Status-aware route protection: pending/correction accounts cannot access approved-only management actions
+    if (role === 'seller') {
+      const isSellerManagementRoute =
+        pathname.startsWith('/vendedor/anuncios') || pathname.startsWith('/vendedor/pagamentos');
+      if (status === 'pending_approval' && isSellerManagementRoute) {
+        return NextResponse.redirect(new URL('/vendedor/solicitacao/status', request.url));
+      }
+      if (status === 'correction_required' && isSellerManagementRoute) {
+        return NextResponse.redirect(new URL('/vendedor/solicitacao/corrigir', request.url));
+      }
+    }
+
+    if (role === 'dealer') {
+      const isDealerManagementRoute =
+        pathname.startsWith('/concessionaria/anuncios') ||
+        pathname.startsWith('/concessionaria/mensagens');
+      if (status === 'pending_approval' && isDealerManagementRoute) {
+        return NextResponse.redirect(new URL('/concessionaria/solicitacao/status', request.url));
+      }
+      if (status === 'correction_required' && isDealerManagementRoute) {
+        return NextResponse.redirect(new URL('/concessionaria/solicitacao/corrigir', request.url));
+      }
     }
   }
 

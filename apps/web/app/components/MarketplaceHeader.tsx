@@ -257,125 +257,189 @@ export function MarketplaceHeader() {
 
                     {/* Role-Specific Navigation Menu Items */}
                     <div className="space-y-0.5 text-[13px] text-[#1e293b]">
-                      {role === 'dealer' && (
-                        <>
-                          <Link
-                            href="/concessionaria/anuncios"
-                            role="menuitem"
-                            onClick={() => setAccountMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
-                          >
-                            <IconCar className="size-4 text-[#64748b]" />
-                            <span>Estoque da frota</span>
-                          </Link>
-                          <Link
-                            href="/concessionaria/anuncios/novo"
-                            role="menuitem"
-                            onClick={() => setAccountMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
-                          >
-                            <IconPlus className="size-4 text-[#64748b]" />
-                            <span>Adicionar veículo</span>
-                          </Link>
-                          <Link
-                            href="/concessionaria/perfil"
-                            role="menuitem"
-                            onClick={() => setAccountMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
-                          >
-                            <IconUser className="size-4 text-[#64748b]" />
-                            <span>Perfil da loja</span>
-                          </Link>
-                          <Link
-                            href="/concessionaria/mensagens"
-                            role="menuitem"
-                            onClick={() => setAccountMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
-                          >
-                            <IconMessageSquare className="size-4 text-[#64748b]" />
-                            <span>Mensagens</span>
-                          </Link>
-                          <Link
-                            href="/concessionarias/dealer-lider-seminovos"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            role="menuitem"
-                            onClick={() => setAccountMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors text-[#2563eb]"
-                          >
-                            <IconCar className="size-4 text-[#2563eb]" />
-                            <span>Ver showroom público ↗</span>
-                          </Link>
+                      {role === 'dealer' &&
+                        (user.status === 'active' ? (
+                          <>
+                            <Link
+                              href="/concessionaria/anuncios"
+                              role="menuitem"
+                              onClick={() => setAccountMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                            >
+                              <IconCar className="size-4 text-[#64748b]" />
+                              <span>Estoque da frota</span>
+                            </Link>
+                            <Link
+                              href="/concessionaria/anuncios/novo"
+                              role="menuitem"
+                              onClick={() => setAccountMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                            >
+                              <IconPlus className="size-4 text-[#64748b]" />
+                              <span>Adicionar veículo</span>
+                            </Link>
+                            <Link
+                              href="/concessionaria/perfil"
+                              role="menuitem"
+                              onClick={() => setAccountMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                            >
+                              <IconUser className="size-4 text-[#64748b]" />
+                              <span>Perfil da loja</span>
+                            </Link>
+                            <Link
+                              href="/concessionaria/mensagens"
+                              role="menuitem"
+                              onClick={() => setAccountMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                            >
+                              <IconMessageSquare className="size-4 text-[#64748b]" />
+                              <span>Mensagens</span>
+                            </Link>
+                            <Link
+                              href="/concessionarias/dealer-lider-seminovos"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              role="menuitem"
+                              onClick={() => setAccountMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors text-[#2563eb]"
+                            >
+                              <IconCar className="size-4 text-[#2563eb]" />
+                              <span>Ver showroom público ↗</span>
+                            </Link>
+                            <Link
+                              href="/concessionaria/solicitacao/status"
+                              role="menuitem"
+                              onClick={() => setAccountMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors text-[#64748b]"
+                            >
+                              <IconFile className="size-4 text-[#64748b]" />
+                              <span>Status da adesão</span>
+                            </Link>
+                          </>
+                        ) : user.status === 'correction_required' ? (
+                          <>
+                            <Link
+                              href="/concessionaria/solicitacao/corrigir"
+                              role="menuitem"
+                              onClick={() => setAccountMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors text-[#b45309] font-medium"
+                            >
+                              <IconFile className="size-4 text-[#b45309]" />
+                              <span>Corrigir dados da loja</span>
+                            </Link>
+                            <Link
+                              href="/concessionaria/solicitacao/status"
+                              role="menuitem"
+                              onClick={() => setAccountMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                            >
+                              <IconFile className="size-4 text-[#64748b]" />
+                              <span>Acompanhar solicitação</span>
+                            </Link>
+                          </>
+                        ) : (
                           <Link
                             href="/concessionaria/solicitacao/status"
                             role="menuitem"
                             onClick={() => setAccountMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors text-[#64748b]"
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors font-medium text-[#b91c1c]"
                           >
-                            <IconFile className="size-4 text-[#64748b]" />
-                            <span>Status da adesão</span>
+                            <IconFile className="size-4 text-[#b91c1c]" />
+                            <span>Acompanhar solicitação</span>
                           </Link>
-                        </>
-                      )}
+                        ))}
 
-                      {role === 'seller' && (
-                        <>
-                          <Link
-                            href="/vendedor/anuncios"
-                            role="menuitem"
-                            onClick={() => setAccountMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
-                          >
-                            <IconCar className="size-4 text-[#64748b]" />
-                            <span>Meus anúncios</span>
-                          </Link>
-                          <Link
-                            href="/vendedor/anuncios/novo"
-                            role="menuitem"
-                            onClick={() => setAccountMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
-                          >
-                            <IconPlus className="size-4 text-[#64748b]" />
-                            <span>Criar novo anúncio</span>
-                          </Link>
-                          <Link
-                            href="/vendedor/mensagens"
-                            role="menuitem"
-                            onClick={() => setAccountMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
-                          >
-                            <IconMessageSquare className="size-4 text-[#64748b]" />
-                            <span>Mensagens</span>
-                          </Link>
-                          <Link
-                            href="/vendedor/pagamentos"
-                            role="menuitem"
-                            onClick={() => setAccountMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
-                          >
-                            <IconCard className="size-4 text-[#64748b]" />
-                            <span>Pagamentos</span>
-                          </Link>
-                          <Link
-                            href="/vendedor/conta"
-                            role="menuitem"
-                            onClick={() => setAccountMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
-                          >
-                            <IconUser className="size-4 text-[#64748b]" />
-                            <span>Minha conta</span>
-                          </Link>
+                      {role === 'seller' &&
+                        (user.status === 'active' ? (
+                          <>
+                            <Link
+                              href="/vendedor/anuncios"
+                              role="menuitem"
+                              onClick={() => setAccountMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                            >
+                              <IconCar className="size-4 text-[#64748b]" />
+                              <span>Meus anúncios</span>
+                            </Link>
+                            <Link
+                              href="/vendedor/anuncios/novo"
+                              role="menuitem"
+                              onClick={() => setAccountMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                            >
+                              <IconPlus className="size-4 text-[#64748b]" />
+                              <span>Criar novo anúncio</span>
+                            </Link>
+                            <Link
+                              href="/vendedor/mensagens"
+                              role="menuitem"
+                              onClick={() => setAccountMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                            >
+                              <IconMessageSquare className="size-4 text-[#64748b]" />
+                              <span>Mensagens</span>
+                            </Link>
+                            <Link
+                              href="/vendedor/pagamentos"
+                              role="menuitem"
+                              onClick={() => setAccountMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                            >
+                              <IconCard className="size-4 text-[#64748b]" />
+                              <span>Pagamentos</span>
+                            </Link>
+                            <Link
+                              href="/vendedor/conta"
+                              role="menuitem"
+                              onClick={() => setAccountMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                            >
+                              <IconUser className="size-4 text-[#64748b]" />
+                              <span>Minha conta</span>
+                            </Link>
+                            <Link
+                              href="/vendedor/solicitacao/status"
+                              role="menuitem"
+                              onClick={() => setAccountMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors text-[#64748b]"
+                            >
+                              <IconFile className="size-4 text-[#64748b]" />
+                              <span>Status do cadastro</span>
+                            </Link>
+                          </>
+                        ) : user.status === 'correction_required' ? (
+                          <>
+                            <Link
+                              href="/vendedor/solicitacao/corrigir"
+                              role="menuitem"
+                              onClick={() => setAccountMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors text-[#b45309] font-medium"
+                            >
+                              <IconFile className="size-4 text-[#b45309]" />
+                              <span>Corrigir pendências</span>
+                            </Link>
+                            <Link
+                              href="/vendedor/solicitacao/status"
+                              role="menuitem"
+                              onClick={() => setAccountMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                            >
+                              <IconFile className="size-4 text-[#64748b]" />
+                              <span>Acompanhar solicitação</span>
+                            </Link>
+                          </>
+                        ) : (
                           <Link
                             href="/vendedor/solicitacao/status"
                             role="menuitem"
                             onClick={() => setAccountMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors text-[#64748b]"
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors font-medium text-[#b91c1c]"
                           >
-                            <IconFile className="size-4 text-[#64748b]" />
-                            <span>Status do cadastro</span>
+                            <IconFile className="size-4 text-[#b91c1c]" />
+                            <span>Acompanhar solicitação</span>
                           </Link>
-                        </>
-                      )}
+                        ))}
 
                       {role === 'member' && (
                         <>
@@ -719,97 +783,161 @@ export function MarketplaceHeader() {
 
                 {role === 'dealer' ? (
                   <>
-                    <Link
-                      href="/concessionaria/anuncios"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
-                    >
-                      <IconCar className="size-4 text-[#4338ca]" />
-                      <span>Estoque da frota</span>
-                    </Link>
-                    <Link
-                      href="/concessionaria/anuncios/novo"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
-                    >
-                      <IconPlus className="size-4 text-[#4338ca]" />
-                      <span>Adicionar veículo</span>
-                    </Link>
-                    <Link
-                      href="/concessionaria/perfil"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
-                    >
-                      <IconUser className="size-4 text-[#4338ca]" />
-                      <span>Perfil da loja</span>
-                    </Link>
-                    <Link
-                      href="/concessionaria/mensagens"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
-                    >
-                      <IconMessageSquare className="size-4 text-[#4338ca]" />
-                      <span>Mensagens</span>
-                    </Link>
-                    <Link
-                      href="/concessionaria/solicitacao/status"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#64748b] hover:bg-slate-100"
-                    >
-                      <IconFile className="size-4 text-[#64748b]" />
-                      <span>Status da adesão</span>
-                    </Link>
+                    {user?.status === 'active' ? (
+                      <>
+                        <Link
+                          href="/concessionaria/anuncios"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                        >
+                          <IconCar className="size-4 text-[#4338ca]" />
+                          <span>Estoque da frota</span>
+                        </Link>
+                        <Link
+                          href="/concessionaria/anuncios/novo"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                        >
+                          <IconPlus className="size-4 text-[#4338ca]" />
+                          <span>Adicionar veículo</span>
+                        </Link>
+                        <Link
+                          href="/concessionaria/perfil"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                        >
+                          <IconUser className="size-4 text-[#4338ca]" />
+                          <span>Perfil da loja</span>
+                        </Link>
+                        <Link
+                          href="/concessionaria/mensagens"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                        >
+                          <IconMessageSquare className="size-4 text-[#4338ca]" />
+                          <span>Mensagens</span>
+                        </Link>
+                        <Link
+                          href="/concessionaria/solicitacao/status"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#64748b] hover:bg-slate-100"
+                        >
+                          <IconFile className="size-4 text-[#64748b]" />
+                          <span>Status da adesão</span>
+                        </Link>
+                      </>
+                    ) : user?.status === 'correction_required' ? (
+                      <>
+                        <Link
+                          href="/concessionaria/solicitacao/corrigir"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#b45309] hover:bg-amber-50"
+                        >
+                          <IconFile className="size-4 text-[#b45309]" />
+                          <span>Corrigir dados da loja</span>
+                        </Link>
+                        <Link
+                          href="/concessionaria/solicitacao/status"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#64748b] hover:bg-slate-100"
+                        >
+                          <IconFile className="size-4 text-[#64748b]" />
+                          <span>Acompanhar solicitação</span>
+                        </Link>
+                      </>
+                    ) : (
+                      <Link
+                        href="/concessionaria/solicitacao/status"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#b91c1c] hover:bg-red-50"
+                      >
+                        <IconFile className="size-4 text-[#b91c1c]" />
+                        <span>Acompanhar solicitação</span>
+                      </Link>
+                    )}
                   </>
                 ) : role === 'seller' ? (
                   <>
-                    <Link
-                      href="/vendedor/anuncios"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
-                    >
-                      <IconCar className="size-4 text-[#059669]" />
-                      <span>Meus anúncios</span>
-                    </Link>
-                    <Link
-                      href="/vendedor/anuncios/novo"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
-                    >
-                      <IconPlus className="size-4 text-[#059669]" />
-                      <span>Criar anúncio</span>
-                    </Link>
-                    <Link
-                      href="/vendedor/mensagens"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
-                    >
-                      <IconMessageSquare className="size-4 text-[#059669]" />
-                      <span>Mensagens</span>
-                    </Link>
-                    <Link
-                      href="/vendedor/pagamentos"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
-                    >
-                      <IconCard className="size-4 text-[#059669]" />
-                      <span>Pagamentos</span>
-                    </Link>
-                    <Link
-                      href="/vendedor/conta"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
-                    >
-                      <IconUser className="size-4 text-[#059669]" />
-                      <span>Minha conta</span>
-                    </Link>
-                    <Link
-                      href="/vendedor/solicitacao/status"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#64748b] hover:bg-slate-100"
-                    >
-                      <IconFile className="size-4 text-[#64748b]" />
-                      <span>Status do cadastro</span>
-                    </Link>
+                    {user?.status === 'active' ? (
+                      <>
+                        <Link
+                          href="/vendedor/anuncios"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                        >
+                          <IconCar className="size-4 text-[#059669]" />
+                          <span>Meus anúncios</span>
+                        </Link>
+                        <Link
+                          href="/vendedor/anuncios/novo"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                        >
+                          <IconPlus className="size-4 text-[#059669]" />
+                          <span>Criar anúncio</span>
+                        </Link>
+                        <Link
+                          href="/vendedor/mensagens"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                        >
+                          <IconMessageSquare className="size-4 text-[#059669]" />
+                          <span>Mensagens</span>
+                        </Link>
+                        <Link
+                          href="/vendedor/pagamentos"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                        >
+                          <IconCard className="size-4 text-[#059669]" />
+                          <span>Pagamentos</span>
+                        </Link>
+                        <Link
+                          href="/vendedor/conta"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                        >
+                          <IconUser className="size-4 text-[#059669]" />
+                          <span>Minha conta</span>
+                        </Link>
+                        <Link
+                          href="/vendedor/solicitacao/status"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#64748b] hover:bg-slate-100"
+                        >
+                          <IconFile className="size-4 text-[#64748b]" />
+                          <span>Status do cadastro</span>
+                        </Link>
+                      </>
+                    ) : user?.status === 'correction_required' ? (
+                      <>
+                        <Link
+                          href="/vendedor/solicitacao/corrigir"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#b45309] hover:bg-amber-50"
+                        >
+                          <IconFile className="size-4 text-[#b45309]" />
+                          <span>Corrigir pendências</span>
+                        </Link>
+                        <Link
+                          href="/vendedor/solicitacao/status"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#64748b] hover:bg-slate-100"
+                        >
+                          <IconFile className="size-4 text-[#64748b]" />
+                          <span>Acompanhar solicitação</span>
+                        </Link>
+                      </>
+                    ) : (
+                      <Link
+                        href="/vendedor/solicitacao/status"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#b91c1c] hover:bg-red-50"
+                      >
+                        <IconFile className="size-4 text-[#b91c1c]" />
+                        <span>Acompanhar solicitação</span>
+                      </Link>
+                    )}
                   </>
                 ) : (
                   <>
