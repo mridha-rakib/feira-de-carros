@@ -1220,3 +1220,45 @@ export function IconFacebook(props: IconProps) {
     </svg>
   );
 }
+
+export function IconMethodEmail(props: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" {...props}>
+      <path
+        d="M5 5H19C20.1046 5 21 5.89543 21 7V17C21 18.1046 20.1046 19 19 19H5C3.89543 19 3 18.1046 3 17V7C3 5.89543 3.89543 5 5 5Z"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        stroke="currentColor"
+      />
+      <path
+        d="M3 7L12 14L21 7"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        stroke="currentColor"
+      />
+    </svg>
+  );
+}
+
+export function IconMethodSocial(props: IconProps) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 25 25" fill="none" {...props}>
+      <path
+        d="M15.625 8.33333C15.625 10.0592 14.2259 11.4583 12.5 11.4583C10.7741 11.4583 9.375 10.0592 9.375 8.33333C9.375 6.60744 10.7741 5.20833 12.5 5.20833C14.2259 5.20833 15.625 6.60744 15.625 8.33333Z"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        stroke="currentColor"
+      />
+      <path
+        d="M5.20833 20.8333V18.75C5.20833 16.8161 5.97656 14.9615 7.34401 13.594C8.71147 12.2266 10.5661 11.4583 12.5 11.4583C14.4339 11.4583 16.2885 12.2266 17.656 13.594C19.0234 14.9615 19.7917 16.8161 19.7917 18.75V20.8333M2.08333 10.4167H5.20833M19.7917 10.4167H22.9167"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        stroke="currentColor"
+      />
+    </svg>
+  );
+}

@@ -5,19 +5,19 @@ test.describe('Shared Registration Entry & Auth Finalization (/criar-conta)', ()
     await page.goto('/criar-conta');
   });
 
-  test('renders page elements, badge, headline, and default buyer selection', async ({ page }) => {
+  test('renders page elements, badge, headline, and default buyer + email selections', async ({
+    page,
+  }) => {
     // Badge
     await expect(page.getByText('Criar conta', { exact: true })).toBeVisible();
 
-    // Main heading
+    // Main heading & subtitle
     await expect(
       page.getByRole('heading', { name: /Como deseja usar a Feira de Carros\?/i }),
     ).toBeVisible();
+    await expect(page.getByText('Escolha o tipo de conta e a forma de cadastro.')).toBeVisible();
 
-    // Subtitle
-    await expect(page.getByText('Escolha o tipo de conta para continuar.')).toBeVisible();
-
-    // 3 Options
+    // 3 Role Options
     const buyerRadio = page.getByRole('radio', { name: /Sou comprador/i });
     const sellerRadio = page.getByRole('radio', { name: /Sou vendedor particular/i });
     const dealerRadio = page.getByRole('radio', { name: /Sou concessionária/i });
@@ -30,6 +30,20 @@ test.describe('Shared Registration Entry & Auth Finalization (/criar-conta)', ()
     await expect(buyerRadio).toBeChecked();
     await expect(sellerRadio).not.toBeChecked();
     await expect(dealerRadio).not.toBeChecked();
+
+    // Registration Method Selection
+    await expect(
+      page.getByRole('heading', { name: /Como você prefere se cadastrar\?/i }),
+    ).toBeVisible();
+    const emailMethodRadio = page.getByRole('radio', { name: /Com e-mail e senha/i });
+    const socialMethodRadio = page.getByRole('radio', { name: /Com Google, Apple ou Facebook/i });
+
+    await expect(emailMethodRadio).toBeVisible();
+    await expect(socialMethodRadio).toBeVisible();
+
+    // Default method: Email is checked
+    await expect(emailMethodRadio).toBeChecked();
+    await expect(socialMethodRadio).not.toBeChecked();
 
     // Continuar CTA
     await expect(page.getByRole('button', { name: /^Continuar$/i })).toBeVisible();
@@ -58,38 +72,72 @@ test.describe('Shared Registration Entry & Auth Finalization (/criar-conta)', ()
     await expect(page.getByText('Experiência prática')).toBeVisible();
   });
 
-  test('submitting default buyer selection navigates to /cadastrar', async ({ page }) => {
+  test('supports selecting only one role at a time', async ({ page }) => {
+    const buyerRadio = page.getByRole('radio', { name: /Sou comprador/i });
+    const sellerRadio = page.getByRole('radio', { name: /Sou vendedor particular/i });
+    const dealerRadio = page.getByRole('radio', { name: /Sou concessionária/i });
+
+    await page.getByText('Sou vendedor particular').click();
+    await expect(sellerRadio).toBeChecked();
+    await expect(buyerRadio).not.toBeChecked();
+    await expect(dealerRadio).not.toBeChecked();
+
+    await page.getByText('Sou concessionária').click();
+    await expect(dealerRadio).toBeChecked();
+    await expect(buyerRadio).not.toBeChecked();
+    await expect(sellerRadio).not.toBeChecked();
+  });
+
+  test('supports selecting registration method', async ({ page }) => {
+    const emailMethodRadio = page.getByRole('radio', { name: /Com e-mail e senha/i });
+    const socialMethodRadio = page.getByRole('radio', { name: /Com Google, Apple ou Facebook/i });
+
+    await expect(emailMethodRadio).toBeChecked();
+    await expect(socialMethodRadio).not.toBeChecked();
+
+    await page.getByText('Com Google, Apple ou Facebook').click();
+    await expect(socialMethodRadio).toBeChecked();
+    await expect(emailMethodRadio).not.toBeChecked();
+
+    await page.getByText('Com e-mail e senha').click();
+    await expect(emailMethodRadio).toBeChecked();
+    await expect(socialMethodRadio).not.toBeChecked();
+  });
+
+  test('submitting default buyer + email method navigates to /cadastrar', async ({ page }) => {
     await page.getByRole('button', { name: /^Continuar$/i }).click();
     await page.waitForURL('**/cadastrar');
     expect(page.url()).toContain('/cadastrar');
   });
 
-  test('selecting seller particular and submitting navigates to /vendedor/solicitacao', async ({
+  test('selecting seller particular and submitting with email navigates to /vendedor/solicitacao', async ({
     page,
   }) => {
-    const sellerOption = page.getByText('Sou vendedor particular');
-    await sellerOption.click();
-
-    const sellerRadio = page.getByRole('radio', { name: /Sou vendedor particular/i });
-    await expect(sellerRadio).toBeChecked();
-
+    await page.getByText('Sou vendedor particular').click();
     await page.getByRole('button', { name: /^Continuar$/i }).click();
     await page.waitForURL('**/vendedor/solicitacao');
     expect(page.url()).toContain('/vendedor/solicitacao');
   });
 
-  test('selecting concessionária and submitting navigates to /concessionaria/solicitacao', async ({
+  test('selecting concessionária and submitting with email navigates to /concessionaria/solicitacao', async ({
     page,
   }) => {
-    const dealerOption = page.getByText('Sou concessionária');
-    await dealerOption.click();
-
-    const dealerRadio = page.getByRole('radio', { name: /Sou concessionária/i });
-    await expect(dealerRadio).toBeChecked();
-
+    await page.getByText('Sou concessionária').click();
     await page.getByRole('button', { name: /^Continuar$/i }).click();
     await page.waitForURL('**/concessionaria/solicitacao');
     expect(page.url()).toContain('/concessionaria/solicitacao');
+  });
+
+  test('submitting with social method displays demonstrative notice and maintains role', async ({
+    page,
+  }) => {
+    await page.getByText('Sou vendedor particular').click();
+    await page.getByText('Com Google, Apple ou Facebook').click();
+
+    await page.getByRole('button', { name: /^Continuar$/i }).click();
+    await expect(page.locator('output')).toContainText(
+      /Integração social demonstrativa selecionada para o perfil sou vendedor particular/i,
+    );
   });
 
   test('clicking Entrar navigates to /entrar', async ({ page }) => {
@@ -105,8 +153,13 @@ test.describe('Shared Registration Entry & Auth Finalization (/criar-conta)', ()
     expect(page.url()).toContain('/criar-conta');
   });
 
-  test('social buttons display non-blocking demonstrative status', async ({ page }) => {
+  test('social buttons display non-blocking demonstrative status and identify provider', async ({
+    page,
+  }) => {
+    await page.getByText('Sou concessionária').click();
     await page.getByRole('button', { name: /Continuar com Google/i }).click();
-    await expect(page.locator('output')).toContainText(/Login social com Google é demonstrativo/i);
+    await expect(page.locator('output')).toContainText(
+      /Identificado provedor Google para sou concessionária/i,
+    );
   });
 });
