@@ -622,4 +622,35 @@ test.describe('Role-Based Navigation & Screen Accessibility Suite', () => {
     await page.reload();
     await expect(page).toHaveURL('/vendedor/anuncios');
   });
+
+  test('Client Demo Review Experience: 3 Clearly labeled persona shortcuts on /entrar', async ({
+    page,
+  }) => {
+    await page.goto('/entrar');
+
+    // 1. Click Comprador shortcut
+    const buyerShortcut = page.getByRole('button', { name: /Comprador/i }).first();
+    await expect(buyerShortcut).toBeVisible();
+    await buyerShortcut.click();
+    await expect(page.locator('#buyer-login-email')).toHaveValue('comprador@exemplo.com.br');
+    await expect(page.locator('#buyer-login-password')).toHaveValue('123456');
+
+    // 2. Click Vendedor Particular shortcut
+    const sellerShortcut = page.getByRole('button', { name: /Vendedor Particular/i });
+    await expect(sellerShortcut).toBeVisible();
+    await sellerShortcut.click();
+    await expect(page.locator('#buyer-login-email')).toHaveValue('vendedor@exemplo.com.br');
+    await expect(page.locator('#buyer-login-password')).toHaveValue('123456');
+
+    // 3. Click Concessionária shortcut
+    const dealerShortcut = page.getByRole('button', { name: /Concessionária/i }).first();
+    await expect(dealerShortcut).toBeVisible();
+    await dealerShortcut.click();
+    await expect(page.locator('#buyer-login-email')).toHaveValue('contato@liderveiculos.com.br');
+    await expect(page.locator('#buyer-login-password')).toHaveValue('123456');
+
+    // Submit as Concessionária and verify login to /concessionaria/anuncios
+    await page.getByRole('button', { name: /Entrar \(simulação\)/i }).click();
+    await expect(page).toHaveURL('/concessionaria/anuncios');
+  });
 });

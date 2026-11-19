@@ -5,7 +5,12 @@ import {
   getRoleDestination,
   isSafeRedirect,
 } from '../../lib/adapters/shared-auth-registry';
-import { isExplicitDevOrTest, isProductionEnvironment } from '../../lib/security/environment';
+import {
+  isCanonicalProductionDomain,
+  isClientDemoPreviewEnvironment,
+  isExplicitDevOrTest,
+  isProductionEnvironment,
+} from '../../lib/security/environment';
 import { verifyWebSession } from '../../lib/security/session-verifier';
 import { middleware } from '../../middleware';
 import { useDealerStore } from '../../stores/use-dealer-store';
@@ -15,17 +20,29 @@ describe('Security Hardening — Elimination of Request-Controlled Authenticatio
   const originalNodeEnv = envMap.NODE_ENV;
   const originalFeiraE2eMock = envMap.FEIRA_E2E_MOCK;
   const originalNextPublicDemo = envMap.NEXT_PUBLIC_ENABLE_DEMO_AUTH;
+  const originalPreviewMode = envMap.FEIRA_CLIENT_DEMO_PREVIEW_MODE;
+  const originalNextPublicPreview = envMap.NEXT_PUBLIC_FEIRA_CLIENT_DEMO_PREVIEW_MODE;
+  const originalVercelEnv = envMap.VERCEL_ENV;
+  const originalVercelUrl = envMap.VERCEL_URL;
 
   beforeEach(() => {
     envMap.NODE_ENV = 'production';
     envMap.FEIRA_E2E_MOCK = undefined;
     envMap.NEXT_PUBLIC_ENABLE_DEMO_AUTH = undefined;
+    envMap.FEIRA_CLIENT_DEMO_PREVIEW_MODE = undefined;
+    envMap.NEXT_PUBLIC_FEIRA_CLIENT_DEMO_PREVIEW_MODE = undefined;
+    envMap.VERCEL_ENV = undefined;
+    envMap.VERCEL_URL = undefined;
   });
 
   afterEach(() => {
     envMap.NODE_ENV = originalNodeEnv;
     envMap.FEIRA_E2E_MOCK = originalFeiraE2eMock;
     envMap.NEXT_PUBLIC_ENABLE_DEMO_AUTH = originalNextPublicDemo;
+    envMap.FEIRA_CLIENT_DEMO_PREVIEW_MODE = originalPreviewMode;
+    envMap.NEXT_PUBLIC_FEIRA_CLIENT_DEMO_PREVIEW_MODE = originalNextPublicPreview;
+    envMap.VERCEL_ENV = originalVercelEnv;
+    envMap.VERCEL_URL = originalVercelUrl;
   });
 
   // 1. ENVIRONMENT CONFIGURATION IMMUNITY
@@ -437,6 +454,66 @@ describe('Security Hardening — Elimination of Request-Controlled Authenticatio
       expect(response.headers.get('location')).toBe(
         'http://localhost:3000/concessionaria/solicitacao/status',
       );
+    });
+  });
+
+  // 8. CLIENT DEMO PREVIEW ENVIRONMENT & CANONICAL PRODUCTION IMMUNITY
+  describe('Client Demo Preview Mode Security Boundary', () => {
+    it('enables client demo preview mode when FEIRA_CLIENT_DEMO_PREVIEW_MODE=true is set on server', () => {
+      envMap.NODE_ENV = 'production';
+      envMap.FEIRA_CLIENT_DEMO_PREVIEW_MODE = 'true';
+
+      expect(isClientDemoPreviewEnvironment('feira-de-carros-preview.vercel.app')).toBe(true);
+      expect(isProductionEnvironment('feira-de-carros-preview.vercel.app')).toBe(false);
+      expect(isExplicitDevOrTest('feira-de-carros-preview.vercel.app')).toBe(true);
+    });
+
+    it('permits registered fixture session verification in client demo preview mode', () => {
+      envMap.NODE_ENV = 'production';
+      envMap.FEIRA_CLIENT_DEMO_PREVIEW_MODE = 'true';
+
+      const buyerRes = verifyWebSession('demo_buyer_session');
+      expect(buyerRes.isValid).toBe(true);
+      expect(buyerRes.claim?.role).toBe('member');
+
+      const sellerRes = verifyWebSession('demo_seller_session');
+      expect(sellerRes.isValid).toBe(true);
+      expect(sellerRes.claim?.role).toBe('seller');
+
+      const dealerRes = verifyWebSession('demo_dealer_session');
+      expect(dealerRes.isValid).toBe(true);
+      expect(dealerRes.claim?.role).toBe('dealer');
+    });
+
+    it('CRITICAL: unconditionally fails closed on official production domains even if preview env vars are set', () => {
+      envMap.NODE_ENV = 'production';
+      envMap.FEIRA_CLIENT_DEMO_PREVIEW_MODE = 'true';
+      envMap.NEXT_PUBLIC_FEIRA_CLIENT_DEMO_PREVIEW_MODE = 'true';
+
+      const productionDomains = [
+        'feiradecarros.com.br',
+        'www.feiradecarros.com.br',
+        'app.feiradecarros.com.br',
+      ];
+
+      for (const domain of productionDomains) {
+        expect(isCanonicalProductionDomain(domain)).toBe(true);
+        expect(isClientDemoPreviewEnvironment(domain)).toBe(false);
+        expect(isProductionEnvironment(domain)).toBe(true);
+      }
+    });
+
+    it('CRITICAL: ordinary production without preview env vars strictly fails closed and rejects mock authentication', () => {
+      envMap.NODE_ENV = 'production';
+      envMap.FEIRA_CLIENT_DEMO_PREVIEW_MODE = undefined;
+      envMap.NEXT_PUBLIC_FEIRA_CLIENT_DEMO_PREVIEW_MODE = undefined;
+
+      expect(isClientDemoPreviewEnvironment('feira-de-carros-preview.vercel.app')).toBe(false);
+      expect(isProductionEnvironment('feira-de-carros-preview.vercel.app')).toBe(true);
+
+      const result = verifyWebSession('demo_buyer_session');
+      expect(result.isValid).toBe(false);
+      expect(result.reason).toBe('PRODUCTION_AUTH_FAIL_CLOSED');
     });
   });
 });

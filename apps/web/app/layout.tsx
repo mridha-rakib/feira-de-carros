@@ -1,6 +1,7 @@
 import '@feira/ui/globals.css';
 import type { Metadata } from 'next';
 import { isProductionEnvironment } from '../lib/security/environment';
+import { ClientDemoBanner } from './components/ClientDemoBanner';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
@@ -28,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" data-app-env={isProduction ? 'production' : 'test'}>
       <body className="min-h-screen bg-background font-sans antialiased flex flex-col">
+        <ClientDemoBanner />
         <Providers>{children}</Providers>
       </body>
     </html>
