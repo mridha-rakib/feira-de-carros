@@ -274,21 +274,32 @@ export const useDealerStore = create<DealerStoreState>()(
         const appStatus = account?.status || 'active';
         const cleanDigits = (account?.documentNumber || '11222333000181').replace(/\D/g, '');
 
+        const finalAcc = account || {
+          id: 'acc-dealer-dynamic',
+          email: normalized,
+          normalizedEmail: normalized,
+          fullName: 'Gestor da Concessionária',
+          role: 'dealer' as const,
+          status: appStatus,
+          phone: '(31) 3822-4000',
+          documentNumber: maskCnpjForDisplay(cleanDigits),
+          dealershipName: 'Líder Veículos e Seminovos Ltda',
+          createdAt: new Date().toISOString(),
+        };
+
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('fdc_active_auth_account', JSON.stringify(finalAcc));
+          } catch {
+            // ignore
+          }
+          window.dispatchEvent(new Event('fdc-auth-changed'));
+        }
+
         set({
           isAuthenticated: true,
           sessionToken,
-          account: account || {
-            id: 'acc-dealer-dynamic',
-            email: normalized,
-            normalizedEmail: normalized,
-            fullName: 'Gestor da Concessionária',
-            role: 'dealer',
-            status: appStatus,
-            phone: '(31) 3822-4000',
-            documentNumber: maskCnpjForDisplay(cleanDigits),
-            dealershipName: 'Líder Veículos e Seminovos Ltda',
-            createdAt: new Date().toISOString(),
-          },
+          account: finalAcc,
           application: {
             ...DEFAULT_DEMO_DEALER_APPLICATION,
             status: appStatus,
@@ -305,7 +316,15 @@ export const useDealerStore = create<DealerStoreState>()(
       logout: () => {
         if (typeof document !== 'undefined') {
           document.cookie =
-            'fdc_web_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+            'fdc_web_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0; SameSite=Lax';
+        }
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.removeItem('fdc_active_auth_account');
+          } catch {
+            // ignore
+          }
+          window.dispatchEvent(new Event('fdc-auth-changed'));
         }
         set({
           isAuthenticated: false,

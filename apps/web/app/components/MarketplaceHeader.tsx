@@ -3,15 +3,20 @@
 import { BrandLogo } from '@feira/ui';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useCurrentAuth } from '../../lib/hooks/use-current-auth';
 import { useBuyerStore } from '../../stores/use-buyer-store';
 import { BuyerLocationModal } from './BuyerLocationModal';
 import { FavoritesLoginModal } from './FavoritesLoginModal';
 import {
   IconCar,
+  IconCard,
+  IconChevronDown,
   IconCross,
+  IconFile,
   IconHeart,
   IconHelpCircle,
+  IconLock,
   IconMessageSquare,
   IconMotorcycle,
   IconPin,
@@ -24,9 +29,37 @@ import {
 
 export function MarketplaceHeader() {
   const router = useRouter();
-  const { location, favorites, isAuthenticated, buyerProfile, openLocationModal } = useBuyerStore();
+  const { location, favorites, openLocationModal } = useBuyerStore();
+  const { isMounted, isAuthenticated, role, user, dashboardUrl, createAdUrl, messagesUrl, logout } =
+    useCurrentAuth();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+
+  const accountMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close account dropdown on outside click or escape
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(event.target as Node)) {
+        setAccountMenuOpen(false);
+      }
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setAccountMenuOpen(false);
+      }
+    }
+    if (accountMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [accountMenuOpen]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +70,14 @@ export function MarketplaceHeader() {
       router.push('/veiculos');
     }
   };
+
+  // Top Locality Strip target
+  const topAreaLink =
+    role === 'dealer'
+      ? { href: '/concessionaria/anuncios', label: 'Painel da Loja' }
+      : role === 'seller'
+        ? { href: '/vendedor/anuncios', label: 'Área do Vendedor' }
+        : { href: '/vendedor/solicitacao', label: 'Área do Vendedor' };
 
   return (
     <>
@@ -56,8 +97,8 @@ export function MarketplaceHeader() {
               </span>
             </button>
             <div className="flex items-center gap-4 text-[#cbd5e1] text-[10px]">
-              <Link href="/vendedor/solicitacao" className="hover:text-white transition-colors">
-                Área do Vendedor
+              <Link href={topAreaLink.href} className="hover:text-white transition-colors">
+                {topAreaLink.label}
               </Link>
               <span>•</span>
               <Link href="/ajuda" className="hover:text-white transition-colors">
@@ -142,20 +183,317 @@ export function MarketplaceHeader() {
               <span className="text-[12px] font-medium hidden lg:inline">Favoritos</span>
             </Link>
 
-            {/* Account / Login link */}
-            {isAuthenticated ? (
-              <Link
-                href="/conta"
-                className="flex items-center gap-2 p-1.5 rounded-[8px] hover:bg-slate-100 transition-colors"
-                aria-label="Acessar minha conta"
-              >
-                <div className="size-7 rounded-full bg-[#17223a] text-white flex items-center justify-center font-bold text-[11px] shrink-0">
-                  {buyerProfile.avatarInitials}
-                </div>
-                <span className="text-[12px] font-semibold text-[#14223b] hidden xl:inline">
-                  {buyerProfile.firstName}
-                </span>
-              </Link>
+            {/* Account / Login link with Role-Aware Dropdown */}
+            {isMounted && isAuthenticated && user ? (
+              <div className="relative" ref={accountMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setAccountMenuOpen((prev) => !prev)}
+                  aria-haspopup="menu"
+                  aria-expanded={accountMenuOpen}
+                  aria-label="Abrir menu da conta"
+                  className="flex items-center gap-2 p-1.5 rounded-[8px] hover:bg-slate-100 transition-colors cursor-pointer"
+                >
+                  <div
+                    className={`size-7 rounded-full text-white flex items-center justify-center font-bold text-[11px] shrink-0 ${
+                      role === 'dealer'
+                        ? 'bg-[#4338ca]'
+                        : role === 'seller'
+                          ? 'bg-[#059669]'
+                          : 'bg-[#17223a]'
+                    }`}
+                  >
+                    {user.avatarInitials}
+                  </div>
+                  <span className="text-[12px] font-semibold text-[#14223b] hidden xl:inline max-w-[120px] truncate">
+                    {user.firstName || user.name}
+                  </span>
+                  <IconChevronDown
+                    className={`size-3 text-[#64748b] transition-transform ${
+                      accountMenuOpen ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+
+                {accountMenuOpen && (
+                  <div
+                    role="menu"
+                    aria-label="Opções da conta"
+                    className="absolute right-0 mt-2 w-72 rounded-[12px] bg-white p-2 shadow-xl border border-[#dde3ec] z-50 animate-in fade-in slide-in-from-top-2 duration-150"
+                  >
+                    {/* Persona Header Card */}
+                    <div className="p-3 bg-[#f8fafc] rounded-[8px] mb-2 border border-[#edf2f7]">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`size-10 rounded-full text-white flex items-center justify-center font-bold text-[13px] shrink-0 ${
+                            role === 'dealer'
+                              ? 'bg-[#4338ca]'
+                              : role === 'seller'
+                                ? 'bg-[#059669]'
+                                : 'bg-[#17223a]'
+                          }`}
+                        >
+                          {user.avatarInitials}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[13px] font-bold text-[#14223b] truncate">
+                            {user.name}
+                          </p>
+                          <p className="text-[11px] text-[#64748b] truncate">{user.email}</p>
+                          <span
+                            className={`inline-block mt-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                              role === 'dealer'
+                                ? 'bg-[#e0e7ff] text-[#3730a3]'
+                                : role === 'seller'
+                                  ? 'bg-[#dcfce7] text-[#166534]'
+                                  : 'bg-[#e2e8f0] text-[#1e293b]'
+                            }`}
+                          >
+                            {user.roleLabel}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Role-Specific Navigation Menu Items */}
+                    <div className="space-y-0.5 text-[13px] text-[#1e293b]">
+                      {role === 'dealer' && (
+                        <>
+                          <Link
+                            href="/concessionaria/anuncios"
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                          >
+                            <IconCar className="size-4 text-[#64748b]" />
+                            <span>Estoque da frota</span>
+                          </Link>
+                          <Link
+                            href="/concessionaria/anuncios/novo"
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                          >
+                            <IconPlus className="size-4 text-[#64748b]" />
+                            <span>Adicionar veículo</span>
+                          </Link>
+                          <Link
+                            href="/concessionaria/perfil"
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                          >
+                            <IconUser className="size-4 text-[#64748b]" />
+                            <span>Perfil da loja</span>
+                          </Link>
+                          <Link
+                            href="/concessionaria/mensagens"
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                          >
+                            <IconMessageSquare className="size-4 text-[#64748b]" />
+                            <span>Mensagens</span>
+                          </Link>
+                          <Link
+                            href="/concessionarias/dealer-lider-seminovos"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors text-[#2563eb]"
+                          >
+                            <IconCar className="size-4 text-[#2563eb]" />
+                            <span>Ver showroom público ↗</span>
+                          </Link>
+                          <Link
+                            href="/concessionaria/solicitacao/status"
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors text-[#64748b]"
+                          >
+                            <IconFile className="size-4 text-[#64748b]" />
+                            <span>Status da adesão</span>
+                          </Link>
+                        </>
+                      )}
+
+                      {role === 'seller' && (
+                        <>
+                          <Link
+                            href="/vendedor/anuncios"
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                          >
+                            <IconCar className="size-4 text-[#64748b]" />
+                            <span>Meus anúncios</span>
+                          </Link>
+                          <Link
+                            href="/vendedor/anuncios/novo"
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                          >
+                            <IconPlus className="size-4 text-[#64748b]" />
+                            <span>Criar novo anúncio</span>
+                          </Link>
+                          <Link
+                            href="/vendedor/mensagens"
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                          >
+                            <IconMessageSquare className="size-4 text-[#64748b]" />
+                            <span>Mensagens</span>
+                          </Link>
+                          <Link
+                            href="/vendedor/pagamentos"
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                          >
+                            <IconCard className="size-4 text-[#64748b]" />
+                            <span>Pagamentos</span>
+                          </Link>
+                          <Link
+                            href="/vendedor/conta"
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                          >
+                            <IconUser className="size-4 text-[#64748b]" />
+                            <span>Minha conta</span>
+                          </Link>
+                          <Link
+                            href="/vendedor/solicitacao/status"
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors text-[#64748b]"
+                          >
+                            <IconFile className="size-4 text-[#64748b]" />
+                            <span>Status do cadastro</span>
+                          </Link>
+                        </>
+                      )}
+
+                      {role === 'member' && (
+                        <>
+                          <Link
+                            href="/conta"
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                          >
+                            <IconUser className="size-4 text-[#64748b]" />
+                            <span>Meu perfil e conta</span>
+                          </Link>
+                          <Link
+                            href="/favoritos"
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center justify-between px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <IconHeart className="size-4 text-[#64748b]" />
+                              <span>Meus favoritos</span>
+                            </div>
+                            {favorites.length > 0 && (
+                              <span className="bg-[#e0151f] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                {favorites.length}
+                              </span>
+                            )}
+                          </Link>
+                          <Link
+                            href="/buscas-salvas"
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                          >
+                            <IconSearch className="size-4 text-[#64748b]" />
+                            <span>Buscas salvas</span>
+                          </Link>
+                          <Link
+                            href="/conta/alertas"
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                          >
+                            <IconFile className="size-4 text-[#64748b]" />
+                            <span>Alertas de veículos</span>
+                          </Link>
+                          <Link
+                            href="/mensagens"
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                          >
+                            <IconMessageSquare className="size-4 text-[#64748b]" />
+                            <span>Mensagens</span>
+                          </Link>
+                          <Link
+                            href="/conta/notificacoes"
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                          >
+                            <IconShield className="size-4 text-[#64748b]" />
+                            <span>Notificações</span>
+                          </Link>
+                          <Link
+                            href="/conta/senha"
+                            role="menuitem"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] hover:bg-[#f1f5f9] transition-colors"
+                          >
+                            <IconLock className="size-4 text-[#64748b]" />
+                            <span>Segurança da conta</span>
+                          </Link>
+                        </>
+                      )}
+                    </div>
+
+                    <div className="border-t border-[#e2e8f0] my-1.5" />
+
+                    <div className="space-y-0.5">
+                      <Link
+                        href="/ajuda"
+                        role="menuitem"
+                        onClick={() => setAccountMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-[13px] text-[#64748b] hover:bg-[#f1f5f9] transition-colors"
+                      >
+                        <IconHelpCircle className="size-4" />
+                        <span>Central de Ajuda</span>
+                      </Link>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setAccountMenuOpen(false);
+                          logout('/entrar');
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-[13px] font-semibold text-[#dc2626] hover:bg-[#fef2f2] transition-colors text-left cursor-pointer"
+                      >
+                        <svg
+                          className="size-4"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                          <polyline points="16 17 21 12 16 7" />
+                          <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg>
+                        <span>Encerrar sessão</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <Link
                 href="/entrar"
@@ -167,9 +505,9 @@ export function MarketplaceHeader() {
               </Link>
             )}
 
-            {/* Messages link */}
+            {/* Messages link (points to role-appropriate messages screen) */}
             <Link
-              href="/mensagens"
+              href={messagesUrl}
               className="flex items-center gap-1.5 p-2 text-[#14223b] hover:text-[#b91c1c] transition-colors"
               aria-label="Ver mensagens"
             >
@@ -177,9 +515,9 @@ export function MarketplaceHeader() {
               <span className="text-[12px] font-medium hidden lg:inline">Mensagens</span>
             </Link>
 
-            {/* Sell Car CTA Button (Figma 162x44px) */}
+            {/* Sell Car CTA Button (Points to role-appropriate creation flow) */}
             <Link
-              href="/vendedor/solicitacao"
+              href={createAdUrl}
               className="w-[162px] h-[44px] bg-[#e0151f] hover:bg-[#c41217] text-white font-semibold text-[13px] rounded-[8px] transition-colors shadow-xs flex items-center justify-center gap-1.5 whitespace-nowrap"
             >
               <IconPlus className="size-4 stroke-[3]" />
@@ -240,7 +578,7 @@ export function MarketplaceHeader() {
                 )}
               </Link>
               <Link
-                href="/mensagens"
+                href={messagesUrl}
                 className="p-1.5 text-[#14223b] hover:text-[#b91c1c]"
                 aria-label="Ver mensagens"
               >
@@ -297,6 +635,40 @@ export function MarketplaceHeader() {
                 </button>
               </div>
 
+              {/* Authenticated Persona Header Card (Mobile) */}
+              {isMounted && isAuthenticated && user && (
+                <div className="mt-4 p-3 bg-[#f8fafc] rounded-[10px] border border-[#e2e8f0]">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`size-10 rounded-full text-white flex items-center justify-center font-bold text-[14px] shrink-0 ${
+                        role === 'dealer'
+                          ? 'bg-[#4338ca]'
+                          : role === 'seller'
+                            ? 'bg-[#059669]'
+                            : 'bg-[#17223a]'
+                      }`}
+                    >
+                      {user.avatarInitials}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13px] font-bold text-[#14223b] truncate">{user.name}</p>
+                      <p className="text-[11px] text-[#64748b] truncate">{user.email}</p>
+                      <span
+                        className={`inline-block mt-0.5 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                          role === 'dealer'
+                            ? 'bg-[#e0e7ff] text-[#3730a3]'
+                            : role === 'seller'
+                              ? 'bg-[#dcfce7] text-[#166534]'
+                              : 'bg-[#e2e8f0] text-[#1e293b]'
+                        }`}
+                      >
+                        {user.roleLabel}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Mobile Search */}
               <form onSubmit={handleSearchSubmit} className="mt-4">
                 <div className="relative">
@@ -327,90 +699,161 @@ export function MarketplaceHeader() {
                 <span className="text-[#b91c1c] text-[11px] font-medium">Alterar</span>
               </button>
 
-              {/* Links List */}
+              {/* Links List - Role-Aware */}
               <nav className="mt-5 space-y-1">
                 <Link
                   href="/"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                  className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
                 >
                   Início
                 </Link>
                 <Link
                   href="/veiculos"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                  className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
                 >
                   <IconCar className="size-4 text-[#62718a]" />
                   Todos os veículos
                 </Link>
-                <Link
-                  href="/veiculos?categoria=Carros"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[13px] text-[#475569] hover:bg-slate-100 pl-9"
-                >
-                  Carros
-                </Link>
-                <Link
-                  href="/veiculos?categoria=Motos"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[13px] text-[#475569] hover:bg-slate-100 pl-9"
-                >
-                  Motos
-                </Link>
-                <Link
-                  href="/veiculos?categoria=Caminhões"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[13px] text-[#475569] hover:bg-slate-100 pl-9"
-                >
-                  Caminhões
-                </Link>
-                <Link
-                  href="/categorias"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
-                >
-                  Categorias de Veículos
-                </Link>
-                <Link
-                  href="/favoritos"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between px-3 py-2.5 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
-                >
-                  <div className="flex items-center gap-3">
-                    <IconHeart className="size-4 text-[#62718a]" />
-                    <span>Favoritos</span>
-                  </div>
-                  {favorites.length > 0 && (
-                    <span className="bg-[#e0151f] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                      {favorites.length}
-                    </span>
-                  )}
-                </Link>
-                <Link
-                  href="/buscas-salvas"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
-                >
-                  <IconSearch className="size-4 text-[#62718a]" />
-                  <span>Buscas salvas</span>
-                </Link>
-                <Link
-                  href={isAuthenticated ? '/conta' : '/entrar'}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
-                >
-                  <IconUser className="size-4 text-[#62718a]" />
-                  <span>{isAuthenticated ? 'Minha conta' : 'Entrar ou cadastrar'}</span>
-                </Link>
-                <Link
-                  href="/mensagens"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
-                >
-                  <IconMessageSquare className="size-4 text-[#62718a]" />
-                  Mensagens
-                </Link>
+
+                {role === 'dealer' ? (
+                  <>
+                    <Link
+                      href="/concessionaria/anuncios"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                    >
+                      <IconCar className="size-4 text-[#4338ca]" />
+                      <span>Estoque da frota</span>
+                    </Link>
+                    <Link
+                      href="/concessionaria/anuncios/novo"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                    >
+                      <IconPlus className="size-4 text-[#4338ca]" />
+                      <span>Adicionar veículo</span>
+                    </Link>
+                    <Link
+                      href="/concessionaria/perfil"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                    >
+                      <IconUser className="size-4 text-[#4338ca]" />
+                      <span>Perfil da loja</span>
+                    </Link>
+                    <Link
+                      href="/concessionaria/mensagens"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                    >
+                      <IconMessageSquare className="size-4 text-[#4338ca]" />
+                      <span>Mensagens</span>
+                    </Link>
+                    <Link
+                      href="/concessionaria/solicitacao/status"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#64748b] hover:bg-slate-100"
+                    >
+                      <IconFile className="size-4 text-[#64748b]" />
+                      <span>Status da adesão</span>
+                    </Link>
+                  </>
+                ) : role === 'seller' ? (
+                  <>
+                    <Link
+                      href="/vendedor/anuncios"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                    >
+                      <IconCar className="size-4 text-[#059669]" />
+                      <span>Meus anúncios</span>
+                    </Link>
+                    <Link
+                      href="/vendedor/anuncios/novo"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                    >
+                      <IconPlus className="size-4 text-[#059669]" />
+                      <span>Criar anúncio</span>
+                    </Link>
+                    <Link
+                      href="/vendedor/mensagens"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                    >
+                      <IconMessageSquare className="size-4 text-[#059669]" />
+                      <span>Mensagens</span>
+                    </Link>
+                    <Link
+                      href="/vendedor/pagamentos"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                    >
+                      <IconCard className="size-4 text-[#059669]" />
+                      <span>Pagamentos</span>
+                    </Link>
+                    <Link
+                      href="/vendedor/conta"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                    >
+                      <IconUser className="size-4 text-[#059669]" />
+                      <span>Minha conta</span>
+                    </Link>
+                    <Link
+                      href="/vendedor/solicitacao/status"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#64748b] hover:bg-slate-100"
+                    >
+                      <IconFile className="size-4 text-[#64748b]" />
+                      <span>Status do cadastro</span>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/favoritos"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center justify-between px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                    >
+                      <div className="flex items-center gap-3">
+                        <IconHeart className="size-4 text-[#62718a]" />
+                        <span>Favoritos</span>
+                      </div>
+                      {favorites.length > 0 && (
+                        <span className="bg-[#e0151f] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                          {favorites.length}
+                        </span>
+                      )}
+                    </Link>
+                    <Link
+                      href="/buscas-salvas"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                    >
+                      <IconSearch className="size-4 text-[#62718a]" />
+                      <span>Buscas salvas</span>
+                    </Link>
+                    <Link
+                      href={isAuthenticated ? dashboardUrl : '/entrar'}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                    >
+                      <IconUser className="size-4 text-[#62718a]" />
+                      <span>{isAuthenticated ? 'Minha conta' : 'Entrar ou cadastrar'}</span>
+                    </Link>
+                    <Link
+                      href={messagesUrl}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-[8px] text-[14px] font-medium text-[#14223b] hover:bg-slate-100"
+                    >
+                      <IconMessageSquare className="size-4 text-[#62718a]" />
+                      <span>Mensagens</span>
+                    </Link>
+                  </>
+                )}
               </nav>
 
               <div className="mt-5 pt-4 border-t border-[#e2e7ee] space-y-1 text-[13px] text-[#62718a]">
@@ -430,13 +873,39 @@ export function MarketplaceHeader() {
                   <IconShield className="size-4" />
                   Privacidade e Termos
                 </Link>
+                {isMounted && isAuthenticated && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      logout('/entrar');
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-[#dc2626] font-semibold hover:bg-red-50 rounded-[6px] text-left cursor-pointer"
+                  >
+                    <svg
+                      className="size-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <polyline points="16 17 21 12 16 7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                    <span>Encerrar sessão</span>
+                  </button>
+                )}
               </div>
             </div>
 
             {/* Drawer Bottom CTA */}
             <div className="pt-4 border-t border-[#e2e7ee]">
               <Link
-                href="/vendedor/solicitacao"
+                href={createAdUrl}
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full bg-[#e0151f] hover:bg-[#c41217] text-white font-semibold text-[13px] py-2.5 rounded-[8px] transition-colors flex items-center justify-center gap-1.5 shadow-sm"
               >
