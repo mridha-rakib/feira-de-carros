@@ -262,77 +262,98 @@ function LoginFormContent() {
                 </button>
               </div>
 
-              {/* Persona Fast-Fills for Testing & Evaluation (Phase 2 Shared Login Alignment) */}
-              <div className="mt-6 p-3.5 bg-[#f5f8fc] border border-[#d8e2ee] rounded-[10px]">
-                <p className="text-[11px] font-bold text-[#14223b] uppercase tracking-wider mb-2 text-center">
-                  Contas de Demonstração por Perfil (AUTH-022)
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[10px]">
+              {/* Client Demo Persona Shortcuts */}
+              <div className="mt-6 p-4 bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px]">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-[11px] font-bold text-[#1e293b] uppercase tracking-wider">
+                    Contas de Demonstração para Testes
+                  </p>
+                  <span className="text-[10px] bg-[#dbeafe] text-[#1e40af] font-semibold px-2 py-0.5 rounded-full">
+                    Acesso Rápido
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <button
                     type="button"
                     onClick={() => {
                       setEmail('comprador@exemplo.com.br');
                       setPassword('123456');
+                      setErrorMessage('');
                     }}
-                    className="p-1.5 bg-white border border-[#cad5e2] hover:bg-[#ebf2fb] rounded-[6px] text-left transition-colors font-medium text-[#1e293b]"
+                    className={`p-3 bg-white border rounded-[8px] text-left transition-all cursor-pointer hover:shadow-xs ${
+                      email === 'comprador@exemplo.com.br'
+                        ? 'border-[#2563eb] ring-2 ring-[#2563eb]/20 bg-[#eff6ff]'
+                        : 'border-[#cbd5e1] hover:border-[#94a3b8]'
+                    }`}
                   >
-                    <span className="block font-bold text-[#2563eb]">Comprador</span>
-                    <span>comprador@...</span>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-[12px] text-[#2563eb]">Comprador</span>
+                      <span className="text-[9px] font-semibold bg-[#eff6ff] text-[#1d4ed8] px-1.5 py-0.5 rounded">
+                        Comprar
+                      </span>
+                    </div>
+                    <p className="text-[11px] font-medium text-[#1e293b] truncate">
+                      Carlos Eduardo
+                    </p>
+                    <p className="text-[10px] text-[#64748b] truncate mt-0.5">
+                      comprador@exemplo...
+                    </p>
                   </button>
+
                   <button
                     type="button"
                     onClick={() => {
                       setEmail('vendedor@exemplo.com.br');
                       setPassword('123456');
+                      setErrorMessage('');
                     }}
-                    className="p-1.5 bg-white border border-[#cad5e2] hover:bg-[#ebf2fb] rounded-[6px] text-left transition-colors font-medium text-[#1e293b]"
+                    className={`p-3 bg-white border rounded-[8px] text-left transition-all cursor-pointer hover:shadow-xs ${
+                      email === 'vendedor@exemplo.com.br'
+                        ? 'border-[#059669] ring-2 ring-[#059669]/20 bg-[#ecfdf5]'
+                        : 'border-[#cbd5e1] hover:border-[#94a3b8]'
+                    }`}
                   >
-                    <span className="block font-bold text-[#d97706]">Vendedor</span>
-                    <span>vendedor@...</span>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-[12px] text-[#059669]">
+                        Vendedor Particular
+                      </span>
+                      <span className="text-[9px] font-semibold bg-[#ecfdf5] text-[#047857] px-1.5 py-0.5 rounded">
+                        Anunciar
+                      </span>
+                    </div>
+                    <p className="text-[11px] font-medium text-[#1e293b] truncate">
+                      Marcos Vinícius
+                    </p>
+                    <p className="text-[10px] text-[#64748b] truncate mt-0.5">
+                      vendedor@exemplo...
+                    </p>
                   </button>
+
                   <button
                     type="button"
                     onClick={() => {
                       setEmail('contato@liderveiculos.com.br');
                       setPassword('123456');
+                      setErrorMessage('');
                     }}
-                    className="p-1.5 bg-white border border-[#cad5e2] hover:bg-[#ebf2fb] rounded-[6px] text-left transition-colors font-medium text-[#1e293b]"
+                    className={`p-3 bg-white border rounded-[8px] text-left transition-all cursor-pointer hover:shadow-xs ${
+                      email === 'contato@liderveiculos.com.br'
+                        ? 'border-[#4338ca] ring-2 ring-[#4338ca]/20 bg-[#eef2ff]'
+                        : 'border-[#cbd5e1] hover:border-[#94a3b8]'
+                    }`}
                   >
-                    <span className="block font-bold text-[#059669]">Dealer (Ativo)</span>
-                    <span>contato@lider...</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEmail('dealer.pendente@exemplo.com');
-                      setPassword('123456');
-                    }}
-                    className="p-1.5 bg-white border border-[#cad5e2] hover:bg-[#ebf2fb] rounded-[6px] text-left transition-colors font-medium text-[#1e293b]"
-                  >
-                    <span className="block font-bold text-[#6366f1]">Dealer (Pendente)</span>
-                    <span>dealer.pendente@...</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEmail('dealer.corrigir@exemplo.com');
-                      setPassword('123456');
-                    }}
-                    className="p-1.5 bg-white border border-[#cad5e2] hover:bg-[#ebf2fb] rounded-[6px] text-left transition-colors font-medium text-[#1e293b]"
-                  >
-                    <span className="block font-bold text-[#ea580c]">Dealer (Corrigir)</span>
-                    <span>dealer.corrigir@...</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEmail('admin@feiradecarros.com.br');
-                      setPassword('123456');
-                    }}
-                    className="p-1.5 bg-white border border-[#cad5e2] hover:bg-[#fee2e2] rounded-[6px] text-left transition-colors font-medium text-[#991b1b]"
-                  >
-                    <span className="block font-bold text-[#dc2626]">Staff Admin</span>
-                    <span>admin@feira...</span>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-[12px] text-[#4338ca]">Concessionária</span>
+                      <span className="text-[9px] font-semibold bg-[#eef2ff] text-[#4338ca] px-1.5 py-0.5 rounded">
+                        Estoque
+                      </span>
+                    </div>
+                    <p className="text-[11px] font-medium text-[#1e293b] truncate">
+                      Líder Seminovos
+                    </p>
+                    <p className="text-[10px] text-[#64748b] truncate mt-0.5">
+                      contato@liderveiculos...
+                    </p>
                   </button>
                 </div>
               </div>
