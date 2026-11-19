@@ -10,6 +10,7 @@ import {
   findAccountByEmail,
   getRoleDestination,
 } from '../adapters/shared-auth-registry';
+import { verifyWebSession } from '../security/session-verifier';
 
 export interface CurrentUser {
   id: string;
@@ -76,12 +77,32 @@ export function setAuthenticatedAccount(account: AuthAccount): void {
     console.warn('Failed to store active auth account in localStorage', err);
   }
 
-  // 3. Cookie for Next.js middleware
+  // 3. Status-aware session cookie for Next.js middleware
   let sessionToken = 'demo_buyer_session';
   if (account.role === 'dealer') {
-    sessionToken = 'demo_dealer_session';
+    if (account.status === 'pending_approval') {
+      sessionToken = 'demo_dealer_pending_session';
+    } else if (account.status === 'correction_required') {
+      sessionToken = 'demo_dealer_correction_session';
+    } else if (account.status === 'suspended') {
+      sessionToken = 'demo_dealer_suspended_session';
+    } else {
+      sessionToken = 'demo_dealer_session';
+    }
   } else if (account.role === 'seller') {
-    sessionToken = 'demo_seller_session';
+    if (account.status === 'pending_approval') {
+      sessionToken = 'demo_seller_pending_session';
+    } else if (account.status === 'correction_required') {
+      sessionToken = 'demo_seller_correction_session';
+    } else {
+      sessionToken = 'demo_seller_session';
+    }
+  } else if (account.role === 'member') {
+    if (account.status === 'suspended') {
+      sessionToken = 'demo_buyer_suspended_session';
+    } else {
+      sessionToken = 'demo_buyer_session';
+    }
   }
   document.cookie = `fdc_web_session=${sessionToken}; path=/; SameSite=Lax`;
 
@@ -142,6 +163,26 @@ export function useCurrentAuth(): CurrentAuthState {
 
     const sessionCookie = getCookieValue('fdc_web_session');
 
+    // Authoritative verification via session verifier:
+    // If cookie is missing, empty, or invalid, client state MUST evaluate to unauthenticated guest immediately.
+    // LocalStorage or Zustand stores must NEVER be treated as independent authentication authorities.
+    const verification = verifyWebSession(sessionCookie);
+    if (!verification.isValid || !verification.claim) {
+      try {
+        localStorage.removeItem(ACTIVE_AUTH_STORAGE_KEY);
+      } catch {
+        // ignore
+      }
+      return { isAuthenticated: false, role: null, user: null };
+    }
+
+    const cookieClaim = verification.claim;
+    const cookieRole = cookieClaim.role;
+
+    if (cookieRole !== 'member' && cookieRole !== 'seller' && cookieRole !== 'dealer') {
+      return { isAuthenticated: false, role: null, user: null };
+    }
+
     // 1. Check stored active auth account in localStorage
     let storedAccount: AuthAccount | null = null;
     try {
@@ -153,97 +194,83 @@ export function useCurrentAuth(): CurrentAuthState {
       storedAccount = null;
     }
 
-    // 2. Resolve Role from cookie first (source of truth for middleware), falling back to storedAccount or zustand
-    let effectiveRole: 'member' | 'seller' | 'dealer' | null = null;
-
-    if (sessionCookie === 'demo_dealer_session') {
-      effectiveRole = 'dealer';
-    } else if (
-      sessionCookie === 'demo_seller_session' ||
-      sessionCookie === 'mock_active_session_token'
-    ) {
-      effectiveRole = 'seller';
-    } else if (sessionCookie === 'demo_buyer_session' || sessionCookie === 'mock-buyer-session') {
-      effectiveRole = 'member';
-    } else if (storedAccount) {
-      if (
-        storedAccount.role === 'dealer' ||
-        storedAccount.role === 'seller' ||
-        storedAccount.role === 'member'
-      ) {
-        effectiveRole = storedAccount.role;
+    // Mismatch detection: if storedAccount exists but storedAccount.role !== cookieRole,
+    // clear stale storage and fail closed to unauthenticated state immediately.
+    if (storedAccount && storedAccount.role !== cookieRole) {
+      try {
+        localStorage.removeItem(ACTIVE_AUTH_STORAGE_KEY);
+      } catch {
+        // ignore
       }
-    } else if (useDealerStore.getState().isAuthenticated) {
-      effectiveRole = 'dealer';
-    } else if (useBuyerStore.getState().isAuthenticated) {
-      effectiveRole = 'member';
-    }
-
-    // If no valid session indicator exists, return unauthenticated
-    if (
-      !effectiveRole ||
-      (!sessionCookie &&
-        !storedAccount &&
-        !useDealerStore.getState().isAuthenticated &&
-        !useBuyerStore.getState().isAuthenticated)
-    ) {
       return { isAuthenticated: false, role: null, user: null };
     }
 
-    // 3. Resolve persona details based on effective role
-    if (effectiveRole === 'dealer') {
+    // 2. Resolve persona details based on verified cookie claim and registered account
+    if (cookieRole === 'dealer') {
       const dealerStoreAccount = useDealerStore.getState().account;
       const dealerEmail =
         storedAccount?.role === 'dealer'
           ? storedAccount.email
-          : dealerStoreAccount?.email || 'contato@liderveiculos.com.br';
+          : cookieClaim.email || dealerStoreAccount?.email || 'dealer.aprovada@exemplo.com';
       const registered = findAccountByEmail(dealerEmail);
       const activeData =
         storedAccount?.role === 'dealer' ? storedAccount : registered || dealerStoreAccount;
 
       const dealershipDisplayName =
-        activeData?.tradeName || activeData?.dealershipName || 'Líder Veículos';
+        activeData?.tradeName ||
+        activeData?.dealershipName ||
+        (cookieClaim.status === 'pending_approval' ? 'Autovale Multimarcas' : 'Líder Veículos');
       const user: CurrentUser = {
-        id: activeData?.id || 'acc-dealer-001',
+        id: activeData?.id || cookieClaim.id || 'acc-dealer-001',
         name: dealershipDisplayName,
         firstName: dealershipDisplayName.split(' ')[0] || 'Líder',
-        email: activeData?.email || 'contato@liderveiculos.com.br',
+        email: dealerEmail,
         role: 'dealer',
         roleLabel: 'Concessionária',
-        status: activeData?.status || 'active',
+        status: cookieClaim.status,
         avatarInitials: computeInitials(dealershipDisplayName),
-        dealershipName: activeData?.dealershipName || 'Líder Veículos e Seminovos Ltda',
-        tradeName: activeData?.tradeName || 'Líder Seminovos',
+        dealershipName:
+          activeData?.dealershipName ||
+          (cookieClaim.status === 'pending_approval'
+            ? 'Autovale Comércio de Veículos Ltda'
+            : 'Líder Veículos e Seminovos Ltda'),
+        tradeName: dealershipDisplayName,
       };
       return { isAuthenticated: true, role: 'dealer', user };
     }
 
-    if (effectiveRole === 'seller') {
+    if (cookieRole === 'seller') {
       const sellerEmail =
-        storedAccount?.role === 'seller' ? storedAccount.email : 'vendedor@exemplo.com.br';
+        storedAccount?.role === 'seller'
+          ? storedAccount.email
+          : cookieClaim.email || 'vendedor.aprovado@exemplo.com.br';
       const registered = findAccountByEmail(sellerEmail);
       const activeData = storedAccount?.role === 'seller' ? storedAccount : registered;
 
-      const name = activeData?.fullName || 'Marcos Vinícius Silva';
+      const name =
+        activeData?.fullName ||
+        (cookieClaim.status === 'pending_approval'
+          ? 'Patrícia Alvarenga'
+          : 'Marcos Vinícius Silva');
       const user: CurrentUser = {
-        id: activeData?.id || 'acc-seller-001',
+        id: activeData?.id || cookieClaim.id || 'acc-seller-001',
         name,
         firstName: name.split(' ')[0] || 'Marcos',
-        email: activeData?.email || 'vendedor@exemplo.com.br',
+        email: sellerEmail,
         role: 'seller',
         roleLabel: 'Vendedor Particular',
-        status: activeData?.status || 'active',
+        status: cookieClaim.status,
         avatarInitials: computeInitials(name),
       };
       return { isAuthenticated: true, role: 'seller', user };
     }
 
-    if (effectiveRole === 'member') {
+    if (cookieRole === 'member') {
       const buyerStoreProfile = useBuyerStore.getState().buyerProfile;
       const buyerEmail =
         storedAccount?.role === 'member'
           ? storedAccount.email
-          : buyerStoreProfile?.email || 'comprador@exemplo.com.br';
+          : cookieClaim.email || buyerStoreProfile?.email || 'comprador@exemplo.com.br';
       const registered = findAccountByEmail(buyerEmail);
       const activeData = storedAccount?.role === 'member' ? storedAccount : registered;
 
@@ -254,13 +281,13 @@ export function useCurrentAuth(): CurrentAuthState {
         : buyerStoreProfile.firstName || 'Carlos';
 
       const user: CurrentUser = {
-        id: activeData?.id || buyerStoreProfile.id || 'acc-buyer-001',
+        id: activeData?.id || cookieClaim.id || buyerStoreProfile.id || 'acc-buyer-001',
         name: fullName,
         firstName,
-        email: activeData?.email || buyerStoreProfile.email || 'comprador@exemplo.com.br',
+        email: buyerEmail,
         role: 'member',
         roleLabel: 'Comprador',
-        status: activeData?.status || 'active',
+        status: cookieClaim.status,
         avatarInitials: buyerStoreProfile.avatarInitials || computeInitials(fullName),
       };
       return { isAuthenticated: true, role: 'member', user };
@@ -304,12 +331,24 @@ export function useCurrentAuth(): CurrentAuthState {
   if (role === 'dealer') {
     const dest = getRoleDestination('dealer', status);
     dashboardUrl = dest.destination;
-    createAdUrl = '/concessionaria/anuncios/novo';
+    if (status === 'pending_approval') {
+      createAdUrl = '/concessionaria/solicitacao/status';
+    } else if (status === 'correction_required') {
+      createAdUrl = '/concessionaria/solicitacao/corrigir';
+    } else {
+      createAdUrl = '/concessionaria/anuncios/novo';
+    }
     messagesUrl = '/concessionaria/mensagens';
   } else if (role === 'seller') {
     const dest = getRoleDestination('seller', status);
     dashboardUrl = dest.destination;
-    createAdUrl = '/vendedor/anuncios/novo';
+    if (status === 'pending_approval') {
+      createAdUrl = '/vendedor/solicitacao/status';
+    } else if (status === 'correction_required') {
+      createAdUrl = '/vendedor/solicitacao/corrigir';
+    } else {
+      createAdUrl = '/vendedor/anuncios/novo';
+    }
     messagesUrl = '/vendedor/mensagens';
   } else if (role === 'member') {
     dashboardUrl = '/conta';
