@@ -238,6 +238,70 @@ Running 10 tests using 6 workers
 
 ---
 
-## 7. Sign-off & Recommendation
+## 7. Final Role Navigation & Demo Session Consistency Gate
 
-The role-based navigation and screen accessibility implementation is complete, verified across desktop and mobile viewports, and passes all linting, typechecking, unit, and E2E gates. The branch `fix/role-based-navigation-accessibility` is clean and ready for integration.
+**Gate Date**: 2026-11-19  
+**Gate Status**: APPROVED & VERIFIED  
+**Working Branch**: `fix/final-role-navigation-session-consistency`  
+**Base Commit**: `9a4ea1e7daa06d76f04b9519cc295f53126d6199`  
+
+### 7.1 Residual Risk & Root Cause
+Prior to this gate, an independent code review identified a client/session consistency risk in `apps/web/lib/hooks/use-current-auth.ts`:
+- `resolveCurrentState()` previously checked `localStorage` (`fdc_active_auth_account`) and Zustand store states (`useDealerStore`, `useBuyerStore`) as fallbacks when `sessionCookie` was missing or invalid.
+- This allowed a client browser with stale storage to render authenticated persona headers (e.g., displaying "Líder Seminovos") even though middleware correctly treated the user as an unauthenticated guest and redirected protected route visits to `/entrar`.
+- A role mismatch could also occur if cookie and localStorage held divergent personas.
+
+### 7.2 Consistency Architecture & Invariants Enforced
+1. **Cookie as Sole Authoritative Authority**:
+   - `verifyWebSession(sessionCookie)` in `apps/web/lib/security/session-verifier.ts` is the sole source of truth for authentication.
+   - `localStorage` and `Zustand` stores are strictly subsidiary caches and are NEVER treated as independent authentication authorities.
+2. **Immediate Fail-Closed Purge on Missing/Invalid Cookie**:
+   - If `verifyWebSession(sessionCookie)` returns `isValid: false`, `useCurrentAuth` immediately purges orphaned `fdc_active_auth_account` storage and evaluates to `{ isAuthenticated: false, role: null, user: null }`.
+3. **Role Mismatch Detection**:
+   - If `storedAccount && storedAccount.role !== cookieClaim.role`, the mismatch is detected immediately, storage is purged, and the client fails closed to guest state.
+4. **Status-Aware Navigation & Route Protection**:
+   - Registered fixture session tokens now encode account status (`active`, `pending_approval`, `correction_required`, `suspended`):
+     - `demo_buyer_session` (`member`, `active`)
+     - `demo_buyer_suspended_session` (`member`, `suspended`)
+     - `demo_seller_session` / `mock_active_session_token` (`seller`, `active`)
+     - `demo_seller_pending_session` (`seller`, `pending_approval`)
+     - `demo_seller_correction_session` (`seller`, `correction_required`)
+     - `demo_dealer_session` (`dealer`, `active`)
+     - `demo_dealer_pending_session` (`dealer`, `pending_approval`)
+     - `demo_dealer_correction_session` (`dealer`, `correction_required`)
+     - `demo_dealer_suspended_session` (`dealer`, `suspended`)
+   - Next.js Edge Middleware (`apps/web/middleware.ts`) redirects:
+     - Suspended sessions → `/entrar?status=suspensa`
+     - Pending sellers visiting `/vendedor/anuncios` or `/vendedor/pagamentos` → `/vendedor/solicitacao/status`
+     - Correction-required sellers → `/vendedor/solicitacao/corrigir`
+     - Pending dealers visiting `/concessionaria/anuncios` or `/concessionaria/mensagens` → `/concessionaria/solicitacao/status`
+     - Correction-required dealers → `/concessionaria/solicitacao/corrigir`
+   - Client UI (`MarketplaceHeader.tsx` dropdown and mobile drawer) dynamically hides approved-only management links (`anuncios/novo`, fleet) when `user.status !== 'active'`, rendering `Acompanhar solicitação` or `Corrigir pendências` instead.
+
+### 7.3 Verification & 12 Mandatory Test Scenarios
+All 12 mandatory scenarios from the consistency gate have been implemented and verified:
+1. **Buyer Login**: Verified identity (`Carlos Eduardo Mendes`, `Comprador`), access to `/conta`, `/favoritos`, `/buscas-salvas`.
+2. **Seller Login**: Verified identity (`Marcos Vinícius Silva`, `Vendedor Particular`), access to `/vendedor/anuncios`, `/vendedor/conta`.
+3. **Dealer Login**: Verified identity (`Líder Seminovos`, `Concessionária`), access to `/concessionaria/anuncios`, public showroom `/concessionarias/dealer-lider-seminovos`.
+4. **Refresh Session Preservation**: Page reload preserves valid demo session without logout.
+5. **Clean Logout**: Removes cookie, clears storage, resets Zustand stores, and redirects to `/entrar`.
+6. **Stale Storage Without Cookie**: Stale localStorage without valid cookie evaluates strictly to guest state.
+7. **Invalid Cookie With Stale Storage**: Unrecognized token strictly evaluates to guest state.
+8. **Cookie / Storage Role Mismatch**: Mismatched stored account is wiped and evaluates to guest; wrong persona is never displayed.
+9. **Pending Seller/Dealer Restrictions**: Pending sellers/dealers cannot access listing creation or inventory management; CTAs and direct visits route to application status.
+10. **Navigation Reliability**: Direct URL navigation, browser Back button, and page Refresh behave deterministically without state corruption.
+11. **Cross-Role Access Denial**: Cross-role access between Buyer, Seller, Dealer, and Staff remains strictly blocked.
+12. **Production Fail-Closed Immunity**: Production configuration rejects mock tokens and demo authentication unconditionally (`verifyWebSession` and `authenticateDemoLogin`).
+
+### 7.4 Test Results
+- **Playwright E2E Suite (`e2e/role-based-navigation.spec.ts`)**: 22 passed (22/22) across Chromium and Mobile Safari.
+- **Unit & Security Tests (`pnpm test`)**: 355 passed across 32 test files (242 in `@feira/web`).
+- **Biome Linter (`pnpm lint`)**: 438 files checked, 0 errors.
+- **TypeScript Check (`pnpm check-types`)**: 6 package tasks successful, 0 errors.
+- **Production Build (`pnpm --filter @feira/web build`)**: 56 static and dynamic routes compiled cleanly.
+
+---
+
+## 8. Sign-off & Recommendation
+
+The final role navigation and demo session consistency gate is complete, verified across desktop and mobile viewports, and passes all linting, typechecking, unit, and E2E gates. The branch `fix/final-role-navigation-session-consistency` is clean and ready for integration.

@@ -18,11 +18,18 @@
 import { isProductionEnvironment } from './environment';
 
 export type WebAccountRole = 'member' | 'seller' | 'dealer' | 'main_admin' | 'sales' | 'support';
+export type WebAccountStatus =
+  | 'active'
+  | 'pending_approval'
+  | 'correction_required'
+  | 'suspended'
+  | 'rejected';
 
 export interface WebSessionClaim {
   id: string;
   email: string;
   role: WebAccountRole;
+  status: WebAccountStatus;
 }
 
 export type WebSessionRejectionReason =
@@ -48,28 +55,73 @@ const REGISTERED_FIXTURE_SESSIONS: Record<string, WebSessionClaim> = {
     id: 'acc-buyer-001',
     email: 'comprador@exemplo.com.br',
     role: 'member',
+    status: 'active',
   },
   'mock-buyer-session': {
     id: 'acc-buyer-001',
     email: 'comprador@exemplo.com.br',
     role: 'member',
+    status: 'active',
   },
-  // Seller sessions
+  demo_buyer_suspended_session: {
+    id: 'acc-buyer-suspended',
+    email: 'comprador.suspenso@exemplo.com',
+    role: 'member',
+    status: 'suspended',
+  },
+
+  // Seller sessions (Active)
   demo_seller_session: {
     id: 'acc-seller-approved',
     email: 'vendedor.aprovado@exemplo.com.br',
     role: 'seller',
+    status: 'active',
   },
   mock_active_session_token: {
     id: 'acc-seller-approved',
     email: 'vendedor.aprovado@exemplo.com.br',
     role: 'seller',
+    status: 'active',
   },
-  // Dealership sessions
+  // Seller sessions (Pending & Correction)
+  demo_seller_pending_session: {
+    id: 'acc-seller-pending',
+    email: 'vendedor.pendente@exemplo.com',
+    role: 'seller',
+    status: 'pending_approval',
+  },
+  demo_seller_correction_session: {
+    id: 'acc-seller-correction',
+    email: 'vendedor.corrigir@exemplo.com',
+    role: 'seller',
+    status: 'correction_required',
+  },
+
+  // Dealership sessions (Active)
   demo_dealer_session: {
     id: 'acc-dealer-approved',
     email: 'dealer.aprovada@exemplo.com',
     role: 'dealer',
+    status: 'active',
+  },
+  // Dealership sessions (Pending, Correction, Suspended)
+  demo_dealer_pending_session: {
+    id: 'acc-dealer-pending',
+    email: 'dealer.pendente@exemplo.com',
+    role: 'dealer',
+    status: 'pending_approval',
+  },
+  demo_dealer_correction_session: {
+    id: 'acc-dealer-correction',
+    email: 'dealer.corrigir@exemplo.com',
+    role: 'dealer',
+    status: 'correction_required',
+  },
+  demo_dealer_suspended_session: {
+    id: 'acc-dealer-suspended',
+    email: 'dealer.suspenso@exemplo.com',
+    role: 'dealer',
+    status: 'suspended',
   },
 };
 

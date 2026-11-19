@@ -340,4 +340,103 @@ describe('Security Hardening — Elimination of Request-Controlled Authenticatio
       expect(useDealerStore.getState().isAuthenticated).toBe(false);
     });
   });
+
+  // 7. STATUS-AWARE TOKEN & MIDDLEWARE PROTECTION
+  describe('Status-Aware Session Claims and Middleware Route Enforcement', () => {
+    it('correctly maps status in registered fixture sessions', () => {
+      expect(
+        verifyWebSession('demo_dealer_pending_session', { isProduction: false }).claim,
+      ).toEqual({
+        id: 'acc-dealer-pending',
+        email: 'dealer.pendente@exemplo.com',
+        role: 'dealer',
+        status: 'pending_approval',
+      });
+
+      expect(
+        verifyWebSession('demo_dealer_correction_session', { isProduction: false }).claim,
+      ).toEqual({
+        id: 'acc-dealer-correction',
+        email: 'dealer.corrigir@exemplo.com',
+        role: 'dealer',
+        status: 'correction_required',
+      });
+
+      expect(
+        verifyWebSession('demo_dealer_suspended_session', { isProduction: false }).claim,
+      ).toEqual({
+        id: 'acc-dealer-suspended',
+        email: 'dealer.suspenso@exemplo.com',
+        role: 'dealer',
+        status: 'suspended',
+      });
+
+      expect(
+        verifyWebSession('demo_seller_pending_session', { isProduction: false }).claim,
+      ).toEqual({
+        id: 'acc-seller-pending',
+        email: 'vendedor.pendente@exemplo.com',
+        role: 'seller',
+        status: 'pending_approval',
+      });
+
+      expect(
+        verifyWebSession('demo_seller_correction_session', { isProduction: false }).claim,
+      ).toEqual({
+        id: 'acc-seller-correction',
+        email: 'vendedor.corrigir@exemplo.com',
+        role: 'seller',
+        status: 'correction_required',
+      });
+    });
+
+    it('middleware redirects suspended sessions to /entrar?status=suspensa', () => {
+      envMap.NODE_ENV = 'test';
+      envMap.FEIRA_E2E_MOCK = 'true';
+
+      const req = new NextRequest('http://localhost:3000/concessionaria/anuncios', {
+        headers: {
+          cookie: 'fdc_web_session=demo_dealer_suspended_session',
+        },
+      });
+
+      const response = middleware(req);
+      expect(response.status).toBe(307);
+      expect(response.headers.get('location')).toBe('http://localhost:3000/entrar?status=suspensa');
+    });
+
+    it('middleware redirects pending seller to /vendedor/solicitacao/status', () => {
+      envMap.NODE_ENV = 'test';
+      envMap.FEIRA_E2E_MOCK = 'true';
+
+      const req = new NextRequest('http://localhost:3000/vendedor/anuncios', {
+        headers: {
+          cookie: 'fdc_web_session=demo_seller_pending_session',
+        },
+      });
+
+      const response = middleware(req);
+      expect(response.status).toBe(307);
+      expect(response.headers.get('location')).toBe(
+        'http://localhost:3000/vendedor/solicitacao/status',
+      );
+    });
+
+    it('middleware redirects pending dealer to /concessionaria/solicitacao/status', () => {
+      envMap.NODE_ENV = 'test';
+      envMap.FEIRA_E2E_MOCK = 'true';
+
+      const req = new NextRequest('http://localhost:3000/concessionaria/anuncios', {
+        headers: {
+          cookie: 'fdc_web_session=demo_dealer_pending_session',
+        },
+      });
+
+      const response = middleware(req);
+      expect(response.status).toBe(307);
+      expect(response.headers.get('location')).toBe(
+        'http://localhost:3000/concessionaria/solicitacao/status',
+      );
+    });
+  });
 });
