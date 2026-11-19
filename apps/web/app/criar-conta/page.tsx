@@ -15,15 +15,12 @@ import {
   IconFacebook,
   IconGoogle,
   IconInfo,
-  IconMethodEmail,
-  IconMethodSocial,
   IconShield,
   IconStore,
   IconUser,
 } from '../components/SellerIcons';
 
 type AccountRole = 'buyer' | 'seller' | 'dealer';
-type RegistrationMethod = 'email' | 'social';
 
 interface RoleOption {
   id: AccountRole;
@@ -60,32 +57,21 @@ const ROLE_OPTIONS: RoleOption[] = [
 export default function CriarContaPage() {
   const router = useRouter();
   const [selectedRole, setSelectedRole] = useState<AccountRole>('buyer');
-  const [registrationMethod, setRegistrationMethod] = useState<RegistrationMethod>('email');
   const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
 
   const selectedOption = ROLE_OPTIONS.find((opt) => opt.id === selectedRole) || ROLE_OPTIONS[0];
 
   const handleContinue = () => {
-    if (registrationMethod === 'email') {
-      router.push(selectedOption.destination);
-    } else {
-      setNoticeMessage(
-        `Integração social demonstrativa selecionada para o perfil ${selectedOption.title.toLowerCase()}. Prossiga com o preenchimento do formulário cadastral correspondente.`,
-      );
-      setTimeout(() => {
-        router.push(selectedOption.destination);
-      }, 1000);
-    }
+    router.push(selectedOption.destination);
   };
 
   const handleSocialClick = (provider: 'Google' | 'Apple' | 'Facebook') => {
-    setRegistrationMethod('social');
     setNoticeMessage(
-      `Identificado provedor ${provider} para ${selectedOption.title.toLowerCase()}. A autenticação OAuth será integrada na fase backend; redirecionando para o formulário correspondente no modo demonstrativo...`,
+      `Integração com ${provider} selecionada para o perfil ${selectedOption.title.toLowerCase()}. No ambiente demonstrativo, prossiga pelo cadastro convencional.`,
     );
     setTimeout(() => {
       router.push(selectedOption.destination);
-    }, 900);
+    }, 1000);
   };
 
   return (
@@ -101,25 +87,27 @@ export default function CriarContaPage() {
             className="lg:col-span-6 bg-white border border-[#dde3ec] rounded-[20px] p-6 sm:p-10 shadow-[0px_14px_34px_0px_rgba(14,22,41,0.08)] flex flex-col justify-between"
           >
             <div>
-              {/* Badge (Figma 2912:31) */}
+              {/* 1. Pill Label (Figma 2912:31) */}
               <div className="mb-3">
                 <span className="inline-block bg-[#fdebec] text-[#e0151f] text-[13px] font-semibold px-3.5 py-1 rounded-full">
                   Criar conta
                 </span>
               </div>
 
-              {/* Title & Subtitle (Figma 2912:33, 2912:34) */}
+              {/* 2. Main Heading (Figma 2912:33) */}
               <h1
                 id="account-selection-heading"
                 className="text-[26px] sm:text-[29px] font-bold text-[#101827] tracking-tight leading-tight"
               >
                 Como deseja usar a Feira de Carros?
               </h1>
-              <p className="text-[14px] sm:text-[15px] text-[#63738e] mt-1.5 mb-5">
-                Escolha o tipo de conta e a forma de cadastro.
+
+              {/* 3. Subtitle (Figma 2912:34) */}
+              <p className="text-[14px] sm:text-[15px] text-[#63738e] mt-1.5 mb-6">
+                Escolha o tipo de conta para continuar.
               </p>
 
-              {/* Role Selection Options (Figma 2912:35 - 2912:65) */}
+              {/* 4-6. Role Selection Cards: Buyer, Individual Seller, Dealership (Figma 2912:35 - 2912:65) */}
               <fieldset className="space-y-3 border-none p-0 m-0">
                 <legend className="sr-only">Escolha o tipo de conta</legend>
                 {ROLE_OPTIONS.map((option) => {
@@ -129,7 +117,7 @@ export default function CriarContaPage() {
                   return (
                     <label
                       key={option.id}
-                      className={`w-full text-left p-3.5 sm:p-4 rounded-[12px] transition-all flex items-center justify-between gap-4 border cursor-pointer focus-within:ring-2 focus-within:ring-[#e0151f] ${
+                      className={`w-full text-left p-4 sm:p-4.5 rounded-[12px] transition-all flex items-center justify-between gap-4 border cursor-pointer focus-within:ring-2 focus-within:ring-[#e0151f] ${
                         isSelected
                           ? 'border-[1.5px] border-[#e0151f] bg-[#fff1f2] shadow-xs'
                           : 'border-[#dde3ec] bg-white hover:border-[#b0c0d4] hover:bg-[#fafbfd]'
@@ -186,107 +174,7 @@ export default function CriarContaPage() {
                 })}
               </fieldset>
 
-              {/* Registration Method Selection (Figma 2918:2 - 2918:23) */}
-              <div className="mt-6">
-                <h2 className="text-[16px] sm:text-[18px] font-bold text-[#101827] mb-3">
-                  Como você prefere se cadastrar?
-                </h2>
-                <fieldset className="grid grid-cols-1 sm:grid-cols-2 gap-3 border-none p-0 m-0">
-                  <legend className="sr-only">Forma de cadastro</legend>
-
-                  {/* Method: Email + Password */}
-                  <label
-                    className={`p-3.5 sm:p-4 rounded-[12px] border transition-all cursor-pointer flex flex-col justify-between relative focus-within:ring-2 focus-within:ring-[#e0151f] ${
-                      registrationMethod === 'email'
-                        ? 'border-[1.5px] border-[#e0151f] bg-[#fff1f2] shadow-xs'
-                        : 'border-[#dde3ec] bg-white hover:border-[#b0c0d4] hover:bg-[#fafbfd]'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="registration-method"
-                      value="email"
-                      checked={registrationMethod === 'email'}
-                      onChange={() => setRegistrationMethod('email')}
-                      className="sr-only"
-                    />
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={`size-10 rounded-[10px] flex items-center justify-center shrink-0 ${
-                          registrationMethod === 'email'
-                            ? 'bg-[#fde1e5] text-[#e0151f]'
-                            : 'bg-[#f1f5fb] text-[#16243c]'
-                        }`}
-                      >
-                        <IconMethodEmail className="size-5" />
-                      </div>
-                      <div className="pr-6">
-                        <div className="text-[13px] sm:text-[14px] font-bold text-[#101827] leading-tight">
-                          Com e-mail e senha
-                        </div>
-                        <div className="text-[11px] sm:text-[12px] text-[#63738e] mt-1 leading-snug">
-                          Preencha um formulário com seus dados.
-                        </div>
-                      </div>
-                    </div>
-                    {registrationMethod === 'email' && (
-                      <div
-                        aria-hidden="true"
-                        className="absolute top-3 right-3 size-5 rounded-full bg-[#e0151f] text-white flex items-center justify-center shadow-xs"
-                      >
-                        <IconCheck className="size-3 stroke-[3]" />
-                      </div>
-                    )}
-                  </label>
-
-                  {/* Method: Social Providers */}
-                  <label
-                    className={`p-3.5 sm:p-4 rounded-[12px] border transition-all cursor-pointer flex flex-col justify-between relative focus-within:ring-2 focus-within:ring-[#e0151f] ${
-                      registrationMethod === 'social'
-                        ? 'border-[1.5px] border-[#e0151f] bg-[#fff1f2] shadow-xs'
-                        : 'border-[#dde3ec] bg-white hover:border-[#b0c0d4] hover:bg-[#fafbfd]'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="registration-method"
-                      value="social"
-                      checked={registrationMethod === 'social'}
-                      onChange={() => setRegistrationMethod('social')}
-                      className="sr-only"
-                    />
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={`size-10 rounded-[10px] flex items-center justify-center shrink-0 ${
-                          registrationMethod === 'social'
-                            ? 'bg-[#fde1e5] text-[#e0151f]'
-                            : 'bg-[#f1f5fb] text-[#16243c]'
-                        }`}
-                      >
-                        <IconMethodSocial className="size-5" />
-                      </div>
-                      <div className="pr-6">
-                        <div className="text-[13px] sm:text-[14px] font-bold text-[#101827] leading-tight">
-                          Com Google, Apple ou Facebook
-                        </div>
-                        <div className="text-[11px] sm:text-[12px] text-[#63738e] mt-1 leading-snug">
-                          Use sua conta atual para criar o cadastro.
-                        </div>
-                      </div>
-                    </div>
-                    {registrationMethod === 'social' && (
-                      <div
-                        aria-hidden="true"
-                        className="absolute top-3 right-3 size-5 rounded-full bg-[#e0151f] text-white flex items-center justify-center shadow-xs"
-                      >
-                        <IconCheck className="size-3 stroke-[3]" />
-                      </div>
-                    )}
-                  </label>
-                </fieldset>
-              </div>
-
-              {/* Primary Action Button (Figma 2912:67) */}
+              {/* 7. Primary Action Button directly below the role cards (Figma 2912:67) */}
               <button
                 type="button"
                 onClick={handleContinue}
@@ -295,7 +183,7 @@ export default function CriarContaPage() {
                 Continuar
               </button>
 
-              {/* Link: Já possui uma conta? Entrar */}
+              {/* 8. Link: Já possui uma conta? Entrar */}
               <div className="text-center mt-4">
                 <span className="text-[13px] text-[#63738e]">Já possui uma conta? </span>
                 <Link
@@ -306,14 +194,14 @@ export default function CriarContaPage() {
                 </Link>
               </div>
 
-              {/* Feedback notice message (if user clicks or selects demonstrative actions) */}
+              {/* Feedback notice message (if user clicks demonstrative social actions) */}
               {noticeMessage && (
                 <output className="block mt-4 p-3 bg-[#eff6ff] border border-[#bfdbfe] text-[#1e40af] text-[12px] rounded-[9px] text-center leading-relaxed">
                   {noticeMessage}
                 </output>
               )}
 
-              {/* Divider (Figma 2912:71 - 2912:73) */}
+              {/* 9. Divider (Figma 2912:71 - 2912:73) */}
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center" aria-hidden="true">
                   <div className="w-full border-t border-[#dde3ec]" />
@@ -325,7 +213,7 @@ export default function CriarContaPage() {
                 </div>
               </div>
 
-              {/* Social Login Buttons (Figma 2912:74 - 2912:82, 2913:2 - 2913:10) */}
+              {/* 10-12. Social Login Buttons (Figma 2912:74 - 2912:82, 2913:2 - 2913:10) */}
               <div className="space-y-2.5">
                 <button
                   type="button"
@@ -356,7 +244,7 @@ export default function CriarContaPage() {
               </div>
             </div>
 
-            {/* Bottom Info Note (Figma 2912:86 - Option 2 Global Email Uniqueness / AUTH-022) */}
+            {/* 13. Bottom Info Note (Figma 2912:86 - Option 2 Global Email Uniqueness / AUTH-022) */}
             <div className="mt-8 pt-4 border-t border-[#edf2f7] flex items-center justify-center gap-2 text-center text-[#8292a6] text-[11px] sm:text-[12px]">
               <IconInfo className="size-4 shrink-0 text-[#8292a6]" />
               <span>Um e-mail = uma conta. Escolha o perfil correto antes de continuar.</span>
