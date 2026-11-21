@@ -1,142 +1,356 @@
 'use client';
 
 import { BrandLogo } from '@feira/ui';
+import Image from 'next/image';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
-import { IconCar, IconInfo, IconLock, IconMail } from '../components/SellerIcons';
+import { useBuyerStore } from '../../stores/use-buyer-store';
+import { MarketplaceFooter } from '../components/MarketplaceFooter';
+import { MarketplaceHeader } from '../components/MarketplaceHeader';
+import {
+  IconAlert,
+  IconCheck,
+  IconEye,
+  IconEyeOff,
+  IconLock,
+  IconMail,
+  IconShield,
+} from '../components/SellerIcons';
 
-function EntrarForm() {
+function getSafeRedirect(rawRedirect: string | null): string {
+  if (!rawRedirect) return '/conta';
+  const trimmed = rawRedirect.trim();
+  // Safe relative paths only (starts with a single slash, no protocol relative "//", no backslash, no control characters)
+  if (
+    trimmed.startsWith('/') &&
+    !trimmed.startsWith('//') &&
+    !trimmed.includes('\\') &&
+    !trimmed.includes('\r') &&
+    !trimmed.includes('\n')
+  ) {
+    return trimmed;
+  }
+  return '/conta';
+}
+
+function LoginFormContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTarget = searchParams.get('redirect') || searchParams.get('retorno') || '/';
+  const redirectTarget = getSafeRedirect(
+    searchParams.get('redirect') || searchParams.get('retorno'),
+  );
+
+  const { loginSimulation } = useBuyerStore();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isSuspendedPreview, setIsSuspendedPreview] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage('');
+
+    if (!email.trim() || !email.includes('@')) {
+      setErrorMessage('Por favor, informe um endereço de e-mail válido.');
+      return;
+    }
+
+    if (!password || password.length < 6) {
+      setErrorMessage('A senha deve conter no mínimo 6 caracteres.');
+      return;
+    }
+
+    if (isSuspendedPreview) {
+      setErrorMessage(
+        'Esta conta de comprador encontra-se suspensa para análise de segurança. Entre em contato com o suporte institucional.',
+      );
+      return;
+    }
+
+    setIsLoading(true);
+
+    // Frontend simulation of buyer login
+    setTimeout(() => {
+      if (typeof document !== 'undefined') {
+        document.cookie = 'fdc_web_session=demo_buyer_session; path=/; SameSite=Lax';
+      }
+      loginSimulation(email.trim());
+      setIsLoading(false);
+      router.push(redirectTarget);
+    }, 600);
+  };
 
   return (
-    <div className="w-full max-w-[440px] bg-white border border-[#e2e7ee] rounded-[16px] p-6 sm:p-8 shadow-sm">
-      <div className="text-center mb-6">
-        <Link href="/" className="inline-block mb-4">
-          <BrandLogo
-            variant="on-light"
-            priority
-            width={160}
-            height={38}
-            className="h-8 w-auto mx-auto"
-          />
-        </Link>
-        <h1 className="text-[22px] sm:text-[24px] font-bold text-[#111827]">Acesso à Conta</h1>
-        <p className="text-[13px] text-[#566273] mt-1">
-          Entre com seu e-mail e senha para gerenciar seus anúncios e propostas.
-        </p>
-      </div>
+    <div className="min-h-screen bg-[#f4f7fb] flex flex-col justify-between">
+      <MarketplaceHeader />
 
-      {/* Demo / Security Invariant Notice */}
-      <div className="bg-[#eff6ff] border border-[#bfdbfe] rounded-[10px] p-4 mb-6 text-left">
-        <div className="flex items-start gap-2.5">
-          <IconInfo className="size-5 text-[#2563eb] shrink-0 mt-0.5" />
-          <div className="text-[12px] text-[#1e40af] leading-relaxed">
-            <strong className="font-semibold block text-[#1e3a8a] mb-0.5">
-              Placeholder Institucional · Lote B6 / B7
-            </strong>
-            A autenticação de usuários e emissão de sessões serão conectadas ao endpoint oficial{' '}
-            <code className="bg-white/60 px-1 py-0.5 rounded font-mono text-[11px]">
-              POST /v1/auth/login
-            </code>{' '}
-            no Lote B6. Nenhuma sessão fictícia é fabricada no frontend.
-          </div>
-        </div>
-      </div>
+      <main className="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex items-center justify-center">
+        {/* Attached Premium Auth Wrapper matching Figma 1286:1136 */}
+        <div className="bg-white border border-[#dde3ec] rounded-[20px] shadow-[0px_16px_38px_0px_rgba(14,22,41,0.13)] overflow-hidden w-full max-w-[1280px] grid grid-cols-1 lg:grid-cols-12 min-h-[640px]">
+          {/* LEFT COLUMN: Account Form (Figma 845:170 - lg:col-span-6) */}
+          <div className="lg:col-span-6 bg-[#fcfdfe] p-6 sm:p-10 lg:p-12 flex flex-col justify-between">
+            <div>
+              {/* Brand Logo */}
+              <div className="mb-6">
+                <Link href="/" className="inline-block">
+                  <BrandLogo
+                    variant="on-light"
+                    priority
+                    width={160}
+                    height={36}
+                    className="h-7 w-auto"
+                  />
+                </Link>
+              </div>
 
-      {redirectTarget !== '/' && (
-        <div className="bg-[#f8f9fb] border border-[#e2e7ee] rounded-[8px] p-3 mb-5 text-[12px] text-[#566273]">
-          <span className="font-medium text-[#111827]">Destino protegido solicitado:</span>{' '}
-          <code className="text-[#b91c1c] font-mono">{redirectTarget}</code>
-        </div>
-      )}
+              {/* Page Heading matching Figma 845:166 */}
+              <div className="mb-6">
+                <h1 className="text-[26px] sm:text-[32px] font-bold text-[#131b2b] tracking-tight">
+                  Entrar na sua conta
+                </h1>
+                <p className="text-[13px] sm:text-[14px] text-[#6b7280] mt-1">
+                  Acesse seus favoritos, buscas salvas e mensagens.
+                </p>
+              </div>
 
-      <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
-        <div>
-          <label
-            htmlFor="customer-email"
-            className="block text-[13px] font-semibold text-[#141c2e] mb-1.5"
-          >
-            E-mail
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#8e98a8]">
-              <IconMail className="size-4" />
+              {redirectTarget !== '/conta' && redirectTarget !== '/' && (
+                <div className="bg-[#eff6ff] border border-[#bfdbfe] rounded-[8px] p-2.5 mb-5 text-[12px] text-[#1e40af] flex items-center gap-2">
+                  <IconShield className="size-4 shrink-0 text-[#2563eb]" />
+                  <span>
+                    Destino protegido solicitado:{' '}
+                    <code className="font-mono font-semibold">{redirectTarget}</code>
+                  </span>
+                </div>
+              )}
+
+              {errorMessage && (
+                <div className="bg-[#fff1f0] border border-[#fecaca] text-[#b91c1c] text-[12px] p-3 rounded-[9px] mb-5 flex items-start gap-2">
+                  <IconAlert className="size-4 shrink-0 mt-0.5" />
+                  <span>{errorMessage}</span>
+                </div>
+              )}
+
+              {/* Login Form */}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Field: E-mail matching Figma 845:172 */}
+                <div>
+                  <label
+                    htmlFor="buyer-login-email"
+                    className="block text-[13px] font-semibold text-[#111827] mb-1.5"
+                  >
+                    E-mail
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="buyer-login-email"
+                      type="email"
+                      autoComplete="email"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        setErrorMessage('');
+                      }}
+                      placeholder="seuemail@exemplo.com"
+                      className="w-full h-[48px] pl-11 pr-4 bg-[#f2f5f9] border border-[#dae2eb] rounded-[9px] text-[13px] text-[#111827] placeholder-[#6b7280] focus:outline-none focus:border-[#b91c1c] focus:bg-white transition-all"
+                    />
+                    <IconMail className="size-5 text-[#6b7280] absolute left-3.5 top-3.5 pointer-events-none" />
+                  </div>
+                </div>
+
+                {/* Field: Senha matching Figma 845:176 */}
+                <div>
+                  <label
+                    htmlFor="buyer-login-password"
+                    className="block text-[13px] font-semibold text-[#111827] mb-1.5"
+                  >
+                    Senha
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="buyer-login-password"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="current-password"
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        setErrorMessage('');
+                      }}
+                      placeholder="Digite sua senha"
+                      className="w-full h-[48px] pl-11 pr-11 bg-[#f2f5f9] border border-[#dae2eb] rounded-[9px] text-[13px] text-[#111827] placeholder-[#6b7280] focus:outline-none focus:border-[#b91c1c] focus:bg-white transition-all"
+                    />
+                    <IconLock className="size-5 text-[#6b7280] absolute left-3.5 top-3.5 pointer-events-none" />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-3.5 top-3.5 text-[#6b7280] hover:text-[#111827] p-0.5"
+                      aria-label={showPassword ? 'Ocultar senha' : 'Exibir senha'}
+                    >
+                      {showPassword ? (
+                        <IconEyeOff className="size-4" />
+                      ) : (
+                        <IconEye className="size-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Primary CTA matching Figma 845:180 */}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-[48px] bg-[#b91c1c] hover:bg-[#991b1b] text-white font-semibold text-[14px] rounded-[9px] flex items-center justify-center transition-colors shadow-xs disabled:opacity-70 mt-2"
+                >
+                  {isLoading ? 'Entrando...' : 'Entrar (simulação)'}
+                </button>
+              </form>
+
+              {/* Social Login matching Figma 1177:518 */}
+              <div className="mt-6 space-y-2.5">
+                <p className="text-[12px] font-semibold text-[#6b7280] text-center mb-1">
+                  Ou continue com uma conta existente (demonstrativo)
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('comprador.google@exemplo.com');
+                    setPassword('123456');
+                  }}
+                  className="w-full h-[42px] bg-white border border-[#dae3ee] hover:bg-[#f8f9fb] text-[#111827] text-[13px] font-semibold rounded-[8px] flex items-center justify-center gap-2.5 transition-colors"
+                >
+                  <span className="font-bold text-[14px] text-blue-600">G</span>
+                  <span>Continuar com Google</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('comprador.apple@exemplo.com');
+                    setPassword('123456');
+                  }}
+                  className="w-full h-[42px] bg-white border border-[#dae3ee] hover:bg-[#f8f9fb] text-[#111827] text-[13px] font-semibold rounded-[8px] flex items-center justify-center gap-2.5 transition-colors"
+                >
+                  <span className="font-black text-[14px]"></span>
+                  <span>Continuar com Apple</span>
+                </button>
+              </div>
+
+              {/* Navigation Links matching Figma 1279:1137 */}
+              <div className="grid grid-cols-2 gap-2.5 mt-6">
+                <Link
+                  href="/recuperar-senha"
+                  className="h-[42px] bg-[#f0f4f8] hover:bg-[#e2e8f0] text-[#121b2b] text-[11px] font-semibold rounded-[8px] flex items-center justify-center text-center transition-colors px-2"
+                >
+                  Esqueceu a senha?
+                </Link>
+                <Link
+                  href="/cadastrar"
+                  className="h-[42px] bg-[#f0f4f8] hover:bg-[#e2e8f0] text-[#121b2b] text-[11px] font-semibold rounded-[8px] flex items-center justify-center text-center transition-colors px-2"
+                >
+                  Criar conta
+                </Link>
+              </div>
+
+              {/* Suspended Account Preview Toggle matching Figma 1279:1144 */}
+              <div className="mt-3">
+                <button
+                  type="button"
+                  onClick={() => setIsSuspendedPreview((prev) => !prev)}
+                  className={`w-full h-[38px] rounded-[8px] text-[11px] font-semibold transition-colors flex items-center justify-center ${
+                    isSuspendedPreview
+                      ? 'bg-[#fee2e2] text-[#b91c1c] border border-[#fca5a5]'
+                      : 'bg-[#f0f4f8] hover:bg-[#e2e8f0] text-[#121b2b]'
+                  }`}
+                >
+                  {isSuspendedPreview
+                    ? '✓ Prévia: conta suspensa ativa'
+                    : 'Prévia: simular conta suspensa'}
+                </button>
+              </div>
             </div>
-            <input
-              id="customer-email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com"
-              disabled
-              className="w-full h-[46px] pl-9 pr-3 rounded-[10px] border border-[#d1d5db] bg-[#f9fafb] text-[14px] text-[#9ca3af] cursor-not-allowed"
-            />
-          </div>
-        </div>
 
-        <div>
-          <label
-            htmlFor="customer-password"
-            className="block text-[13px] font-semibold text-[#141c2e] mb-1.5"
-          >
-            Senha
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#8e98a8]">
-              <IconLock className="size-4" />
+            {/* Bottom Form Note */}
+            <p className="text-[11px] text-[#94a3b8] text-center mt-6">
+              Ambiente demonstrativo · Nenhuma credencial é transmitida a servidores externos.
+            </p>
+          </div>
+
+          {/* RIGHT COLUMN: Editorial Vehicle Panel (Figma 1277:1136 - lg:col-span-6) */}
+          <div className="hidden lg:flex lg:col-span-6 bg-gradient-to-b from-[#091224] via-[#0e1b35] to-[#131c36] p-8 lg:p-10 text-white flex-col justify-between relative overflow-hidden">
+            {/* Automotive Image Header */}
+            <div>
+              <div className="relative h-[220px] rounded-[12px] overflow-hidden mb-5">
+                <Image
+                  src="/images/hero/hero-desktop.png"
+                  alt="Veículos Feira de Carros"
+                  fill
+                  className="object-cover"
+                  sizes="500px"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[rgba(5,8,18,0.85)] via-[rgba(6,11,22,0.2)] to-transparent" />
+                <div className="absolute bottom-3 left-3 bg-[#171f2e]/80 backdrop-blur-xs px-3 py-1 rounded-full text-[10px] font-semibold tracking-wider uppercase">
+                  FEIRA DE CARROS · IPATINGA, MG
+                </div>
+              </div>
+
+              <p className="text-[10px] font-semibold text-white/75 uppercase tracking-wider mb-1">
+                SUA EXPERIÊNCIA DE COMPRA / FEIRA DE CARROS
+              </p>
+              <h2 className="text-[26px] font-bold leading-tight mb-2">Entre com segurança</h2>
+              <p className="text-[13px] text-white/80 leading-relaxed mb-6">
+                Salve favoritos, guarde suas buscas e retome conversas com os vendedores.
+              </p>
+
+              {/* Benefits Checklist matching Figma 1277:1141 */}
+              <div className="space-y-2.5">
+                <div className="bg-white/6 border border-white/14 rounded-[10px] px-3.5 py-2.5 flex items-center gap-2.5 text-[13px] font-medium">
+                  <IconCheck className="size-4 text-[#e0151f] shrink-0 stroke-[3]" />
+                  <span>Acompanhe veículos favoritos</span>
+                </div>
+                <div className="bg-white/6 border border-white/14 rounded-[10px] px-3.5 py-2.5 flex items-center gap-2.5 text-[13px] font-medium">
+                  <IconCheck className="size-4 text-[#e0151f] shrink-0 stroke-[3]" />
+                  <span>Guarde suas buscas salvas</span>
+                </div>
+                <div className="bg-white/6 border border-white/14 rounded-[10px] px-3.5 py-2.5 flex items-center gap-2.5 text-[13px] font-medium">
+                  <IconCheck className="size-4 text-[#e0151f] shrink-0 stroke-[3]" />
+                  <span>Converse diretamente pela plataforma</span>
+                </div>
+              </div>
             </div>
-            <input
-              id="customer-password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              disabled
-              className="w-full h-[46px] pl-9 pr-3 rounded-[10px] border border-[#d1d5db] bg-[#f9fafb] text-[14px] text-[#9ca3af] cursor-not-allowed"
-            />
+
+            {/* Trust Note matching Figma 1277:1150 */}
+            <div className="bg-white/95 rounded-[11px] p-3.5 text-[#131b2b] flex items-center gap-3 mt-6">
+              <IconShield className="size-6 text-[#1463c7] shrink-0" />
+              <div className="text-[11px] leading-snug">
+                <strong className="block font-semibold text-[#131b2b]">
+                  Prévia de interface — sem autenticação real
+                </strong>
+                <span className="text-[#637185]">
+                  A plataforma não recebe pagamento pela compra dos veículos.
+                </span>
+              </div>
+            </div>
           </div>
         </div>
+      </main>
 
-        <button
-          type="button"
-          disabled
-          className="w-full h-[46px] rounded-[10px] bg-[#e5e7eb] text-[#9ca3af] text-[14px] font-semibold cursor-not-allowed transition-colors"
-        >
-          Entrar (Aguardando Integração B6)
-        </button>
-      </form>
-
-      <div className="mt-6 pt-5 border-t border-[#e2e7ee] text-center space-y-2">
-        <p className="text-[13px] text-[#566273]">
-          Ainda não tem cadastro de vendedor?{' '}
-          <Link
-            href="/vendedor/solicitacao"
-            className="font-semibold text-[#b91c1c] hover:underline"
-          >
-            Solicite aqui
-          </Link>
-        </p>
-        <div>
-          <Link href="/" className="text-[12px] text-[#566273] hover:text-[#111827]">
-            ← Voltar para a página inicial
-          </Link>
-        </div>
-      </div>
+      <MarketplaceFooter />
     </div>
   );
 }
 
-export default function EntrarPage() {
+export default function BuyerLoginPage() {
   return (
-    <div className="min-h-screen bg-[#f4f7fa] flex flex-col justify-center items-center p-4">
-      <Suspense fallback={<div className="text-sm text-gray-500">Carregando formulário...</div>}>
-        <EntrarForm />
-      </Suspense>
-    </div>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#f4f7fb] flex items-center justify-center">
+          <div className="size-8 rounded-full border-2 border-[#b91c1c] border-t-transparent animate-spin" />
+        </div>
+      }
+    >
+      <LoginFormContent />
+    </Suspense>
   );
 }

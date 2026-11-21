@@ -10,6 +10,10 @@ const PUBLIC_ENTRYPOINTS = new Set([
   '/vendedor/solicitacao',
   '/entrar',
   '/login',
+  '/cadastrar',
+  '/recuperar-senha',
+  '/favoritos',
+  '/mensagens',
 ]);
 
 /**
@@ -17,8 +21,16 @@ const PUBLIC_ENTRYPOINTS = new Set([
  * Application status and correction (/vendedor/solicitacao/status, /vendedor/solicitacao/corrigir)
  * interact with private applicant data (/v1/seller-applications/me) and require authentication.
  * Seller listings and management (/vendedor/anuncios) strictly require the Seller role.
+ * Saved searches and notification preferences are private account areas.
  */
-const PROTECTED_PREFIXES = ['/buyer', '/seller', '/dealer', '/vendedor', '/conta'];
+const PROTECTED_PREFIXES = [
+  '/buyer',
+  '/seller',
+  '/dealer',
+  '/vendedor',
+  '/conta',
+  '/buscas-salvas',
+];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -28,7 +40,9 @@ export function middleware(request: NextRequest) {
     PUBLIC_ENTRYPOINTS.has(pathname) ||
     pathname === '/vendedor/solicitacao/' ||
     pathname.startsWith('/entrar/') ||
-    pathname.startsWith('/login/');
+    pathname.startsWith('/login/') ||
+    pathname.startsWith('/cadastrar/') ||
+    pathname.startsWith('/recuperar-senha/');
   if (isPublicEntrypoint) {
     return NextResponse.next();
   }
