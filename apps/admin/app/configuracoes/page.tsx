@@ -9,6 +9,7 @@ import {
   FileText,
   Flame,
   Headphones,
+  Image as ImageIcon,
   Layers,
   MapPin,
   Settings,
@@ -101,6 +102,17 @@ const ACTIVE_MODULES: ConfigModuleCard[] = [
     metrics: '3 anúncios elegíveis • 6 slots de vitrine',
   },
   {
+    id: 'imagem-principal',
+    title: 'Imagem Principal da Homepage',
+    badge: 'ADM-D-054',
+    figmaNode: '2940:10263',
+    description:
+      'Gestão da imagem de fundo do hero da página inicial (CR-003). Sem alteração de textos, busca ou layout.',
+    href: '/configuracoes/imagem-principal',
+    icon: ImageIcon,
+    metrics: '1 imagem publicada • Desktop & Mobile',
+  },
+  {
     id: 'notificacoes',
     title: 'Modelos de Notificação',
     badge: 'ADM-D-051',
@@ -174,7 +186,7 @@ export default function SettingsOverviewPage() {
                   <span>Módulos de Configuração Homologados (B7A + B7B)</span>
                 </h2>
                 <span className="text-[11px] font-semibold text-slate-400">
-                  9 seções configuráveis
+                  10 seções configuráveis
                 </span>
               </div>
 
